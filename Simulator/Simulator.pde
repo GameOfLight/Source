@@ -7,6 +7,7 @@ static final int SCREEN_CMD = 0x12;       //DC2 char - device control 2
 static final int SCREEN_DATA_BURST = 0x13;//DC3 char - device control 3
 
 /* 19_04: added coords and lines*/
+/* 21_04: change coord/line function to fix a bug*/
 
 /*
  Original program by Eivind
