@@ -19,10 +19,9 @@
 
 #ifndef GameOfLightHW_h
 #define GameOfLightHW_h
-#include "Arduino.h"
-#include <GameOfLightBase/GameOfLight.h> 
+#include "utility/GameOfLight.h"
+#include <SPI.h>
 
-GameOfLightHW frame;
 
 class GameOfLightHW : public GameOfLight {
  public:

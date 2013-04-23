@@ -17,6 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <Arduino.h>
 #include "GameOfLightHW.h"
 
 GameOfLightHW::GameOfLightHW() {
@@ -28,6 +29,7 @@ GameOfLightHW::GameOfLightHW() {
 void GameOfLightHW::begin() {
 	//TODO: Initialize SPI communication here
 	//Initialize data/cmd pin
+	SPI.begin();
 }
 
 

@@ -19,8 +19,7 @@
 
 #ifndef GameOfLightSim_h
 #define GameOfLightSim_h
-#include "Arduino.h"
-#include <GameOfLightBase/GameOfLight.h> 
+#include "utility/GameOfLight.h"
 
 #define SCREEN_DATA 0x11
 #define SCREEN_CMD 0x12
