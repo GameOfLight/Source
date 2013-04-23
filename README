@@ -3,4 +3,3 @@ To use the libraries in arduino:
 2. Copy GameOfLightSim and GameOfLightHW into <your-arduino-folder>/libraries/
 3. Import the library you need into your program in Arudino IDE
 
-This file is AWESOME
