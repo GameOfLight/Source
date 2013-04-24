@@ -22,6 +22,8 @@
 #include "utility/GameOfLight.h"
 #include <SPI.h>
 
+#define SCREEN_SS_PIN A5  //Select pin, used for synchronizing SPI data with slave
+#define SCREEN_DC_PIN 9   //Data/Cmd pin.
 
 class GameOfLightHW : public GameOfLight {
  public:
