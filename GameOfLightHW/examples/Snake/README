@@ -1,0 +1,6 @@
+Requires the following libraries to run:
+ 1) GameOfLightHW/GameOfLightSim
+ 2) The Controller library attached to the GameOfLight library.
+ 3) MsTimer2 - see dependency directory.
+
+ Copy all to the Arduino/libraries folder before compiling this sketch.
