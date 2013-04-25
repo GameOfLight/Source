@@ -1,0 +1,140 @@
+
+  Controller.ino - GameOfLight library
+  Copyright (c) 2013 Martin HolÃžs.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+int clock = 4;
+int latch = 6;
+int data = 8;
+#define h HIGH
+
+void setup(){
+ Serial.begin(9600);
+ pinMode(data, INPUT);
+ pinMode(clock, OUTPUT);
+ pinMode(latch, OUTPUT);
+}
+
+
+
+
+
+
+#endif
+
+
+
+long time = -100;
+boolean B[4];
+boolean Y[4];
+boolean Select[4];
+boolean Start[4];
+boolean N[4];
+boolean S[4];
+boolean W[4];
+boolean E[4];
+boolean A[4];
+boolean X[4];
+boolean L[4];
+boolean R[4];
+
+
+void loop(){
+	#ifndef MANUAL_UPDATE
+	if(time - millis()>50){
+	getButton();
+	
+}
+
+
+  digitalWrite(latch, h);
+  digitalWrite(latch, LOW);
+
+  B = (digitalRead(data) == HIGH); 
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  
+  Y = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  Select = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  Start = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  N = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  S = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  W = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  E = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  A = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  X = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  L = (digitalRead(data) == HIGH);  
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+  R = (digitalRead(data) == HIGH);
+  digitalWrite(clock,h);
+  digitalWrite(clock,LOW);
+ digitalWrite(clock,h);
+ digitalWrite(clock,LOW);
+ digitalWrite(clock,h);
+ digitalWrite(clock,LOW);
+ digitalWrite(clock,h);
+ digitalWrite(clock,LOW);
+ digitalWrite(clock,h);
+ digitalWrite(clock,LOW);
+  
+
+ Serial.print(B);
+ Serial.print(Y);
+ Serial.print(Select);
+ Serial.print(Start);
+ Serial.print(N);
+ Serial.print(S);
+ Serial.print(W);
+ Serial.print(E);
+ Serial.print(A);
+ Serial.print(X);
+ Serial.print(L);
+ Serial.println(R);
+ 
+ delay(50);
+ 
+
+}
+
+
+
+getButton(){
+
+
+
+}
+
+
+

@@ -1,6 +1,6 @@
 
   Controller.ino - GameOfLight library
-  Copyright (c) 2013 Martin Hol√∏s.  All right reserved.
+  Copyright (c) 2013 Martin Hol√?s.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,11 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "controller.h"
-Controller Snes;
+#include <controller.h>
+
 int clock = 4;
 int latch = 6;
-int data[] = {8,9,10,11};
+int data = {8,9,10,11};
 
 enum direction {NORTH, SOUTH, EAST, WEST, NONE};
 
@@ -54,15 +54,14 @@ boolean R[4];
 void loop(){
 	#ifndef MANUAL_UPDATE
 	if(time - millis()>50){
-	getButtons();
+	getButton();
 	}
 	#endif
 
-Serial.print(N[0]);
-Serial.print(S[0]);
-Serial.print(E[0]);
-Serial.print(W[0]);
-Serial.println();
+print(N(0));
+print(S(0));
+print(E(0));
+print(W(0));
 
 delay(50);
 }
@@ -103,63 +102,63 @@ void getButtons(){
   digitalWrite(latch, HIGH);
   digitalWrite(latch, LOW);
 
-	for(int i = 0; i<4; i++){
-		B[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		B[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		Y[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		Y[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		Select[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		Select[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		Start[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		Start[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		N[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		N[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		S[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		S[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		W[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		W[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		E[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		E[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		A[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		A[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		X[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		X[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		L[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		L[i]=(digitalRead(data[i])==HIGH;
 	}
 	tick();
 	
-	for(int i = 0; i<4; i++){
-		R[i]=(digitalRead(data[i])==HIGH);
+	for(int i = 0; i<4; i++;){
+		R[i]=(digitalRead(data[i])==HIGH;
 	}
 
 }
@@ -168,6 +167,7 @@ void tick(){
   digitalWrite(clock,HIGH);
   digitalWrite(clock,LOW);
 }
+
 
 
 
