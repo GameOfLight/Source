@@ -151,6 +151,8 @@ class GameOfLight {
      void clear(int count); /* Clears count spaces ahead of cursor */
      void write(const uint8_t data); //Direct write to the buffer's current position
      uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
+     uint8_t *red[8];
+     uint8_t *green[8];
 
      //The following methods are in GameOfLightSim/GameOfLightHW:
      virtual void update() = 0; //Update screen with contents of buffer

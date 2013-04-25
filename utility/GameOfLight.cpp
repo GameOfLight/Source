@@ -20,7 +20,10 @@
 #include "GameOfLight.h"
 
 GameOfLight::GameOfLight() {
-	/* Constructor here */
+	for (int i = 0; i < 8; i++) {
+		red[i] = &buff[i][64];
+		green[i] = &buff[i][0];
+	}
 }
 
 /* Pick location in the buffer for subsequent writes */
@@ -32,22 +35,23 @@ void GameOfLight::gotoXY(const uint8_t index, const uint8_t line) {
 
 /* Enters the given data at the current cursor position with the current colour*/
 void GameOfLight::write(const uint8_t data) {
-	//Clearing of unset colour removed as it makes combining colours within one byte more difficult.
-	//User should explicitly clear an area before writing if (s)he prefers no interference
-	// from the other colourspace. Implemented clear(count) for this purpose
+	//Clears any off-colour data present in positions occupied by 'data'. If further
+	//clearing is required use clear(amount) first to empty the area first.
 
 	if (_colour & GREEN) {
-		buff[_curr_line][_curr_index] = data;
-	}/* else {
-		//Clear green if it shouldn't be set
-		buff[_curr_line][_curr_index] = 0x00;
-	}*/
+		//add green in position indicated by 'data'
+		buff[_curr_line][_curr_index] |= data;
+	} else {
+		//clear green if it shouldn't be set
+		buff[_curr_line][_curr_index] &= ~data;
+	}
 	if (_colour & RED) {
-		buff[_curr_line][_curr_index + 64] = data;
-	}/* else {
+		//add red in position indicated by 'data'
+		buff[_curr_line][_curr_index + 64] |= data;
+	} else {
 		//Clear red if it shouldn't be set
-		buff[_curr_line][_curr_index] = 0x00;
-	}*/
+		buff[_curr_line][_curr_index + 64] &= ~data;
+	}
 
 	// Update buffer position by wrapping to new line if overflowing.
 	_curr_index++;
