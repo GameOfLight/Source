@@ -1,4 +1,4 @@
-
+/*
   Controller.ino - GameOfLight library
   Copyright (c) 2013 Martin Hol√?s.  All right reserved.
 
@@ -18,127 +18,118 @@
 */
 #include "Controller.h"
 
-#define TICK  digitalWrite(clock,HIGH); digitalWrite(clock,LOW);
+uint8_t data[] = {2, 3, 4, 5};
 
-boolean Controller::getA(int player){
-return A[player];
+Controller::Controller() {
+	pinMode(data[0], INPUT);
+	pinMode(data[1], INPUT);
+	pinMode(data[2], INPUT);
+	pinMode(data[3], INPUT);
+	pinMode(SNES_CLK_PIN, OUTPUT);
+	pinMode(SNES_LATCH_PIN, OUTPUT);
 }
-boolean Controller::getB(int player){
-return B[player];
+
+uint8_t Controller::getA(int player){
+	return A[player];
 }
-boolean Controller::getX(int player){
-return X[player];
+
+uint8_t Controller::getB(int player){
+	return B[player];
 }
-boolean Controller::getY(int player){
-return Y[player];
+
+uint8_t Controller::getX(int player){
+	return X[player];
 }
-boolean Controller::getStart(int player){
-return Start[player];
+
+uint8_t Controller::getY(int player){
+	return Y[player];
 }
-boolean Controller::getSelect(int player){
-return Select[player];
+
+uint8_t Controller::getStart(int player){
+	return Start[player];
 }
+
+uint8_t Controller::getSelect(int player){
+	return Select[player];
+}
+
 direction Controller::getDir(int player){
-if (N[player]) return NORTH;
-if (S[player]) return SOUTH;
-if (W[player]) return WEST;
-if (E[player]) return EAST;
-return NONE;
-}
-boolean Controller::getA(int player){
-return A[player];
-}
-boolean Controller::getB(int player){
-return B[player];
-}
-boolean Controller::getX(int player){
-return X[player];
-}
-boolean Controller::getY(int player){
-return Y[player];
-}
-boolean Controller::getStart(int player){
-return Start[player];
-}
-boolean Controller::getSelect(int player){
-return Select[player];
-}
-direction Controller::getDir(int player){
-if (N[player]) return NORTH;
-if (S[player]) return SOUTH;
-if (W[player]) return WEST;
-if (E[player]) return EAST;
-return NONE;
+	if (!N[player]) return NORTH;
+	if (!S[player]) return SOUTH;
+	if (!W[player]) return WEST;
+	if (!E[player]) return EAST;
+	return NONE;
 }
 
+uint8_t Controller::getL(int player){
+	return L[player];
+}
 
-
-
-
-
+uint8_t Controller::getR(int player){
+	return R[player];
+}
 
 void Controller::getButtons(){
-  digitalWrite(latch, HIGH);
-  digitalWrite(latch, LOW);
+  digitalWrite(SNES_LATCH_PIN, HIGH);
+  digitalWrite(SNES_LATCH_PIN, LOW);
 
 	for(int i = 0; i<4; i++){
-		B[i]=(digitalRead(data[i])==HIGH);
-	}
-	tick();
-	
-	for(int i = 0; i<4; i++){
-		Y[i]=(digitalRead(data[i])==HIGH);
+		B[i]=!digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Select[i]=(digitalRead(data[i])==HIGH);
+		Y[i]=!digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Start[i]=(digitalRead(data[i])==HIGH);
+		Select[i]=!digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		N[i]=(digitalRead(data[i])==HIGH);
+		Start[i]=!digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		S[i]=(digitalRead(data[i])==HIGH);
+		N[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		W[i]=(digitalRead(data[i])==HIGH);
+		S[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		E[i]=(digitalRead(data[i])==HIGH);
+		W[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		A[i]=(digitalRead(data[i])==HIGH);
+		E[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		X[i]=(digitalRead(data[i])==HIGH);
+		A[i]=!digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		L[i]=(digitalRead(data[i])==HIGH);
+		X[i]=!digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		R[i]=(digitalRead(data[i])==HIGH);
+		L[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		R[i]=!digitalRead(data[i]);
 	}
 
 }
-

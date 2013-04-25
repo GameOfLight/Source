@@ -1,4 +1,4 @@
-
+/*
   Controller.ino - GameOfLight library
   Copyright (c) 2013 Martin Hol√?s.  All right reserved.
 
@@ -20,30 +20,43 @@
 #ifndef Controller_h
 #define Controller_h
 
+#define SNES_CLK_PIN 6
+#define SNES_LATCH_PIN 7
+#define PLAYER1 0
+#define PLAYER2 1
+#define PLAYER3 2
+#define PLAYER4 3
+#define TICK {digitalWrite(SNES_CLK_PIN,HIGH); digitalWrite(SNES_CLK_PIN,LOW);}
+
+enum direction {NORTH, SOUTH, EAST, WEST, NONE};
+
 class Controller{
 public:
+	Controller();
 	void getButtons();
-	boolean getA(int Player);
-	boolean getB(int Player);
-	boolean getX(int Player);
-	boolean getY(int Player);
-	boolean getStart(int Player);
-	boolean getSelect(int Player);
-	direction getDir(int Player); //retruns enum NORTH SOUTH EAST WEST NONE TODO sideskift
+	uint8_t getA(int Player);
+	uint8_t getB(int Player);
+	uint8_t getX(int Player);
+	uint8_t getY(int Player);
+	uint8_t getL(int Player);
+	uint8_t getR(int Player);
+	uint8_t getStart(int Player);
+	uint8_t getSelect(int Player);
+	direction getDir(int Player); //returns enum NORTH SOUTH EAST WEST NONE TODO sideskift
 
 private:
-	boolean B[4];
-	boolean Y[4];
-	boolean Select[4];
-	boolean Start[4];
-	boolean N[4];
-	boolean S[4];
-	boolean W[4];
-	boolean E[4];
-	boolean A[4];
-	boolean X[4];
-	boolean L[4];
-	boolean R[4];
-
+	//uint8_t data[4]; //Pins to the 4 controllers
+	uint8_t B[4];
+	uint8_t Y[4];
+	uint8_t Select[4];
+	uint8_t Start[4];
+	uint8_t N[4];
+	uint8_t S[4];
+	uint8_t W[4];
+	uint8_t E[4];
+	uint8_t A[4];
+	uint8_t X[4];
+	uint8_t L[4];
+	uint8_t R[4];
 };
 #endif
