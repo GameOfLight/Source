@@ -269,8 +269,7 @@ void loop() {
 		//Main game loop
 		MsTimer2::stop();
 		p1_alive = snake_move(PLAYER1);
-//		p2_alive = snake_move(PLAYER2); //Player 2 stationary
-		p2_alive = 1;
+		p2_alive = snake_move(PLAYER2); //Player 2 stationary
 		//snake_dir[PLAYER1] = 4;
 		//snake_dir[PLAYER2] = 4;
 		MsTimer2::start();
