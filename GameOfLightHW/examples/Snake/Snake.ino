@@ -250,7 +250,8 @@ void setup() {
 	frame.gotoXY(1, 1);
 	frame.print("Light", GREEN);
 
-	frame.update();	
+	frame.update();
+	delay(2000);
 	while(!isStartPressed()); //HOLD until startbutton is pressed!
 	MsTimer2::set(1, snake_buttonUpdate);
 	MsTimer2::start();
@@ -266,13 +267,13 @@ void loop() {
 	
 	while(gameOn) {
 		//Main game loop
-		noInterrupts();
+		MsTimer2::stop();
 		p1_alive = snake_move(PLAYER1);
 //		p2_alive = snake_move(PLAYER2); //Player 2 stationary
 		p2_alive = 1;
 		//snake_dir[PLAYER1] = 4;
 		//snake_dir[PLAYER2] = 4;
-		interrupts();
+		MsTimer2::start();
 		
 		//p1 can reserve a square first, must check if we had a head-on collision
 		if (!p2_alive && snake_headPosX[PLAYER1] == snake_headPosX[PLAYER2] && snake_headPosY[PLAYER1] == snake_headPosY[PLAYER2]) {
@@ -288,7 +289,7 @@ void loop() {
 	}
 	delay(3000);
 
-	noInterrupts();
+	MsTimer2::stop();
 	while(!isStartPressed()) {
 		//Display result until both players press both buttons
 		frame.clearDisplay();
@@ -313,7 +314,7 @@ void loop() {
 			//Exit the scoreboard if the startbutton is held early
 			break;
 		}
-		delay(1500);
+		delay(1000);
 		
 		frame.clearDisplay();
 		//display scores:
@@ -328,7 +329,12 @@ void loop() {
 		frame.print(buff, RED);
 		
 		frame.update();
-		delay(3000);
+		if (isStartPressed()) {
+			//Exit the scoreboard if the startbutton is held early
+			break;
+		}
+		delay(1000);
+
 	}
-	interrupts();
+	MsTimer2::start();
 }
