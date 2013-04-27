@@ -1,6 +1,6 @@
 /*          
-        dir  action      sta    sel
-Player 1: WASD YGHJ         space  ctrl
+          dir  action     sta    sel
+Player 1: WASD YGHJ      space  ctrl
 Player 2: ULDR 8426(num) +(num) -(num)
 
 0=pressed 1= not pressed
@@ -8,14 +8,14 @@ Player 2: ULDR 8426(num) +(num) -(num)
 KEYKODES P1:
 W,A,S,D     : 87,65,83,68
 Y,G,H,J     : 89,71,72,74
-space         : 32    
-ctrl         : 17
+space       : 32    
+ctrl        : 17
 
 KEYKODES P2:
 UP,LEFT,DOWN,RIGHT    : 38,37,40,39
 (num) 8,4,2,6         : 104,100,98,102
-(num) +                : 107    
-(num) -                : 109
+(num) +               : 107    
+(num) -               : 109
 
 */
 import processing.serial.*;
@@ -54,23 +54,23 @@ void keyReleased() {
     int key_press = keyCode;
     switch(key_press) {
         //start p1
-        case 32 : startselect |= (1 << 8); break;    //space
+        case 32 : startselect |= (1 << 8); break;   //space
         //select p1
         case 17: startselect |= (1 << 7); break;    //ctrl
         //start p2        
-        case 107: startselect |= (1 << 6); break;    //num +
+        case 107: startselect |= (1 << 6); break;   //num +
         //select p2
-        case 109: startselect |= (1 << 5); break;    //num -
+        case 109: startselect |= (1 << 5); break;   //num -
         //movement p1
-        case 87 : movement |= (1 << 8); break;        //W
-        case 65 : movement |= (1 << 7); break;        //A
-        case 83 : movement |= (1 << 6); break;         //S
-        case 68 : movement |= (1 << 5); break;        //D
+        case 87 : movement |= (1 << 8); break;      //W
+        case 65 : movement |= (1 << 7); break;      //A
+        case 83 : movement |= (1 << 6); break;      //S
+        case 68 : movement |= (1 << 5); break;      //D
         //movement p2
-        case 38 : movement |= (1 << 4); break;         //UP
-        case 37 : movement |= (1 << 3); break;        //LEFT
-        case 40 : movement |= (1 << 2); break;        //DOWN
-        case 39 : movement |= (1 << 1); break;        //RIGHT
+        case 38 : movement |= (1 << 4); break;      //UP
+        case 37 : movement |= (1 << 3); break;      //LEFT
+        case 40 : movement |= (1 << 2); break;      //DOWN
+        case 39 : movement |= (1 << 1); break;      //RIGHT
         //action p1
         case 89 : action |= (1 << 8); break;        //Y
         case 71 : action |= (1 << 7); break;        //G
@@ -89,23 +89,23 @@ void keyPressed() {
     // key in viable area:
     switch(key_press) {
         //start p1
-        case 32 : startselect &= ~(1 << 8); break;    //space
+        case 32 : startselect &= ~(1 << 8); break;   //space
         //select p1
-        case 17 : startselect &= ~(1 << 7); break;    //ctrl
+        case 17 : startselect &= ~(1 << 7); break;   //ctrl
         //start p2
-        case 107: startselect &= ~(1 << 6); break;    //num +
+        case 107: startselect &= ~(1 << 6); break;   //num +
         //select p2
-        case 109: startselect &= ~(1 << 5); break;    //num -
+        case 109: startselect &= ~(1 << 5); break;   //num -
         //movement p1
-        case 87 : movement &= ~(1 << 8); break;        //W
-        case 65 : movement &= ~(1 << 7); break;        //A
-        case 83 : movement &= ~(1 << 6); break;        //S
-        case 68 : movement &= ~(1 << 5); break;        //D
+        case 87 : movement &= ~(1 << 8); break;      //W
+        case 65 : movement &= ~(1 << 7); break;      //A
+        case 83 : movement &= ~(1 << 6); break;      //S
+        case 68 : movement &= ~(1 << 5); break;      //D
         //movement p2
-        case 38 : movement &= ~(1 << 4); break;     //UP
-        case 37 : movement &= ~(1 << 3); break;        //LEFT
-        case 40 : movement &= ~(1 << 2); break;        //DOWN
-        case 39 : movement &= ~(1 << 1); break;        //RIGHT
+        case 38 : movement &= ~(1 << 4); break;      //UP
+        case 37 : movement &= ~(1 << 3); break;      //LEFT
+        case 40 : movement &= ~(1 << 2); break;      //DOWN
+        case 39 : movement &= ~(1 << 1); break;      //RIGHT
         //action p1
         case 89 : action &= ~(1 << 8); break;        //Y
         case 71 : action &= ~(1 << 7); break;        //G
