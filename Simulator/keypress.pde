@@ -29,26 +29,11 @@ void setup() {
     movement = Integer.MAX_VALUE;
     action = Integer.MAX_VALUE;
     startselect = Integer.MAX_VALUE;
-
-    print("start:");
-    printbits(movement);
 }
 
 void draw() {
-    poll_keys();
+    //poll_keys();
 }
-
-void printbits(int unbyte) {
-    for(int i = 0; i < 8; i++) {
-        if((unbyte & (1 << 8-i)) != 0) {
-            print(1);
-        } else {
-            print(0);
-        }
-    }
-    println();
-}
-
 
 void keyReleased() {
     int key_press = keyCode;
@@ -125,8 +110,3 @@ void poll_keys() {
     port.write(startselect);
     port.write('\n');
 }
-
-/*
-void keyPressed() {
-  println("pressed " + int(key) + " " + keyCode);
-}*/
