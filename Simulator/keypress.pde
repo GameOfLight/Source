@@ -1,4 +1,5 @@
-/*		  dir  action	  sta	sel
+/*		  
+		   dir  action	  sta	sel
 Player 1: WASD YGHJ		 space  ctrl
 Player 2: ULDR 8426(num) +(num) -(num)
 
@@ -11,10 +12,10 @@ space 		: 32
 ctrl 		: 17
 
 KEYKODES P2:
-UP,LEFT,DOWN,RIGHT: 38,37,40,39
-(num) 8,4,2,6 	: 104,100,98,102
-(num) +			: 107	
-(num) -			: 109
+UP,LEFT,DOWN,RIGHT	: 38,37,40,39
+(num) 8,4,2,6 		: 104,100,98,102
+(num) +				: 107	
+(num) -				: 109
 
 */
 import processing.serial.*;
