@@ -1,3 +1,21 @@
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import processing.serial.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class Simulator extends PApplet {
+
 /*
   Simulator.pde - GameOfLight library
   Copyright (c) 2013 Eivind Wikheim.  All right reserved.
@@ -17,7 +35,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import processing.serial.*;
+
 
 /* Markers used to mark a message as for the simulator or as a message to be 
  * printed to the terminal in case such a character isn't present */
@@ -26,8 +44,7 @@ static final int SCREEN_CMD = 0x12;       //DC2 char - device control 2
 static final int SCREEN_DATA_BURST = 0x13;//DC3 char - device control 3
 
 /* 19_04: added coords and lines*/
-/* 21_04: change coord/line function to fix a bug */
-/* 28_04: added support/storage for keyboard-inputs */
+/* 21_04: change coord/line function to fix a bug*/
 
 /*
  Original program by Eivind
@@ -76,71 +93,51 @@ static final int SCREEN_DATA_BURST = 0x13;//DC3 char - device control 3
   * Implemented noLoop: Screen only updated when new content is present
     
  Todo:
+  [DONE]* Update draw logic to match physical screen
+  [DONE]  - When writing index 63 of GREEN the next write should be index 0 of RED on the same line
+  [DONE]    - When going past index 63 of RED it should switch to the next line
+  [DONE]  - Bytes are displayed the wrong way around on the screen
+  [DONE]  - The goto function for picking a line should pick a line, not the index along the y-axis
+  [DONE]    - Example: Writing in position 0,0 should make a 8-light vertical line starting in the upper left corner
+  [DONE]    - Writing in position 1,0 should make a 8-light vertical line starting 8 pixels down from the upper left corner
+  [DONE] *Should display_clear also reset the draw position to 0,0?
   [] *Programcrash when loading without an Arduino connected. (Also: What happens if it's not port[0]?)
+  [DONE] *Show (x,y) coords of led on mouse-hover (added lines aswell)
   [] *Add support for keyboad-controllers 
  */
 
 Serial port;
-// Color codes:
-final static color RED = #FF0000;        
-final static color GREEN = #00FF00;      
-final static color ORANGE = #fd971f;      
-final static color BLACK = #000000;       
-final static color WHITE = #FFFFFF;      
-final static color GREY = #272822; 
+/* Color codes*/
+final static int RED = 0xffFF0000;        
+final static int GREEN = 0xff00FF00;      
+final static int ORANGE = 0xfffd971f;      
+final static int BLACK = 0xff000000;       
+final static int WHITE = 0xffFFFFFF;      
+final static int GREY = 0xff272822;        
 
-// Keykodes p1:
-final static int p1_UP = 87;    //W
-final static int p1_LEFT = 65;  //A
-final static int p1_DOWN = 83;  //S
-final static int p1_RIGHT = 68; //D
-final static int p1_X = 89;     //Y
-final static int p1_Y = 71;     //G
-final static int p1_B = 72;     //H
-final static int p1_A = 74;     //J
-final static int p1_START = 32; //Space
-final static int p1_SELECT = 17;//Ctrl
-//Keykodes p2:
-final static int p2_UP = 38;     //up-arrow
-final static int p2_LEFT = 37;   //left-arrow
-final static int p2_DOWN = 40;   //right-arrow
-final static int p2_RIGHT = 39;  //down-arrow
-final static int p2_X = 104;     // num8
-final static int p2_Y = 100;     // num4
-final static int p2_B = 98;      // num2
-final static int p2_A = 102;     // num6
-final static int p2_START = 107; //num+
-final static int p2_SELECT = 109;//num-
+final static int BOARD_SIZE = 640;       /* Total length/witdh of board on screen */
+final static int HALF = 320;
+final static int SIZE = 64;              /* Number of leds */
+final static int RES = 10;  /* Space per square */
+final static int LED_SIZE = 8;           /* Space use by color for each led */
+final static int INFO_BAR = 30;
+int line, index;            /* Coordinates of current led */
+int x, y;
+long writetime;
+char cmd, data;             /* Used for receiving input trough serial*/
 
-// Processing drawing sizes
-final static int BOARD_SIZE = 640; // Total length/witdh of board on screen
-final static int HALF = 320;       // Half board-size
-final static int SIZE = 64;        // Number of LEDs
-final static int RES = 10;         // Space per square 
-final static int LED_SIZE = 8;     // Space use by color for each led
-final static int INFO_BAR = 30;    // Size of info-bar on bottom
-
-/* Contains information about what blocks are drawn as: buff[line][index]
+/* Contains information about what blocks are drawn as: filled[line][index]
  * index 0-63 contains info about RED, index 64-127 about GREEN (both active means ORANGE) */
-
-/* Storage array for LED color-information, stored as: buff[line][index]
- * index 0-63 contains info about RED, index 64-127 about GREEN 
- * i.e: red LED active means RED, green active means GREEN, both active means ORANGE */
-int [][]buff = new int[8][128];
+int [][]filled = new int[8][128];
 
 /* Setting burstmode to 1 allows 128 byte transfers of serial data directly to the LED-screen 
  * See SCREEN_DATA_BURST */
 int burstmode = 0;
 
-// Misc variables:
-int line, index;      // Coordinates of current led
-int x, y;             // Current (x,y) coordinates
-long writetime;       //
-char cmd, data;       // Used for receiving input trough serial
-int ledx, ledy, linex, liney; // Used by mouseClick() for writing currenct coords + lines
-int startselect, p1, p2; //bytes used for storage of keyboard-input. p3 and p4 can be added.
+/* Used by mouseClick() for writing currenct coords + lines */
+int ledx, ledy, linex, liney;
 
-void setup() {
+public void setup() {
   size(BOARD_SIZE, BOARD_SIZE + INFO_BAR);
   println(Serial.list());            
   port = new Serial(this, Serial.list()[0], 500000);//666666);
@@ -157,14 +154,16 @@ void setup() {
   ledy = 0;
   linex = 1;
   liney = 1;
+
+
 }
 
 /* DEBUGING: Uncommenting will spam the terminal as long as new data is coming in */
-void draw() {
-  //println(frameRate)
+public void draw() {
+
 }
 
-void mouseClicked() {
+public void mouseClicked() {
   if(mouseX < BOARD_SIZE + INFO_BAR) {
     for(int i = 0; i < 640; i++) {
       set(linex - 1, i, GREY);
@@ -195,21 +194,21 @@ void mouseClicked() {
 
 
 /* To get unsigned int */
-void paint(char input) {
+public void paint(char input) {
   paint(input & 0xFF);  //int
 }
 
 /* Iterates trough the bits of input, fills in appropriate colors 
  * based on what bits are set. */
-void paint(int input) {
+public void paint(int input) {
   int green, red;
-  color c;
-  buff[line][index] = input;
+  int c;
+  filled[line][index] = input;
   if(index < SIZE) {
     green = input;
-    red = buff[line][index+SIZE]; 
+    red = filled[line][index+SIZE]; 
   } else {
-    green = buff[line][index-SIZE];
+    green = filled[line][index-SIZE];
     red = input;
   }
   
@@ -233,12 +232,12 @@ void paint(int input) {
   next_byte();
 }
 
-void paint_line() {
+public void paint_line() {
   int green, red, mask;
-  color c;
+  int c;
   for(int i = 0; i < SIZE; i++) {
-    green = buff[line][i];
-    red = buff[line][i + SIZE];
+    green = filled[line][i];
+    red = filled[line][i + SIZE];
     
     for(int bit = 0; bit < 8; bit++) {
       mask = (1 << bit);
@@ -267,14 +266,14 @@ void paint_line() {
 } 
 
 /* Converts [line][index] to [x][y] and paints currently chosen color to [x][y] */
-void draw_block(int bit) {
+public void draw_block(int bit) {
   y = line*8 + bit;
   x = (index < SIZE) ? index : (index - SIZE);
   rect(x*RES, y*RES, LED_SIZE, LED_SIZE);
 }
 
 /* Increases [line][index] to next coordinate */
-void next_byte() {
+public void next_byte() {
   if(index < 127) {
     index++;
   } else {
@@ -289,13 +288,13 @@ void next_byte() {
 }
 
 /* Sets background and fills all blocks with BLACK */
-void reset() {
+public void reset() {
   line = 0;
   index = 0;
   println("reset");
   background(GREY);
   fill(BLACK);
-  buff = new int[8][128];
+  filled = new int[8][128];
   for (int i = 0; i < SIZE; i++) {
     for (int j = 0; j < SIZE; j++) {
       rect(i*RES, j*RES, LED_SIZE, LED_SIZE);
@@ -313,7 +312,7 @@ void reset() {
 
 
 /* Parses cmd coming from serial (see protocol for details) */
-void cmd_data_handler(byte[] buff) {
+public void cmd_data_handler(byte[] buff) {
   cmd = (char) buff[0];
   
   if (cmd != SCREEN_DATA && cmd != SCREEN_CMD && cmd != SCREEN_DATA_BURST) {
@@ -344,21 +343,22 @@ void cmd_data_handler(byte[] buff) {
       else if ( (data & 0x20) != 0 ) {
         reset();
       }
+      /* Adjust global brightness*/
+      else if ( (data & 0x10) != 0) {
+        // TODO
+      }
     }
-  } else if(cmd = SCREEN_DATA_BURST) {
+  } else {
     /*Multi-byte data transfer initiated. Must first fetch the line in question
      * Next serialevent will be interpreted as a data burst */
     burstmode = 1;
     port.buffer(129);
-  } else {
-    //return keyboard-inputs
-    poll_keys();
   }
 }
 
 
 /* Parses cmd when using burstmode */
-void serial_action(byte[] buff) {
+public void serial_action(byte[] buff) {
   byte curr = buff[0];
     
   if (curr != SCREEN_DATA && curr != SCREEN_CMD && curr != SCREEN_DATA_BURST) {
@@ -397,7 +397,7 @@ void serial_action(byte[] buff) {
 
 /* Listens for action on the serial port
  * Reads bytes untill '\n' and executes appropriate cmd to execute */
-void serialEvent(Serial port) {
+public void serialEvent(Serial port) {
   byte[] inBuffer;
 
   if (burstmode == 0) {
@@ -412,7 +412,7 @@ void serialEvent(Serial port) {
     }
 
     for (int i = 0; i < inBuffer.length-1; i++) {
-      buff[line][i] = (inBuffer[i] & 0xFF);
+      filled[line][i] = (inBuffer[i] & 0xFF);
     }
     paint_line();
 
@@ -422,44 +422,74 @@ void serialEvent(Serial port) {
   }
 }
 
-/* 
- * Code for recording keyboardinput. 
- * Values are stored like this: 
- * -one byte (startselect) for start/select buttons for all players.
- * -one byte for each player (p1, p2 etc), storing movement/action buttons
+/* DEBUGING */
+public void printbits(char c) {
+ for(int i = 0; i < 8; i++) {
+   if((c & (1 << (7-i))) != 0) {
+     print("1");
+   } else {
+     print("0");
+   }
+ }
+ println();
+}
+/*          
+          dir  action     sta    sel
+Player 1: WASD YGHJ      space  ctrl
+Player 2: ULDR 8426(num) +(num) -(num)
+
+0=pressed 1= not pressed
 */
 
-/* Sets appropriate bit in storage bytes to 0 when button is pressed.
- * (0 is the default "on" value in our "snes" controllers) */
-void keyPressed() {
-    int key_press = keyCode;
-    switch(key_press) {
-        case p1_START : startselect &= ~(1 << 8); break;
-        case p1_SELECT: startselect &= ~(1 << 7); break;
-        case p2_START : startselect &= ~(1 << 6); break;
-        case p2_SELECT: startselect &= ~(1 << 5); break;
-        case p1_UP    : p1 &= ~(1 << 8);          break;
-        case p1_LEFT  : p1 &= ~(1 << 7);          break;
-        case p1_DOWN  : p1 &= ~(1 << 6);          break;
-        case p1_RIGHT : p1 &= ~(1 << 5);          break;
-        case p1_X     : p1 &= ~(1 << 4);          break;
-        case p1_Y     : p1 &= ~(1 << 3);          break;
-        case p1_B     : p1 &= ~(1 << 2);          break;
-        case p1_A     : p1 &= ~(1 << 1);          break;
-        case p2_UP    : p2 &= ~(1 << 8);          break;
-        case p2_LEFT  : p2 &= ~(1 << 7);          break;
-        case p2_DOWN  : p2 &= ~(1 << 6);          break;
-        case p2_RIGHT : p2 &= ~(1 << 5);          break;
-        case p2_X     : p2 &= ~(1 << 4);          break;
-        case p2_Y     : p2 &= ~(1 << 3);          break;
-        case p2_B     : p2 &= ~(1 << 2);          break;
-        case p2_A     : p2 &= ~(1 << 1);          break;
+// Keykodes p1:
+static final int p1_UP = 87;    //W
+static final int p1_LEFT = 65;  //A
+static final int p1_DOWN = 83;  //S
+static final int p1_RIGHT = 68; //D
+static final int p1_X = 89;     //Y
+static final int p1_Y = 71;     //G
+static final int p1_B = 72;     //H
+static final int p1_A = 74;     //J
+static final int p1_START = 32; //Space
+static final int p1_SELECT = 17;//Ctrl
+//Keykodes p2:
+static final int p2_UP = 38;    //up-arrow
+static final int p2_LEFT = 37;  //left-arrow
+static final int p2_DOWN = 40;  //right-arrow
+static final int p2_RIGHT = 39; //down-arrow
+static final int p2_X = 104; // num8
+static final int p2_Y = 100; // num4
+static final int p2_B = 98;  // num2
+static final int p2_A = 102; // num6
+static final int p2_START = 107; //num+
+static final int p2_SELECT = 109;//num-
+
+
+int startselect, p1, p2; //storage of key-bits
+
+Serial port;
+public void setup() {
+    port = new Serial(this, Serial.list()[0], 9600);
+    port.bufferUntil('\n');            // ^- number may vary
+
+    movement = Integer.MAX_VALUE;
+    action = Integer.MAX_VALUE;
+    startselect = Integer.MAX_VALUE;
+}
+
+public void draw() {
+    for(int i = 0; i < 8; i++) {
+        if((p1 & (1 << 8-i)) != 0) {
+            print(1);
+        } else {
+            print(0);
+        }
+
     }
 }
 
-/* Sets appropriate bit in storage bytes to 1 when button is released.
- * (1 is the default "off" value in our "snes" controllers) */
-void keyReleased() {
+
+public void keyReleased() {
     int key_press = keyCode;
     switch(key_press) {
         case p1_START : startselect |= (1 << 8); break;
@@ -485,22 +515,46 @@ void keyReleased() {
     }
 }
 
-/* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
-void poll_keys() {
-  port.write(startselect);
-  port.write(p1);
-  port.write(p2);
-  port.write("\n");
+public void keyPressed() {
+    int key_press = keyCode;
+    switch(key_press) {
+        case p1_START : startselect &= ~(1 << 8); break;
+        case p1_SELECT: startselect &= ~(1 << 7); break;
+        case p2_START : startselect &= ~(1 << 6); break;
+        case p2_SELECT: startselect &= ~(1 << 5); break;
+        case p1_UP    : p1 &= ~(1 << 8);          break;
+        case p1_LEFT  : p1 &= ~(1 << 7);          break;
+        case p1_DOWN  : p1 &= ~(1 << 6);          break;
+        case p1_RIGHT : p1 &= ~(1 << 5);          break;
+        case p1_X     : p1 &= ~(1 << 4);          break;
+        case p1_Y     : p1 &= ~(1 << 3);          break;
+        case p1_B     : p1 &= ~(1 << 2);          break;
+        case p1_A     : p1 &= ~(1 << 1);          break;
+        case p2_UP    : p2 &= ~(1 << 8);          break;
+        case p2_LEFT  : p2 &= ~(1 << 7);          break;
+        case p2_DOWN  : p2 &= ~(1 << 6);          break;
+        case p2_RIGHT : p2 &= ~(1 << 5);          break;
+        case p2_X     : p2 &= ~(1 << 4);          break;
+        case p2_Y     : p2 &= ~(1 << 3);          break;
+        case p2_B     : p2 &= ~(1 << 2);          break;
+        case p2_A     : p2 &= ~(1 << 1);          break;
+    }
 }
 
-/* DEBUGING */
-void printbits(char c) {
- for(int i = 0; i < 8; i++) {
-   if((c & (1 << (7-i))) != 0) {
-     print("1");
-   } else {
-     print("0");
-   }
- }
- println();
+public void poll_keys() {
+    port.write(movement);
+    port.write(action);
+    port.write(startselect);
+    port.write('\n');
+}
+
+
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "Simulator" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
