@@ -121,28 +121,29 @@ void GameOfLightHW::screen_goto(uint8_t index, uint8_t line) {
 	}
 }
 
-
+/* Reads input from snes-controllers and stores in buffers.
+ * Input from controllers are inverted, so 0 means a button is active. */
 void GameOfLightHW::getButtons(){
   digitalWrite(SNES_LATCH_PIN, HIGH);
   digitalWrite(SNES_LATCH_PIN, LOW);
 
 	for(int i = 0; i<4; i++){
-		B[i]=!digitalRead(data[i]);
+		B[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Y[i]=!digitalRead(data[i]);
+		Y[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Select[i]=!digitalRead(data[i]);
+		Select[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Start[i]=!digitalRead(data[i]);
+		Start[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
@@ -167,21 +168,21 @@ void GameOfLightHW::getButtons(){
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		A[i]=!digitalRead(data[i]);
+		A[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		X[i]=!digitalRead(data[i]);
+		X[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		L[i]=!digitalRead(data[i]);
+		L[i]=digitalRead(data[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		R[i]=!digitalRead(data[i]);
+		R[i]=digitalRead(data[i]);
 	}
 }
