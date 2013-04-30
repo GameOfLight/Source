@@ -188,6 +188,14 @@ uint8_t GameOfLight::getSelect(int player){
 	return Select[player];
 }
 
+uint8_t GameOfLight::getL(int player){
+	return L[player];
+}
+
+uint8_t GameOfLight::getR(int player){
+	return R[player];
+}
+
 direction GameOfLight::getDir(int player){
 	if (!N[player]) return NORTH;
 	if (!S[player]) return SOUTH;
@@ -196,10 +204,18 @@ direction GameOfLight::getDir(int player){
 	return NONE;
 }
 
-uint8_t GameOfLight::getL(int player){
-	return L[player];
+uint8_t GameOfLight::getNorth(int player){
+	return N[player];
 }
 
-uint8_t GameOfLight::getR(int player){
-	return R[player];
+uint8_t GameOfLight::getWest(int player){
+	return W[player];
+}
+
+uint8_t GameOfLight::getSouth(int player){
+	return S[player];
+}
+
+uint8_t GameOfLight::getEast(int player){
+	return E[player];
 }

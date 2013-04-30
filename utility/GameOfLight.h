@@ -183,6 +183,10 @@ class GameOfLight {
     uint8_t getStart(int Player);
     uint8_t getSelect(int Player);  
     direction getDir(int Player); //returns enum NORTH SOUTH EAST WEST NONE TODO sideskift
+    uint8_t GameOfLight::getNorth(int player);
+    uint8_t GameOfLight::getWest(int player);
+    uint8_t GameOfLight::getSouth(int player);
+    uint8_t GameOfLight::getEast(int player);
     
     //The following methods are in GameOfLightSim/GameOfLightHW:
     virtual void update() = 0; //Update screen with contents of buffer
