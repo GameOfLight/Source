@@ -47,7 +47,7 @@ class GameOfLightSim : public GameOfLight {
      uint8_t _screen_line;
      uint8_t _screen_index;
      uint8_t controller[4];
-     char serial_data[6];
+     char serial_data[10];
      int bytes_red;
 };
 

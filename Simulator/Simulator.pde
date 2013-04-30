@@ -487,11 +487,6 @@ void keyReleased() {
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
 void poll_keys() {
-  print("Keys:");
-  printbits(startselect);
-  printbits(p1);
-  printbits(p2);
-  println();
   port.write(startselect);
   port.write(p1);
   port.write(p2);

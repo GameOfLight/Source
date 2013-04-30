@@ -449,39 +449,8 @@ public void serialEvent(Serial port) {
 
 /* Sets appropriate bit in storage bytes to 0 when button is pressed.
  * (0 is the default "on" value in our "snes" controllers) */
-public void keyReleased() {
-    int key_press = keyCode;
-    //println("pre p1_UP:"+p1);
-    switch(key_press) {
-        case p1_START : startselect &= ~(1 << 8); break;
-        case p1_SELECT: startselect &= ~(1 << 7); break;
-        case p2_START : startselect &= ~(1 << 6); break;
-        case p2_SELECT: startselect &= ~(1 << 5); break;
-        case p1_UP    : p1 &= ~(1 << 8);          break;
-        case p1_LEFT  : p1 &= ~(1 << 7);          break;
-        case p1_DOWN  : p1 &= ~(1 << 6);          break;
-        case p1_RIGHT : p1 &= ~(1 << 5);          break;
-        case p1_X     : p1 &= ~(1 << 4);          break;
-        case p1_Y     : p1 &= ~(1 << 3);          break;
-        case p1_B     : p1 &= ~(1 << 2);          break;
-        case p1_A     : p1 &= ~(1 << 1);          break;
-        case p2_UP    : p2 &= ~(1 << 8);          break;
-        case p2_LEFT  : p2 &= ~(1 << 7);          break;
-        case p2_DOWN  : p2 &= ~(1 << 6);          break;
-        case p2_RIGHT : p2 &= ~(1 << 5);          break;
-        case p2_X     : p2 &= ~(1 << 4);          break;
-        case p2_Y     : p2 &= ~(1 << 3);          break;
-        case p2_B     : p2 &= ~(1 << 2);          break;
-        case p2_A     : p2 &= ~(1 << 1);          break;
-    }
-    //println("done pre p1_UP:"+p1);
-}
-
-/* Sets appropriate bit in storage bytes to 1 when button is released.
- * (1 is the default "off" value in our "snes" controllers) */
 public void keyPressed() {
     int key_release = keyCode;
-   // println("rel p1_UP:"+p1);
     switch(key_release) {
         case p1_START : startselect |= (1 << 8); break;
         case p1_SELECT: startselect |= (1 << 7); break;
@@ -504,7 +473,34 @@ public void keyPressed() {
         case p2_B     : p2 |= (1 << 2);          break;
         case p2_A     : p2 |= (1 << 1);          break;
     }
-   // println("donerel p1_UP:"+p1);
+}
+
+/* Sets appropriate bit in storage bytes to 1 when button is released.
+ * (1 is the default "off" value in our "snes" controllers) */
+public void keyReleased() {
+    int key_press = keyCode;
+    switch(key_press) {
+        case p1_START : startselect &= ~(1 << 8); break;
+        case p1_SELECT: startselect &= ~(1 << 7); break;
+        case p2_START : startselect &= ~(1 << 6); break;
+        case p2_SELECT: startselect &= ~(1 << 5); break;
+        case p1_UP    : p1 &= ~(1 << 8);          break;
+        case p1_LEFT  : p1 &= ~(1 << 7);          break;
+        case p1_DOWN  : p1 &= ~(1 << 6);          break;
+        case p1_RIGHT : p1 &= ~(1 << 5);          break;
+        case p1_X     : p1 &= ~(1 << 4);          break;
+        case p1_Y     : p1 &= ~(1 << 3);          break;
+        case p1_B     : p1 &= ~(1 << 2);          break;
+        case p1_A     : p1 &= ~(1 << 1);          break;
+        case p2_UP    : p2 &= ~(1 << 8);          break;
+        case p2_LEFT  : p2 &= ~(1 << 7);          break;
+        case p2_DOWN  : p2 &= ~(1 << 6);          break;
+        case p2_RIGHT : p2 &= ~(1 << 5);          break;
+        case p2_X     : p2 &= ~(1 << 4);          break;
+        case p2_Y     : p2 &= ~(1 << 3);          break;
+        case p2_B     : p2 &= ~(1 << 2);          break;
+        case p2_A     : p2 &= ~(1 << 1);          break;
+    }
 }
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
