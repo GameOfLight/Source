@@ -1,5 +1,0 @@
-+5V hvit
-clock blå 4
-strobe gul 6
-data rød 8
-gnd brun
