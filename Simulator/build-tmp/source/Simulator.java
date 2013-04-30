@@ -345,8 +345,7 @@ public void cmd_data_handler(byte[] buff) {
     /* single data received, paint the byte */
     data = (char)buff[1];
     paint(data);
-    redraw();
-    
+    redraw();  
   } else if (cmd == SCREEN_CMD) {
     /* One or more commands received, interpret all of them! */
     for (int i = 1; i < buff.length-1; i++) {
@@ -371,7 +370,6 @@ public void cmd_data_handler(byte[] buff) {
     port.buffer(129);
   } else {
     //return keyboard-inputs
-    println("Return keys");
     poll_keys();
   }
 }
@@ -380,14 +378,14 @@ public void cmd_data_handler(byte[] buff) {
 /* Parses cmd when using burstmode */
 public void serial_action(byte[] buff) {
   byte curr = buff[0];
-    
-  if (curr != SCREEN_DATA && curr != SCREEN_CMD && curr != SCREEN_DATA_BURST) {
+
+  if (curr != SCREEN_DATA && curr != SCREEN_CMD && curr != SCREEN_DATA_BURST && curr != POLL_KEYS) {
      /* First char wasn't a control character, but if the user used Serial.print() rather than println() then a control
       * character may appear further into the sequence. */
       for (int i = 0; i < buff.length; i++) {
         /* Scanning string for control characters */
         curr = buff[i];
-        if (curr == SCREEN_DATA || curr == SCREEN_CMD || curr == SCREEN_DATA_BURST) {
+        if (curr == SCREEN_DATA || curr == SCREEN_CMD || curr == SCREEN_DATA_BURST|| curr == POLL_KEYS) {
           /* FOUND! Time to split buffer into a string segment and a data/cmd segment.
            * Note that as cmd/data blocks allways end with a '\n' no further splits of the buff[] will be needed 
            * due to how serial data is buffered. */
@@ -408,7 +406,7 @@ public void serial_action(byte[] buff) {
       
   } else {
     //Cmd or data
-//    println("cmd/data handler");
+    //    println("cmd/data handler");
     cmd_data_handler(buff);
   }
 }
@@ -451,8 +449,9 @@ public void serialEvent(Serial port) {
 
 /* Sets appropriate bit in storage bytes to 0 when button is pressed.
  * (0 is the default "on" value in our "snes" controllers) */
-public void keyPressed() {
+public void keyReleased() {
     int key_press = keyCode;
+    //println("pre p1_UP:"+p1);
     switch(key_press) {
         case p1_START : startselect &= ~(1 << 8); break;
         case p1_SELECT: startselect &= ~(1 << 7); break;
@@ -475,13 +474,15 @@ public void keyPressed() {
         case p2_B     : p2 &= ~(1 << 2);          break;
         case p2_A     : p2 &= ~(1 << 1);          break;
     }
+    //println("done pre p1_UP:"+p1);
 }
 
 /* Sets appropriate bit in storage bytes to 1 when button is released.
  * (1 is the default "off" value in our "snes" controllers) */
-public void keyReleased() {
-    int key_press = keyCode;
-    switch(key_press) {
+public void keyPressed() {
+    int key_release = keyCode;
+   // println("rel p1_UP:"+p1);
+    switch(key_release) {
         case p1_START : startselect |= (1 << 8); break;
         case p1_SELECT: startselect |= (1 << 7); break;
         case p2_START : startselect |= (1 << 6); break;
@@ -503,26 +504,33 @@ public void keyReleased() {
         case p2_B     : p2 |= (1 << 2);          break;
         case p2_A     : p2 |= (1 << 1);          break;
     }
+   // println("donerel p1_UP:"+p1);
 }
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
 public void poll_keys() {
+  print("Keys:");
+  printbits(startselect);
+  printbits(p1);
+  printbits(p2);
+  println();
   port.write(startselect);
   port.write(p1);
   port.write(p2);
   port.write("\n");
 }
 
+
 /* DEBUGING */
-public void printbits(char c) {
+public void printbits(int c) {
  for(int i = 0; i < 8; i++) {
-   if((c & (1 << (7-i))) != 0) {
+   if((c & (1 << (8-i))) != 0) {
      print("1");
    } else {
      print("0");
    }
  }
- println();
+ print(".");
 }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "Simulator" };
