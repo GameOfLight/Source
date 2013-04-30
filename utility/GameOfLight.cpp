@@ -163,3 +163,43 @@ void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
 		buff[line][x + 64] |= y_bm;
 	}
 }
+
+uint8_t GameOfLight::getA(int player){
+	return A[player];
+}
+
+uint8_t GameOfLight::getB(int player){
+	return B[player];
+}
+
+uint8_t GameOfLight::getX(int player){
+	return X[player];
+}
+
+uint8_t GameOfLight::getY(int player){
+	return Y[player];
+}
+
+uint8_t GameOfLight::getStart(int player){
+	return Start[player];
+}
+
+uint8_t GameOfLight::getSelect(int player){
+	return Select[player];
+}
+
+direction GameOfLight::getDir(int player){
+	if (!N[player]) return NORTH;
+	if (!S[player]) return SOUTH;
+	if (!W[player]) return WEST;
+	if (!E[player]) return EAST;
+	return NONE;
+}
+
+uint8_t GameOfLight::getL(int player){
+	return L[player];
+}
+
+uint8_t GameOfLight::getR(int player){
+	return R[player];
+}
