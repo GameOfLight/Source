@@ -26,6 +26,11 @@
 #define CMD_TYPE_LINE 0x08 //Single line sent in a burst
 #define CMD_TYPE_DATA 0x04 //Single data
 
+#define SNES_CLK_PIN 6 //to HW
+#define SNES_LATCH_PIN 7 //to HW
+#define TICK {digitalWrite(SNES_CLK_PIN,HIGH); digitalWrite(SNES_CLK_PIN,LOW);} //to HW
+
+  
 class GameOfLightHW : public GameOfLight {
  public:
 	GameOfLightHW();
@@ -38,11 +43,14 @@ class GameOfLightHW : public GameOfLight {
      void screen_cmd(uint8_t type, uint8_t value);
      void screen_data(uint8_t data);
      void screen_goto(uint8_t index, uint8_t line);
+     void getButtons();
 
  private:
      //Keep track of current screen position
      uint8_t _screen_line;
      uint8_t _screen_index;
+
+     uint8_t data[4] = {2, 3, 4, 5}; //pins on Arduino to read from.  to HW
 };
 
 #endif

@@ -1,3 +1,21 @@
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import processing.serial.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class Simulator extends PApplet {
+
 /*
   Simulator.pde - GameOfLight library
   Copyright (c) 2013 Eivind Wikheim.  All right reserved.
@@ -17,7 +35,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-import processing.serial.*;
+
 
 /* Markers used to mark a message as for the simulator or as a message to be 
  * printed to the terminal in case such a character isn't present */
@@ -83,12 +101,12 @@ static final int POLL_KEYS = 0x14;        //DC4
 
 Serial port;
 // Color codes:
-final static color RED = #FF0000;        
-final static color GREEN = #00FF00;      
-final static color ORANGE = #fd971f;      
-final static color BLACK = #000000;       
-final static color WHITE = #FFFFFF;      
-final static color GREY = #272822; 
+final static int RED = 0xffFF0000;        
+final static int GREEN = 0xff00FF00;      
+final static int ORANGE = 0xfffd971f;      
+final static int BLACK = 0xff000000;       
+final static int WHITE = 0xffFFFFFF;      
+final static int GREY = 0xff272822; 
 
 // Keykodes p1:
 final static int p1_UP = 87;    //W
@@ -141,7 +159,7 @@ char cmd, data;       // Used for receiving input trough serial
 int ledx, ledy, linex, liney; // Used by mouseClick() for writing currenct coords + lines
 int startselect, p1, p2; //bytes used for storage of keyboard-input. p3 and p4 can be added.
 
-void setup() {
+public void setup() {
   size(BOARD_SIZE, BOARD_SIZE + INFO_BAR);
   println(Serial.list());            
   port = new Serial(this, Serial.list()[0], 500000);//666666);
@@ -161,11 +179,11 @@ void setup() {
 }
 
 /* DEBUGING: Uncommenting will spam the terminal as long as new data is coming in */
-void draw() {
+public void draw() {
   //println(frameRate)
 }
 
-void mouseClicked() {
+public void mouseClicked() {
   if(mouseX < BOARD_SIZE + INFO_BAR) {
     for(int i = 0; i < 640; i++) {
       set(linex - 1, i, GREY);
@@ -196,15 +214,15 @@ void mouseClicked() {
 
 
 /* To get unsigned int */
-void paint(char input) {
+public void paint(char input) {
   paint(input & 0xFF);  //int
 }
 
 /* Iterates trough the bits of input, fills in appropriate colors 
  * based on what bits are set. */
-void paint(int input) {
+public void paint(int input) {
   int green, red;
-  color c;
+  int c;
   buff[line][index] = input;
   if(index < SIZE) {
     green = input;
@@ -234,9 +252,9 @@ void paint(int input) {
   next_byte();
 }
 
-void paint_line() {
+public void paint_line() {
   int green, red, mask;
-  color c;
+  int c;
   for(int i = 0; i < SIZE; i++) {
     green = buff[line][i];
     red = buff[line][i + SIZE];
@@ -268,14 +286,14 @@ void paint_line() {
 } 
 
 /* Converts [line][index] to [x][y] and paints currently chosen color to [x][y] */
-void draw_block(int bit) {
+public void draw_block(int bit) {
   y = line*8 + bit;
   x = (index < SIZE) ? index : (index - SIZE);
   rect(x*RES, y*RES, LED_SIZE, LED_SIZE);
 }
 
 /* Increases [line][index] to next coordinate */
-void next_byte() {
+public void next_byte() {
   if(index < 127) {
     index++;
   } else {
@@ -290,7 +308,7 @@ void next_byte() {
 }
 
 /* Sets background and fills all blocks with BLACK */
-void reset() {
+public void reset() {
   line = 0;
   index = 0;
   println("reset");
@@ -314,7 +332,7 @@ void reset() {
 
 
 /* Parses cmd coming from serial (see protocol for details) */
-void cmd_data_handler(byte[] buff) {
+public void cmd_data_handler(byte[] buff) {
   cmd = (char) buff[0];
   
   if (cmd != SCREEN_DATA && cmd != SCREEN_CMD && cmd != SCREEN_DATA_BURST && cmd != POLL_KEYS) {
@@ -327,7 +345,8 @@ void cmd_data_handler(byte[] buff) {
     /* single data received, paint the byte */
     data = (char)buff[1];
     paint(data);
-    redraw();  
+    redraw();
+    
   } else if (cmd == SCREEN_CMD) {
     /* One or more commands received, interpret all of them! */
     for (int i = 1; i < buff.length-1; i++) {
@@ -359,7 +378,7 @@ void cmd_data_handler(byte[] buff) {
 
 
 /* Parses cmd when using burstmode */
-void serial_action(byte[] buff) {
+public void serial_action(byte[] buff) {
   byte curr = buff[0];
     
   if (curr != SCREEN_DATA && curr != SCREEN_CMD && curr != SCREEN_DATA_BURST) {
@@ -398,7 +417,7 @@ void serial_action(byte[] buff) {
 
 /* Listens for action on the serial port
  * Reads bytes untill '\n' and executes appropriate cmd to execute */
-void serialEvent(Serial port) {
+public void serialEvent(Serial port) {
   byte[] inBuffer;
 
   if (burstmode == 0) {
@@ -432,7 +451,7 @@ void serialEvent(Serial port) {
 
 /* Sets appropriate bit in storage bytes to 0 when button is pressed.
  * (0 is the default "on" value in our "snes" controllers) */
-void keyPressed() {
+public void keyPressed() {
     int key_press = keyCode;
     switch(key_press) {
         case p1_START : startselect &= ~(1 << 8); break;
@@ -460,7 +479,7 @@ void keyPressed() {
 
 /* Sets appropriate bit in storage bytes to 1 when button is released.
  * (1 is the default "off" value in our "snes" controllers) */
-void keyReleased() {
+public void keyReleased() {
     int key_press = keyCode;
     switch(key_press) {
         case p1_START : startselect |= (1 << 8); break;
@@ -487,7 +506,7 @@ void keyReleased() {
 }
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
-void poll_keys() {
+public void poll_keys() {
   port.write(startselect);
   port.write(p1);
   port.write(p2);
@@ -495,7 +514,7 @@ void poll_keys() {
 }
 
 /* DEBUGING */
-void printbits(char c) {
+public void printbits(char c) {
  for(int i = 0; i < 8; i++) {
    if((c & (1 << (7-i))) != 0) {
      print("1");
@@ -504,4 +523,13 @@ void printbits(char c) {
    }
  }
  println();
+}
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "Simulator" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }

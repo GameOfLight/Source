@@ -31,6 +31,12 @@ void GameOfLightHW::begin() {
 	SPI.begin();
 	SPI.setClockDivider(SPI_CLOCK_DIV8);
 	pinMode(SCREEN_SS_PIN, OUTPUT);
+	pinMode(data[0], INPUT);
+	pinMode(data[1], INPUT);
+	pinMode(data[2], INPUT);
+	pinMode(data[3], INPUT);
+	pinMode(SNES_CLK_PIN, OUTPUT);
+	pinMode(SNES_LATCH_PIN, OUTPUT);
 	digitalWrite(SCREEN_SS_PIN, HIGH);
 	digitalWrite(SCREEN_SS_PIN, LOW);
 	clearDisplay();
@@ -112,5 +118,70 @@ void GameOfLightHW::screen_goto(uint8_t index, uint8_t line) {
 	if (_screen_line != line) {
 		screen_cmd(CMD_TYPE_SETY, line);
 		_screen_line = line;
+	}
+}
+
+
+void GameOfLightHW::getButtons(){
+  digitalWrite(SNES_LATCH_PIN, HIGH);
+  digitalWrite(SNES_LATCH_PIN, LOW);
+
+	for(int i = 0; i<4; i++){
+		B[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		Y[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		Select[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		Start[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		N[i]=digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		S[i]=digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		W[i]=digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		E[i]=digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		A[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		X[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		L[i]=!digitalRead(data[i]);
+	}
+	TICK;
+	
+	for(int i = 0; i<4; i++){
+		R[i]=!digitalRead(data[i]);
 	}
 }

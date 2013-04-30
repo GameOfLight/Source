@@ -24,6 +24,9 @@
 #define SCREEN_DATA 0x11
 #define SCREEN_CMD 0x12
 #define SCREEN_DATA_BURST 0x13
+#define REQUEST_KEYS 0x14
+
+#define NUM_PLAYERS 2 //change up if more players
 
 class GameOfLightSim : public GameOfLight {
  public:
@@ -37,11 +40,15 @@ class GameOfLightSim : public GameOfLight {
      void screen_cmd(uint8_t type, uint8_t value);
      void screen_data(uint8_t data);
      void screen_goto(uint8_t index, uint8_t line);
+     void getButtons();
 
  private:
      //Keep track of current screen position
      uint8_t _screen_line;
      uint8_t _screen_index;
+     uint8_t controller[4];
+     char serial_data[6];
+     int bytes_red;
 };
 
 #endif
