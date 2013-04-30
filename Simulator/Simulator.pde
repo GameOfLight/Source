@@ -434,26 +434,26 @@ void serialEvent(Serial port) {
 void keyPressed() {
     int key_release = keyCode;
     switch(key_release) {
-        case p1_START : startselect |= (1 << 8); break;
-        case p1_SELECT: startselect |= (1 << 7); break;
-        case p2_START : startselect |= (1 << 6); break;
-        case p2_SELECT: startselect |= (1 << 5); break;
-        case p1_UP    : p1 |= (1 << 8);          break;
-        case p1_LEFT  : p1 |= (1 << 7);          break;
-        case p1_DOWN  : p1 |= (1 << 6);          break;
-        case p1_RIGHT : p1 |= (1 << 5);          break;
-        case p1_X     : p1 |= (1 << 4);          break;
-        case p1_Y     : p1 |= (1 << 3);          break;
-        case p1_B     : p1 |= (1 << 2);          break;
-        case p1_A     : p1 |= (1 << 1);          break;
-        case p2_UP    : p2 |= (1 << 8);          break;
-        case p2_LEFT  : p2 |= (1 << 7);          break;
-        case p2_DOWN  : p2 |= (1 << 6);          break;
-        case p2_RIGHT : p2 |= (1 << 5);          break;
-        case p2_X     : p2 |= (1 << 4);          break;
-        case p2_Y     : p2 |= (1 << 3);          break;
-        case p2_B     : p2 |= (1 << 2);          break;
-        case p2_A     : p2 |= (1 << 1);          break;
+        case p1_START : startselect |= (1 << 7); break;
+        case p1_SELECT: startselect |= (1 << 6); break;
+        case p2_START : startselect |= (1 << 5); break;
+        case p2_SELECT: startselect |= (1 << 4); break;
+        case p1_UP    : p1 |= (1 << 7);          break;
+        case p1_LEFT  : p1 |= (1 << 6);          break;
+        case p1_DOWN  : p1 |= (1 << 5);          break;
+        case p1_RIGHT : p1 |= (1 << 4);          break;
+        case p1_X     : p1 |= (1 << 3);          break;
+        case p1_Y     : p1 |= (1 << 2);          break;
+        case p1_B     : p1 |= (1 << 1);          break;
+        case p1_A     : p1 |= (1 << 0);          break;
+        case p2_UP    : p2 |= (1 << 7);          break;
+        case p2_LEFT  : p2 |= (1 << 6);          break;
+        case p2_DOWN  : p2 |= (1 << 5);          break;
+        case p2_RIGHT : p2 |= (1 << 4);          break;
+        case p2_X     : p2 |= (1 << 3);          break;
+        case p2_Y     : p2 |= (1 << 2);          break;
+        case p2_B     : p2 |= (1 << 1);          break;
+        case p2_A     : p2 |= (1 << 0);          break;
     }
 }
 
@@ -462,26 +462,26 @@ void keyPressed() {
 void keyReleased() {
     int key_press = keyCode;
     switch(key_press) {
-        case p1_START : startselect &= ~(1 << 8); break;
-        case p1_SELECT: startselect &= ~(1 << 7); break;
-        case p2_START : startselect &= ~(1 << 6); break;
-        case p2_SELECT: startselect &= ~(1 << 5); break;
-        case p1_UP    : p1 &= ~(1 << 8);          break;
-        case p1_LEFT  : p1 &= ~(1 << 7);          break;
-        case p1_DOWN  : p1 &= ~(1 << 6);          break;
-        case p1_RIGHT : p1 &= ~(1 << 5);          break;
-        case p1_X     : p1 &= ~(1 << 4);          break;
-        case p1_Y     : p1 &= ~(1 << 3);          break;
-        case p1_B     : p1 &= ~(1 << 2);          break;
-        case p1_A     : p1 &= ~(1 << 1);          break;
-        case p2_UP    : p2 &= ~(1 << 8);          break;
-        case p2_LEFT  : p2 &= ~(1 << 7);          break;
-        case p2_DOWN  : p2 &= ~(1 << 6);          break;
-        case p2_RIGHT : p2 &= ~(1 << 5);          break;
-        case p2_X     : p2 &= ~(1 << 4);          break;
-        case p2_Y     : p2 &= ~(1 << 3);          break;
-        case p2_B     : p2 &= ~(1 << 2);          break;
-        case p2_A     : p2 &= ~(1 << 1);          break;
+        case p1_START : startselect &= ~(1 << 7); break;
+        case p1_SELECT: startselect &= ~(1 << 6); break;
+        case p2_START : startselect &= ~(1 << 5); break;
+        case p2_SELECT: startselect &= ~(1 << 4); break;
+        case p1_UP    : p1 &= ~(1 << 7);          break;
+        case p1_LEFT  : p1 &= ~(1 << 6);          break;
+        case p1_DOWN  : p1 &= ~(1 << 5);          break;
+        case p1_RIGHT : p1 &= ~(1 << 4);          break;
+        case p1_X     : p1 &= ~(1 << 3);          break;
+        case p1_Y     : p1 &= ~(1 << 2);          break;
+        case p1_B     : p1 &= ~(1 << 1);          break;
+        case p1_A     : p1 &= ~(1 << 0);          break;
+        case p2_UP    : p2 &= ~(1 << 7);          break;
+        case p2_LEFT  : p2 &= ~(1 << 6);          break;
+        case p2_DOWN  : p2 &= ~(1 << 5);          break;
+        case p2_RIGHT : p2 &= ~(1 << 4);          break;
+        case p2_X     : p2 &= ~(1 << 3);          break;
+        case p2_Y     : p2 &= ~(1 << 2);          break;
+        case p2_B     : p2 &= ~(1 << 1);          break;
+        case p2_A     : p2 &= ~(1 << 0);          break;
     }
 }
 
@@ -490,7 +490,6 @@ void poll_keys() {
   port.write(startselect);
   port.write(p1);
   port.write(p2);
-  port.write("\n");
 }
 
 
