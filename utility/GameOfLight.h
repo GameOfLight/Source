@@ -152,6 +152,9 @@ class GameOfLight {
   void setColour(const uint8_t colour);
 
   uint8_t getPixel(const uint8_t x, const uint8_t y);
+  uint8_t getLine();
+  uint8_t getIndex();
+  uint8_t getColour();
   void setPixel(uint8_t x, uint8_t y, uint8_t val);
   void clear();  /* Clears buffer */
   void clear(int count); /* Clears count spaces ahead of cursor */

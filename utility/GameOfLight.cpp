@@ -42,6 +42,11 @@ uint8_t GameOfLight::getIndex() {
   return _curr_index;
 }
 
+/*Returns the current colour*/
+uint8_t GameOfLight::getColour() {
+  return _colour;
+}
+
 /* Enters the given data at the current cursor position with the current colour*/
 void GameOfLight::write(const uint8_t data) {
   //Clears any off-colour data present in positions occupied by 'data'. If further
