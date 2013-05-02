@@ -20,186 +20,189 @@
 #include "GameOfLight.h"
 
 GameOfLight::GameOfLight() {
-	for (int i = 0; i < 8; i++) {
-		red[i] = &buff[i][64];
-		green[i] = &buff[i][0];
-	}
+  for (int i = 0; i < 8; i++) {
+    red[i] = &buff[i][64];
+    green[i] = &buff[i][0];
+  }
 }
 
 /* Pick location in the buffer for subsequent writes */
 void GameOfLight::gotoXY(const uint8_t index, const uint8_t line) {
-	_curr_line = line & 0x07;   //range [0,  7]
-	_curr_index = index & 0x3F; //range [0, 63]
+  _curr_line = line & 0x07;   //range [0,  7]
+  _curr_index = index & 0x3F; //range [0, 63]
 }
 
+/*Returns the current line*/
+uint8_t GameOfLight::getLine() {
+  return _curr_line;
+}
+
+/*Returns the current index*/
+uint8_t GameOfLight::getIndex() {
+  return _curr_index;
+}
 
 /* Enters the given data at the current cursor position with the current colour*/
 void GameOfLight::write(const uint8_t data) {
-	//Clears any off-colour data present in positions occupied by 'data'. If further
-	//clearing is required use clear(amount) first to empty the area first.
+  //Clears any off-colour data present in positions occupied by 'data'. If further
+  //clearing is required use clear(amount) first to empty the area first.
 
-	if (_colour & GREEN) {
-		//add green in position indicated by 'data'
-		buff[_curr_line][_curr_index] |= data;
-	} else {
-		//clear green if it shouldn't be set
-		buff[_curr_line][_curr_index] &= ~data;
-	}
-	if (_colour & RED) {
-		//add red in position indicated by 'data'
-		buff[_curr_line][_curr_index + 64] |= data;
-	} else {
-		//Clear red if it shouldn't be set
-		buff[_curr_line][_curr_index + 64] &= ~data;
-	}
+  if (_colour & GREEN) {
+    //add green in position indicated by 'data'
+    buff[_curr_line][_curr_index] |= data;
+  } else {
+    //clear green if it shouldn't be set
+    buff[_curr_line][_curr_index] &= ~data;
+  }
+  if (_colour & RED) {
+    //add red in position indicated by 'data'
+    buff[_curr_line][_curr_index + 64] |= data;
+  } else {
+    //Clear red if it shouldn't be set
+    buff[_curr_line][_curr_index + 64] &= ~data;
+  }
 
-	// Update buffer position by wrapping to new line if overflowing.
-	_curr_index++;
-	if (_curr_index > 63) {
-		_curr_index = 0;
-		_curr_line++;
-		if (_curr_line > 7) {
-			_curr_line = 0;
-		}	
-	}
+  // Update buffer position by wrapping to new line if overflowing.
+  _curr_index++;
+  if (_curr_index > 63) {
+    _curr_index = 0;
+    _curr_line++;
+    if (_curr_line > 7) {
+      _curr_line = 0;
+    }	
+  }
 }
-
 
 void GameOfLight::print(const char ch) {
-	int i;
-	for(i=0; i<5; i++) {
-		/* Fetch and print the pieces that makes up the letter given */	
-		write(pgm_read_byte(font+(ch-0x20)*5+i));
-	}
-	write(0x00); //Space between letters
+  int i;
+  for(i=0; i<5; i++) {
+    /* Fetch and print the pieces that makes up the letter given */	
+    write(pgm_read_byte(font+(ch-0x20)*5+i));
+  }
+  write(0x00); //Space between letters
 }
 
-
 void GameOfLight::print(char *string) {
-	while(*string) {
-		print(*string);
-		string++;
-	}
+  while(*string) {
+    print(*string);
+    string++;
+  }
 }
 
 void GameOfLight::print(const char ch, const uint8_t colour) {
-	setColour(colour);
-	print(ch);
+  setColour(colour);
+  print(ch);
 }
 
 void GameOfLight::print(const char *string, const uint8_t colour) {
-	setColour(colour);
-	print((char*)string);
+  setColour(colour);
+  print((char*)string);
 }
 
-
 void GameOfLight::setColour(const uint8_t colour) {
-	_colour = colour & 0x03; // Only GREEN, RED and ORANGE allowed
+  _colour = colour & 0x03; // Only GREEN, RED and ORANGE allowed
 }
 
 void GameOfLight::clear() {
-	// Clears the internal buffer
-	memset(buff, 0, sizeof buff);
+  // Clears the internal buffer
+  memset(buff, 0, sizeof buff);
 }
-
 
 void GameOfLight::clear(int count) {
-	//Clears count spaces ahead of cursor. Stops once count has been cleared or
-	// screen overflows back to position 0,0
+  //Clears count spaces ahead of cursor. Stops once count has been cleared or
+  // screen overflows back to position 0,0
 
-	//A bit slow, change to memset implementation later? (But make sure to check whetever all of
-	// count ends up within the actual array before you do!)
-	for (int line = _curr_line; line < 8 && count; line++) {
-		for (int x = _curr_index; x < 64 && count; x++) {
-			buff[line][x] = 0;		//Clear green
-			buff[line][x + 64] = 0; //Clear red
-			count--;
-		}
-	}
-	/*if (count) {
-		//Overran the last line. Clear rest:
-		clear(count);
-	}*/
+  //A bit slow, change to memset implementation later? (But make sure to check whetever all of
+  // count ends up within the actual array before you do!)
+  for (int line = _curr_line; line < 8 && count; line++) {
+    for (int x = _curr_index; x < 64 && count; x++) {
+      buff[line][x] = 0;		//Clear green
+      buff[line][x + 64] = 0; //Clear red
+      count--;
+    }
+  }
+  /*if (count) {
+  //Overran the last line. Clear rest:
+  clear(count);
+  }*/
 }
-
 
 // Returns the colour of the given pixel
 uint8_t GameOfLight::getPixel(const uint8_t x, const uint8_t y) {
-	uint8_t colour = 0;
-	uint8_t line = y >> 3;
-	uint8_t y_bm = (1 << (y % 8));
+  uint8_t colour = 0;
+  uint8_t line = y >> 3;
+  uint8_t y_bm = (1 << (y % 8));
 
-	if (buff[line][x] & y_bm) {
-		//contains green
-		colour |= 0x01;
-	}
-	if (buff[line][x + 64] & y_bm) {
-		//contains red
-		colour |= 0x02;
-	}
-	return colour;
+  if (buff[line][x] & y_bm) {
+    //contains green
+    colour |= 0x01;
+  }
+  if (buff[line][x + 64] & y_bm) {
+    //contains red
+    colour |= 0x02;
+  }
+  return colour;
 }
 
-
 void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
-	uint8_t line, y_bm;
+  uint8_t line, y_bm;
 
-	//sanityfix in case of too large a value. Max 63 to prevent write accidents
-	y &= 0x3F;
-	x &= 0x3F; // Should these protections be removed for more speedy execution?
+  //sanityfix in case of too large a value. Max 63 to prevent write accidents
+  y &= 0x3F;
+  x &= 0x3F; // Should these protections be removed for more speedy execution?
 
-	line = y >> 3; // y/8
-	y_bm = (1 << (y % 8));
+  line = y >> 3; // y/8
+  y_bm = (1 << (y % 8));
 	
-	//clear current content
-	buff[line][x] &= ~(y_bm);
-	buff[line][x + 64] &= ~(y_bm);
+  //clear current content
+  buff[line][x] &= ~(y_bm);
+  buff[line][x + 64] &= ~(y_bm);
 
-	//Note: Orange is generated by triggering both tests
-	if (colour & GREEN) {
-		buff[line][x] |= y_bm;
-	}
-	if (colour & RED) {
-		buff[line][x + 64] |= y_bm;
-	}
+  //Note: Orange is generated by triggering both tests
+  if (colour & GREEN) {
+    buff[line][x] |= y_bm;
+  }
+  if (colour & RED) {
+    buff[line][x + 64] |= y_bm;
+  }
 }
 
 uint8_t GameOfLight::getA(int player){
-	return !A[player];
+  return !A[player];
 }
 
 uint8_t GameOfLight::getB(int player){
-	return !B[player];
+  return !B[player];
 }
 
 uint8_t GameOfLight::getX(int player){
-	return !X[player];
+  return !X[player];
 }
 
 uint8_t GameOfLight::getY(int player){
-	return !Y[player];
+  return !Y[player];
 }
 
 uint8_t GameOfLight::getStart(int player){
-	return !Start[player];
+  return !Start[player];
 }
 
 uint8_t GameOfLight::getSelect(int player){
-	return !Select[player];
+  return !Select[player];
 }
 
 uint8_t GameOfLight::getL(int player){
-	return !L[player];
+  return !L[player];
 }
 
 uint8_t GameOfLight::getR(int player){
-	return !R[player];
+  return !R[player];
 }
 
 direction GameOfLight::getDir(int player){
-	if (!N[player]) return NORTH;
-	if (!S[player]) return SOUTH;
-	if (!W[player]) return WEST;
-	if (!E[player]) return EAST;
-	return NONE;
+  if (!N[player]) return NORTH;
+  if (!S[player]) return SOUTH;
+  if (!W[player]) return WEST;
+  if (!E[player]) return EAST;
+  return NONE;
 }
