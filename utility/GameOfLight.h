@@ -162,7 +162,7 @@ class GameOfLight {
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
   uint8_t *red[8];
   uint8_t *green[8];
-  //Storage for controller-info:
+  //Storage for controller-info: stores inverted
   uint8_t B[4];
   uint8_t Y[4];
   uint8_t Select[4];
@@ -176,16 +176,17 @@ class GameOfLight {
   uint8_t L[4];
   uint8_t R[4];
 
-  //Controller-methods:
-  uint8_t getA(int Player);
-  uint8_t getB(int Player);
-  uint8_t getX(int Player);
-  uint8_t getY(int Player);
-  uint8_t getL(int Player);
-  uint8_t getR(int Player);
-  uint8_t getStart(int Player);
-  uint8_t getSelect(int Player);  
-  direction getDir(int Player); //returns enum NORTH SOUTH EAST WEST NONE TODO sideskift
+  //Controller-methods: resets button when called
+  uint8_t getA(uint8_t Player);
+  uint8_t getB(uint8_t Player);
+  uint8_t getX(uint8_t Player);
+  uint8_t getY(uint8_t Player);
+  uint8_t getL(uint8_t Player);
+  uint8_t getR(uint8_t Player);
+  uint8_t getStart(uint8_t Player);
+  uint8_t getSelect(uint8_t Player);  
+  direction getDir(uint8_t Player); //returns enum NORTH SOUTH EAST WEST NONE TODO sideskift
+  void resetButtons();
     
   //The following methods are in GameOfLightSim/GameOfLightHW:
   virtual void update() = 0; //Update screen with contents of buffer

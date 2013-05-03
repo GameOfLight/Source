@@ -20,7 +20,7 @@
 #include "GameOfLight.h"
 
 GameOfLight::GameOfLight() {
-  for (int i = 0; i < 8; i++) {
+  for (uint8_t i = 0; i < 8; i++) {
     red[i] = &buff[i][64];
     green[i] = &buff[i][0];
   }
@@ -79,7 +79,7 @@ void GameOfLight::write(const uint8_t data) {
 }
 
 void GameOfLight::print(const char ch) {
-  int i;
+  uint8_t i;
   for(i=0; i<5; i++) {
     /* Fetch and print the pieces that makes up the letter given */	
     write(pgm_read_byte(font+(ch-0x20)*5+i));
@@ -119,8 +119,8 @@ void GameOfLight::clear(int count) {
 
   //A bit slow, change to memset implementation later? (But make sure to check whetever all of
   // count ends up within the actual array before you do!)
-  for (int line = _curr_line; line < 8 && count; line++) {
-    for (int x = _curr_index; x < 64 && count; x++) {
+  for (uint8_t line = _curr_line; line < 8 && count; line++) {
+    for (uint8_t x = _curr_index; x < 64 && count; x++) {
       buff[line][x] = 0;		//Clear green
       buff[line][x + 64] = 0; //Clear red
       count--;
@@ -172,42 +172,104 @@ void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
   }
 }
 
-uint8_t GameOfLight::getA(int player){
-  return !A[player];
+uint8_t GameOfLight::getA(uint8_t player){
+  if(!A[player]){
+    A[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-uint8_t GameOfLight::getB(int player){
-  return !B[player];
+uint8_t GameOfLight::getB(uint8_t player){
+   if(!B[player]){
+    B[player] = 1;
+    return 1;
+  }  
+  return 0;
+
 }
 
-uint8_t GameOfLight::getX(int player){
-  return !X[player];
+uint8_t GameOfLight::getX(uint8_t player){
+  if(!X[player]){
+    X[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-uint8_t GameOfLight::getY(int player){
-  return !Y[player];
+uint8_t GameOfLight::getY(uint8_t player){
+   if(!Y[player]){
+    Y[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-uint8_t GameOfLight::getStart(int player){
-  return !Start[player];
+uint8_t GameOfLight::getStart(uint8_t player){
+   if(!Start[player]){
+    Start[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-uint8_t GameOfLight::getSelect(int player){
-  return !Select[player];
+uint8_t GameOfLight::getSelect(uint8_t player){
+   if(!Select[player]){
+    Select[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-uint8_t GameOfLight::getL(int player){
-  return !L[player];
+uint8_t GameOfLight::getL(uint8_t player){
+   if(!L[player]){
+    L[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-uint8_t GameOfLight::getR(int player){
-  return !R[player];
+uint8_t GameOfLight::getR(uint8_t player){
+   if(!R[player]){
+    R[player] = 1;
+    return 1;
+  }  
+  return 0;
 }
 
-direction GameOfLight::getDir(int player){
-  if (!N[player]) return NORTH;
-  if (!S[player]) return SOUTH;
-  if (!W[player]) return WEST;
-  if (!E[player]) return EAST;
+direction GameOfLight::getDir(uint8_t player){
+  if (!N[player]) { 
+    N[player] = 1;
+    return NORTH;
+  }
+  if (!S[player]) { 
+    S[player] = 1;
+    return SOUTH;
+  }
+  if (!W[player]) { 
+    W[player] = 1;
+    return WEST;}
+  if (!E[player]) { 
+    E[player] = 1;
+    return EAST;
+  }
   return NONE;
+}
+void GameOfLight::resetButtons(){
+  for(uint8_t i = 0; i<4; i++){
+    A[i] = 1;
+    B[i] = 1;
+    X[i] = 1;
+    Y[i] = 1;
+    Start[i] = 1;
+    Select[i] = 1;
+    L[i] = 1;
+    R[i] = 1;
+    N[i] = 1; 
+    S[i] = 1;
+    W[i] = 1;
+    E[i] = 1;
+  }
+  
+  
 }
