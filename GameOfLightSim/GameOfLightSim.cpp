@@ -115,8 +115,7 @@ void GameOfLightSim::screen_goto(uint8_t index, uint8_t line) {
 }
 
 /* Asks simulator for stored keyboard-values, then reads response from serial 
- * Data comes in NUM_PLAYERS+1 bytes: startselect(for all players), p1, p2, etc
- */
+ * Data comes in NUM_PLAYERS*2 bytes.  */
 
 void GameOfLightSim::getButtons() {
 	// Sending request to arduino
@@ -124,18 +123,18 @@ void GameOfLightSim::getButtons() {
 	Serial.write('\n');
 
 	// Reading from Serial
-	bytes_red = Serial.readBytes(serial_data, NUM_PLAYERS + 1);
+	bytes_red = Serial.readBytes(serial_data, NUM_PLAYERS*2);
 
-	if(bytes_red > NUM_PLAYERS) { 
-		for(int i = 0; i < NUM_PLAYERS; i++) {
-			Start[i] = ((serial_data[0] & (1 << 7-(2*i))) == 0)? 1 : 0;
-			Select[i] = ((serial_data[0] & (1 << 6-(2*i))) == 0)? 1 : 0;
-
+	if(bytes_red == NUM_PLAYERS*2) { 
+		for(int i = 0; i < NUM_PLAYERS; i+=2) {
+			Start[i] = ((serial_data[i] & (1 << 7) == 0)? 1 : 0;
+			Select[i] = ((serial_data[i] & (1 << 6) == 0)? 1 : 0;
+			L[i] = ((serial_data[i] & (1 << 5)) == 0)? 1 : 0;
+			R[i] = ((serial_data[i] & (1 << 4)) == 0)? 1 : 0; 
 			N[i] = ((serial_data[i+1] & (1 << 7)) == 0)? 1 : 0;
 			W[i] = ((serial_data[i+1] & (1 << 6)) == 0)? 1 : 0;
 			S[i] = ((serial_data[i+1] & (1 << 5)) == 0)? 1 : 0;
 			E[i] = ((serial_data[i+1] & (1 << 4)) == 0)? 1 : 0;
-			
 			X[i] = ((serial_data[i+1] & (1 << 3)) == 0)? 1 : 0;
 			Y[i] = ((serial_data[i+1] & (1 << 2)) == 0)? 1 : 0;
 			B[i] = ((serial_data[i+1] & (1 << 1)) == 0)? 1 : 0;
