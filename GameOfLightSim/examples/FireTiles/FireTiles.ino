@@ -12,8 +12,6 @@ prog_uchar sheet[] PROGMEM = {
 };
 
 int odd = 0, even = 3;
-int oinc = 1;
-int einc = 1;
 
 void setup() {
   frame.begin();
@@ -29,13 +27,7 @@ void loop() {
   }
   frame.update();
   delay(100);
-  odd += oinc;
-  even += einc;
-  if (!odd || odd == 6) {
-    oinc = -oinc;
-  }
-  if (!even || even == 6) {
-    einc = -einc;
-  }
+  odd = (odd + 1) % 7;
+  even = (even + 1) % 7;
 }
-
+
