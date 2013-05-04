@@ -159,6 +159,8 @@ class GameOfLight {
   void clear();  /* Clears buffer */
   void clear(int count); /* Clears count spaces ahead of cursor */
   void write(const uint8_t data); //Direct write to the buffer's current position
+  void blit(const prog_uchar *sprite, int8_t x, int8_t y); // Blits a sprite onto the screen
+
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
   uint8_t *red[8];
   uint8_t *green[8];

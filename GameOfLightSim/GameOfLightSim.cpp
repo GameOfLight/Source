@@ -9,12 +9,12 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301	 USA
 */
 #include <Arduino.h>
 #include "GameOfLightSim.h"
@@ -127,8 +127,8 @@ void GameOfLightSim::getButtons() {
 
 	if(bytes_red == NUM_PLAYERS*2) { 
 		for(int i = 0; i < NUM_PLAYERS; i+=2) {
-			Start[i] = ((serial_data[i] & (1 << 7) == 0)? 1 : 0;
-			Select[i] = ((serial_data[i] & (1 << 6) == 0)? 1 : 0;
+			Start[i] = ((serial_data[i] & (1 << 7)) == 0)? 1 : 0;
+			Select[i] = ((serial_data[i] & (1 << 6)) == 0)? 1 : 0;
 			L[i] = ((serial_data[i] & (1 << 5)) == 0)? 1 : 0;
 			R[i] = ((serial_data[i] & (1 << 4)) == 0)? 1 : 0; 
 			N[i] = ((serial_data[i+1] & (1 << 7)) == 0)? 1 : 0;
