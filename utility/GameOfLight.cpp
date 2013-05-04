@@ -82,10 +82,10 @@ void GameOfLight::write(const uint8_t data) {
  * Copies an 8x8 tile from program memory to the screen buffer.
  * Only the parts that are actually on the screen gets copied.
  */
-void GameOfLight::blit(const prog_uchar *sprite, int8_t x, int8_t y) {
+void GameOfLight::blit(const prog_uchar *sprite, int x, int y) {
   int8_t offset = y & 0x07; // Combined ABS and modulo
   int8_t maxCol = min(64 - x, 8); // Used to avoid drawing outside the right edge
-  int8_t start = max(-x, 0); // Used to drawing outside the left edge.
+  int8_t start = max(-x, 0); // Used to avoid drawing outside the left edge.
   int8_t i;
   y >>= 3; // Divide by 8 and round towards negative infinity
   
