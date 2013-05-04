@@ -1,9 +1,55 @@
+/*
+  GOLEditor.pde - Graphics editor for GameOfLight
+  Copyright (c) 2013 Sigmund Hansen.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 import java.awt.event.*;
 import java.util.Scanner;
 
-int size = 8;
+/*
+ * GOLEditor is a simple graphics editor
+ * that can be used to create texture arrays for GameOfLight.
+ *
+ * A single texture can be edited at a time, and the size is set to
+ * 8x8 pixels/LEDs. This means a single tile covers one LED matrix
+ * in the GameOfLight screen.
+ *
+ * The size was chosen to reduce the number of LED matrix arrays
+ * the sprites could span, simplifying "blitting" on the machine.
+ *
+ * Tiles can be imported/exported to/from images and C arrays.
+ * Supported image formats are Targa (tga), TIFF (tif), PNG and JPG.
+ *
+ * Note that if you export tiles to images, you may end up with one or
+ * more empty tiles at the end. Currently the editor does not handle
+ * deletion or skipping empty tiles in an imported tile set.
+ *
+ * The left mouse button draws a pixel in the current color. The right
+ * mouse button clears a pixel. The mouse wheel or up and down arrow
+ * keys switches colors. The left and right arrow keys switches
+ * tiles. The + key adds a new tile.
+ */
+
+/** Size of a side in a tile (8 covers one LED matrix). */
+final int size = 8;
+/** All tiles are stored here. */
 ArrayList<int[]> images = new ArrayList<int[]>();
+/** The tile pixel buffer. */
 int[] buf = new int[size * size];
+/** Available colors, matching the LEDs on the machine. */
 color[] colors = {
   #000000, 
   #00d020, 
@@ -11,12 +57,19 @@ color[] colors = {
   #ffa000
 };
 
+/** Mouse coordinates converted to tile pixels. */
 int mX, mY;
+/** The currently selected color for drawing. */
 int curColor = 1;
+/** The currently selected tile/image. */
 int curImage = 0;
 
+/** Whether the mouse cursor is currently shown. */
 boolean cursor = false;
 
+/**
+ * Prepare the window, tile list and add a mouse wheel listener.
+ */
 void setup() {
   images.add(buf);
   size(size * 20 + size * 10, size * 20 + 64);
@@ -32,6 +85,10 @@ void setup() {
   textAlign(CENTER);
 }
 
+/**
+ * Draws lines to separate differently sized copies of the tile.
+ * Draws GUI buttons.
+ */
 void draw() {
   stroke(255);
   line(0, size * 20, width, size * 20);
@@ -50,6 +107,9 @@ void draw() {
   text("" + (curImage + 1), width / 2, size * 20 + 25);
 }
 
+/**
+ * Draw the whole tile to the screen.
+ */
 void drawBuffer() {
   noStroke();
   for (int x = 0; x < size; x++) {
@@ -62,6 +122,11 @@ void drawBuffer() {
   }
 }
 
+/**
+ * Color a pixel if the mouse is in the drawing area.
+ *
+ * Handle button presses.
+ */
 void mousePressed() {
   int i = mX + mY * size;
 
@@ -90,11 +155,24 @@ void mousePressed() {
   }
 }
 
+/**
+ * Simple hack to handle mouse dragging.
+ * Move the mouse and color the pixel.
+ *
+ * Mouse pressed is called first to avoid a graphical artifact.
+ */
 void mouseDragged() {
   mousePressed();
   mouseMoved();
 }
 
+/**
+ * Update the pixel position of the mouse if the mouse is in the
+ * drawing area. Turn the cursor on or off if necessary.  Draws a
+ * white pixel where the mouse is located (helps locate the mouse in
+ * the drawing area) and erases it by drawing a black pixel where the
+ * mouse was previously located.
+ */
 void mouseMoved() {
   int x = mouseX / 20;
   int y = mouseY / 20;
@@ -142,6 +220,9 @@ void mouseMoved() {
   set(mouseX, mouseY, #ffffff);
 }
 
+/**
+ * Handle mouse wheel events, changing colors.
+ */
 void mouseWheeled(int mouseZ) {
   curColor += mouseZ + 2;
   curColor %= 3;
@@ -150,15 +231,20 @@ void mouseWheeled(int mouseZ) {
   mouseMoved();
 }
 
+/**
+ * Switch tiles, color or add tiles.
+ */
 void keyReleased() {
   if (keyCode == LEFT) {
     switchImage(-1);
-  } 
+  }
   else if (keyCode == RIGHT) {
     switchImage(1);
-  } else if (keyCode == UP) {
+  }
+  else if (keyCode == UP) {
     mouseWheeled(-1);
-  } else if (keyCode == DOWN) {
+  }
+  else if (keyCode == DOWN) {
     mouseWheeled(1);
   } 
   else if (key == '+') {
@@ -166,6 +252,9 @@ void keyReleased() {
   }
 }
 
+/**
+ * Move through the tiles.
+ */
 void switchImage(int dir) {
   curImage += dir + images.size();
   curImage %= images.size();
@@ -173,6 +262,9 @@ void switchImage(int dir) {
   drawBuffer();
 }
 
+/**
+ * Add an image to the tile set and switch to it.
+ */
 void addImage() {
   buf = new int[size * size];
   curImage = images.size();
@@ -180,10 +272,16 @@ void addImage() {
   drawBuffer();
 }
 
+/**
+ * Open a file chooser.
+ */
 void exportImages() {
   selectInput("Select a file to export the sheet to:", "exportImages");
 }
 
+/**
+ * Handle file chooser results by calling the appropriate export method.
+ */
 void exportImages(File f) {
   if (f == null) {
     return;
@@ -196,6 +294,9 @@ void exportImages(File f) {
   }
 }
 
+/**
+ * Exports the image to an image file.
+ */
 void exportToImage(File f) {
   int square = ceil(sqrt(images.size()));
   PImage img = createImage(square * size, square * size, RGB);
@@ -224,6 +325,9 @@ void exportToImage(File f) {
   img.save(f.getAbsolutePath());
 }
 
+/**
+ * Export images to a C array suited for use on the GameOfLight machine.
+ */
 void exportToCArray(File f) {
   int[] buf;
   PrintWriter pw = null;
@@ -255,10 +359,16 @@ void exportToCArray(File f) {
   }
 }
 
+/**
+ * Open a file chooser for imports.
+ */
 void importImages() {
   selectInput("Select a file to import sprites from:", "importImages");
 }
 
+/**
+ * Handle file chooser results by calling the appropriate import method.
+ */
 void importImages(File f) {
   if (f == null) {
     return;
@@ -293,6 +403,9 @@ void importImages(File f) {
   switchImage(0);
 }
 
+/**
+ * Imports images from a PImage (usually loaded from a raster graphics file).
+ */
 void importImagesFromPImage(PImage p) {
   if (p.width % size != 0 || p.height % size != 0) {
     System.err.printf("Only images with dimensions divisible by %d is supported.%n", size);
@@ -330,6 +443,9 @@ void importImagesFromPImage(PImage p) {
   }
 }
 
+/**
+ * Imports tiles from a C array (the file should not contain other code).
+ */
 void importImagesFromCArray(Scanner s) throws IOException {
   s.useDelimiter("[,;x\\s}{]+");
   if (s.hasNextLine()) {
@@ -364,4 +480,3 @@ void importImagesFromCArray(Scanner s) throws IOException {
     }
   }
 }
-
