@@ -78,6 +78,44 @@ void GameOfLight::write(const uint8_t data) {
   }
 }
 
+/*
+ * Copies an 8x8 tile from program memory to the screen buffer.
+ * Only the parts that are actually on the screen gets copied.
+ */
+void GameOfLight::blit(const prog_uchar *sprite, int8_t x, int8_t y) {
+  int8_t offset = y & 0x07; // Combined ABS and modulo
+  int8_t maxCol = min(64 - x, 8); // Used to avoid drawing outside the right edge
+  int8_t start = max(-x, 0); // Used to drawing outside the left edge.
+  int8_t i;
+  y >>= 3; // Divide by 8 and round towards negative infinity
+  
+  if (y < -1) {
+    return;
+
+  } else if (y > -1) { // Draw the top half
+    for (i = start; i < maxCol; i++) {
+      // Green column
+      green[y][i + x] |= pgm_read_byte(sprite + (i << 1)) << offset;
+      // Red column
+      red[y][i + x] |= pgm_read_byte(sprite + (i << 1) + 1) << offset;
+    }
+  }
+
+  // Check if we are done, or if the bottom is off the bottom edge.
+  if (!offset || y >= 7) {
+    return;
+  }
+
+  y++;
+  offset = 8 - offset;
+  for (i = start; i < maxCol; i++) { // Draw the bottom half
+    // Green column
+    green[y][i + x] |= pgm_read_byte(sprite + (i << 1)) >> offset;
+    // Red column
+    red[y][i + x] |= pgm_read_byte(sprite + (i << 1) + 1) >> offset;
+  }
+}
+
 void GameOfLight::print(const char ch) {
   uint8_t i;
   for(i=0; i<5; i++) {
