@@ -1,21 +1,21 @@
 /*
   GOLEditor.pde - Graphics editor for GameOfLight
-  Copyright (c) 2013 Sigmund Hansen.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ Copyright (c) 2013 Sigmund Hansen.  All right reserved.
+ 
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 import java.awt.event.*;
 import java.util.Scanner;
 
@@ -67,6 +67,8 @@ int curImage = 0;
 /** Whether the mouse cursor is currently shown. */
 boolean cursor = false;
 
+Button[] buttons;
+
 /**
  * Prepare the window, tile list and add a mouse wheel listener.
  */
@@ -83,6 +85,95 @@ void setup() {
   noCursor();
   frameRate(30);
   textAlign(CENTER);
+
+  buttons = new Button[] {
+    // Import button
+    new Button(10, size * 20 + 10, width / 4, 20, "Import") {
+      /**
+       * Open a file chooser for imports.
+       */
+      public void press(int x, int y) {
+        if (isInBounds(x, y)) {
+          selectInput("Select a file to import sprites from:", "importImages");
+        }
+      }
+    }
+    , 
+    // Export button
+    new Button(width - 10, size * 20 + 10, -width / 4, 20, "Export") {
+      /**
+       * Open a file chooser for exports.
+       */
+      public void press(int x, int y) {
+        if (isInBounds(x, y)) {
+          selectInput("Select a file to export the sheet to:", "exportImages");
+        }
+      }
+    }
+    , 
+    // Copy button
+    new Button(10, size * 20 + 40, width / 4, 20, "Add copy") {
+      /**
+       * Adds a new tile with the same data as this tile.
+       */
+      public void press(int x, int y) {
+        if (!isInBounds(x, y)) {
+          return;
+        }
+
+        int[] tmp = new int[size * size];
+        arrayCopy(buf, tmp);
+        curImage = images.size();
+        images.add(tmp);
+        buf = tmp;
+        drawBuffer();
+      }
+    }
+    , 
+    // Button for flipping the tile horizontally
+    new Button(width / 2 - width / 8, size * 20 + 40, width / 4, 20, "Flip hor") {
+      /**
+       * Mirrors the currently selected tile.
+       */
+      public void press(int x, int y) {
+        if (!isInBounds(x, y)) {
+          return;
+        }
+
+        for (int i = 0; i < size / 2; i++) {
+          for (int j = 0; j < size; j++) {
+            buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
+            buf[(size - 1 - i) + j * size] ^= buf[i + j * size];
+            buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
+          }
+        }
+
+        drawBuffer();
+      }
+    }
+    , 
+    // Button for flipping the tile horizontally
+    new Button(width - 10, size * 20 + 40, -width / 4, 20, "Flip ver") {
+      /**
+       * Mirrors the currently selected tile.
+       */
+      public void press(int x, int y) {
+        if (!isInBounds(x, y)) {
+          return;
+        }
+
+        for (int i = 0; i < size; i++) {
+          for (int j = 0; j < size / 2; j++) {
+            buf[i + j * size] ^= buf[i + (size - 1 - j) * size];
+            buf[i + (size - 1 - j) * size] ^= buf[i + j * size];
+            buf[i + j * size] ^= buf[i + (size - 1 - j) * size];
+          }
+        }
+
+        drawBuffer();
+      }
+    }
+  };
 }
 
 /**
@@ -97,13 +188,9 @@ void draw() {
   noStroke();
   fill(192);
   rect(0, height, width, -64);
-  stroke(0);
-  fill(255);
-  rect(10, size * 20 + 10, width / 3, 20);
-  rect(width - 10, size * 20 + 10, -width / 3, 20);
-  fill(0);
-  text("import", 10 + width / 6, size * 20 + 25);
-  text("export", width - 10 - width / 6, size * 20 + 25);
+  for (Button button : buttons) {
+    button.draw();
+  }
   text("" + (curImage + 1), width / 2, size * 20 + 25);
 }
 
@@ -132,7 +219,6 @@ void mousePressed() {
 
   noStroke();
   if (mouseY < size * 20) {
-    set(pmouseX, pmouseY, 0);
     if (mouseButton == LEFT) { 
       buf[i] = curColor;
     } 
@@ -145,12 +231,9 @@ void mousePressed() {
     rect(size * 20 + mX * 5, size * 10 + mY * 5, 5, 5);
     set(mouseX, mouseY, #ffffff);
   } 
-  else if (mouseY > size * 20 + 10 && mouseY < size * 20 + 30) {
-    if (mouseX < width - 10 && mouseX > width - 10 - width / 3) {
-      exportImages();
-    } 
-    else if (mouseX > 10 && mouseX < width / 3 + 10) { 
-      importImages();
+  else {
+    for (Button button : buttons) {
+      button.press(mouseX, mouseY);
     }
   }
 }
@@ -162,8 +245,8 @@ void mousePressed() {
  * Mouse pressed is called first to avoid a graphical artifact.
  */
 void mouseDragged() {
-  mousePressed();
   mouseMoved();
+  mousePressed();
 }
 
 /**
@@ -179,7 +262,9 @@ void mouseMoved() {
   int i = mX + mY * size;
   noStroke();
 
-  set(pmouseX, pmouseY, 0);
+  if (mouseY < size * 20 && !mousePressed) {
+    set(pmouseX, pmouseY, 0);
+  }
   fill(colors[buf[i]]);
   rect(mX * 20, mY * 20, 20, 20);
   rect(size * 20 + mX * 10, mY * 10, 10, 10);
@@ -273,23 +358,17 @@ void addImage() {
 }
 
 /**
- * Open a file chooser.
- */
-void exportImages() {
-  selectInput("Select a file to export the sheet to:", "exportImages");
-}
-
-/**
  * Handle file chooser results by calling the appropriate export method.
  */
 void exportImages(File f) {
   if (f == null) {
     return;
   }
-  
+
   if (f.getName().endsWith(".png") || f.getName().endsWith(".jpg") || f.getName().endsWith(".tga") || f.getName().endsWith(".tif")) {
     exportToImage(f);
-  } else {
+  } 
+  else {
     exportToCArray(f);
   }
 }
@@ -300,28 +379,28 @@ void exportImages(File f) {
 void exportToImage(File f) {
   int square = ceil(sqrt(images.size()));
   PImage img = createImage(square * size, square * size, RGB);
-  
+
   int current = 0;
   for (int[] buf : images) {
     int startX = (current * size) % (img.width);
     int startY = ((current * size) / (img.width)) * size;
-    
+
     for (int i = 0; i < buf.length; i++) {
       img.set(startX + (i % size), startY + (i / size), colors[buf[i]]);
     }
     current++;
   }
-  
+
   while (current < square * square) {
     int startX = (current * size) % (img.width);
     int startY = ((current * size) / (img.width)) * size;
-    
+
     for (int i = 0; i < buf.length; i++) {
       img.set(startX + (i % size), startY + (i / size), 0);
     }
     current++;
   }
-  
+
   img.save(f.getAbsolutePath());
 }
 
@@ -332,8 +411,13 @@ void exportToCArray(File f) {
   int[] buf;
   PrintWriter pw = null;
   try {
+    String sheetName = f.getName();
+    int lastDot = sheetName.lastIndexOf('.');
+    sheetName = lastDot > 0 ? sheetName.substring(0, lastDot) : sheetName;
+    sheetName = sheetName.replaceAll("[\\s\\.*-+/\\\\]", "_");
+
     pw = new PrintWriter(f);
-    pw.println("prog_uchar sheet[] PROGMEM = {");
+    pw.println("uint8_t " + sheetName + "[] PROGMEM = {");
     for (int k = 0; k < images.size(); k++) {
       buf = images.get(k);
       for (int i = 0; i < size; i++) {
@@ -357,13 +441,6 @@ void exportToCArray(File f) {
       pw.close();
     }
   }
-}
-
-/**
- * Open a file chooser for imports.
- */
-void importImages() {
-  selectInput("Select a file to import sprites from:", "importImages");
 }
 
 /**
@@ -480,3 +557,4 @@ void importImagesFromCArray(Scanner s) throws IOException {
     }
   }
 }
+
