@@ -348,13 +348,10 @@ void exportToCArray(File f) {
   PrintWriter pw = null;
   try {
     String sheetName = f.getName();
-    sheetName = sheetName.indexOf('.') != -1
-      ? sheetName.substring(0, sheetName.indexOf('.'))
-      : sheetName;
-    if (sheetName.isEmpty()) {
-      System.err.println("HIDDEN FILES NOT SUPPORTED!");
-      return;
-    }
+    int lastDot = sheetName.lastIndexOf('.');
+    sheetName = lastDot > 0 ? sheetName.substring(0, lastDot) : sheetName;
+    sheetName = sheetName.replaceAll("[\\s\\.*-+/\\]", "_");
+    
     pw = new PrintWriter(f);
     pw.println("uint8_t " + sheetName + "[] PROGMEM = {");
     for (int k = 0; k < images.size(); k++) {
