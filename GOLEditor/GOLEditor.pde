@@ -108,6 +108,45 @@ void setup() {
           selectInput("Select a file to export the sheet to:", "exportImages");
         }
       }
+    },
+    // Copy button
+    new Button(10, size * 20 + 40, width / 3, 20, "Add copy") {
+      /**
+       * Adds a new tile with the same data as this tile.
+       */
+      public void press(int x, int y) {
+        if (!isInBounds(x, y)) {
+          return;
+        }
+        
+        int[] tmp = new int[size * size];
+        arrayCopy(buf, tmp);
+        curImage = images.size();
+        images.add(tmp);
+        buf = tmp;
+        drawBuffer();
+      }
+    },
+    // Button for flipping the tile horizontally
+    new Button(width - 10, size * 20 + 40, -width / 3, 20, "Flip") {
+      /**
+       * Mirrors the currently selected tile.
+       */
+      public void press(int x, int y) {
+        if (!isInBounds(x, y)) {
+          return;
+        }
+        
+        for (int i = 0; i < size / 2; i++) {
+          for (int j = 0; j < size; j++) {
+            buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
+            buf[(size - 1 - i) + j * size] ^= buf[i + j * size];
+            buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
+          }
+        }
+
+        drawBuffer();
+      }
     }
   };
 }
@@ -167,7 +206,7 @@ void mousePressed() {
     rect(size * 20 + mX * 5, size * 10 + mY * 5, 5, 5);
     set(mouseX, mouseY, #ffffff);
   } 
-  else if (mouseY > size * 20 + 10 && mouseY < size * 20 + 30) {
+  else {
     for (Button button : buttons) {
       button.press(mouseX, mouseY);
     }
@@ -493,4 +532,5 @@ void importImagesFromCArray(Scanner s) throws IOException {
     }
   }
 }
+
 
