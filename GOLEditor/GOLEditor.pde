@@ -88,7 +88,7 @@ void setup() {
 
   buttons = new Button[] {
     // Import button
-    new Button(10, size * 20 + 10, width / 3, 20, "Import") {
+    new Button(10, size * 20 + 10, width / 4, 20, "Import") {
       /**
        * Open a file chooser for imports.
        */
@@ -99,7 +99,7 @@ void setup() {
       }
     },
     // Export button
-    new Button(width - 10, size * 20 + 10, -width / 3, 20, "Export") {
+    new Button(width - 10, size * 20 + 10, -width / 4, 20, "Export") {
       /**
        * Open a file chooser for exports.
        */
@@ -110,7 +110,7 @@ void setup() {
       }
     },
     // Copy button
-    new Button(10, size * 20 + 40, width / 3, 20, "Add copy") {
+    new Button(10, size * 20 + 40, width / 4, 20, "Add copy") {
       /**
        * Adds a new tile with the same data as this tile.
        */
@@ -128,7 +128,7 @@ void setup() {
       }
     },
     // Button for flipping the tile horizontally
-    new Button(width - 10, size * 20 + 40, -width / 3, 20, "Flip") {
+    new Button(width / 2 - width / 8, size * 20 + 40, width / 4, 20, "Flip hor") {
       /**
        * Mirrors the currently selected tile.
        */
@@ -142,6 +142,27 @@ void setup() {
             buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
             buf[(size - 1 - i) + j * size] ^= buf[i + j * size];
             buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
+          }
+        }
+
+        drawBuffer();
+      }
+    },
+    // Button for flipping the tile horizontally
+    new Button(width - 10, size * 20 + 40, -width / 4, 20, "Flip ver") {
+      /**
+       * Mirrors the currently selected tile.
+       */
+      public void press(int x, int y) {
+        if (!isInBounds(x, y)) {
+          return;
+        }
+        
+        for (int i = 0; i < size; i++) {
+          for (int j = 0; j < size / 2; j++) {
+            buf[i + j * size] ^= buf[i + (size - 1 - j) * size];
+            buf[i + (size - 1 - j) * size] ^= buf[i + j * size];
+            buf[i + j * size] ^= buf[i + (size - 1 - j) * size];
           }
         }
 
