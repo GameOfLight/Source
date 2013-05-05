@@ -97,7 +97,8 @@ void setup() {
           selectInput("Select a file to import sprites from:", "importImages");
         }
       }
-    },
+    }
+    , 
     // Export button
     new Button(width - 10, size * 20 + 10, -width / 4, 20, "Export") {
       /**
@@ -108,7 +109,8 @@ void setup() {
           selectInput("Select a file to export the sheet to:", "exportImages");
         }
       }
-    },
+    }
+    , 
     // Copy button
     new Button(10, size * 20 + 40, width / 4, 20, "Add copy") {
       /**
@@ -118,7 +120,7 @@ void setup() {
         if (!isInBounds(x, y)) {
           return;
         }
-        
+
         int[] tmp = new int[size * size];
         arrayCopy(buf, tmp);
         curImage = images.size();
@@ -126,7 +128,8 @@ void setup() {
         buf = tmp;
         drawBuffer();
       }
-    },
+    }
+    , 
     // Button for flipping the tile horizontally
     new Button(width / 2 - width / 8, size * 20 + 40, width / 4, 20, "Flip hor") {
       /**
@@ -136,7 +139,7 @@ void setup() {
         if (!isInBounds(x, y)) {
           return;
         }
-        
+
         for (int i = 0; i < size / 2; i++) {
           for (int j = 0; j < size; j++) {
             buf[i + j * size] ^= buf[(size - 1 - i) + j * size];
@@ -147,7 +150,8 @@ void setup() {
 
         drawBuffer();
       }
-    },
+    }
+    , 
     // Button for flipping the tile horizontally
     new Button(width - 10, size * 20 + 40, -width / 4, 20, "Flip ver") {
       /**
@@ -157,7 +161,7 @@ void setup() {
         if (!isInBounds(x, y)) {
           return;
         }
-        
+
         for (int i = 0; i < size; i++) {
           for (int j = 0; j < size / 2; j++) {
             buf[i + j * size] ^= buf[i + (size - 1 - j) * size];
@@ -410,8 +414,8 @@ void exportToCArray(File f) {
     String sheetName = f.getName();
     int lastDot = sheetName.lastIndexOf('.');
     sheetName = lastDot > 0 ? sheetName.substring(0, lastDot) : sheetName;
-    sheetName = sheetName.replaceAll("[\\s\\.*-+/\\]", "_");
-    
+    sheetName = sheetName.replaceAll("[\\s\\.*-+/\\\\]", "_");
+
     pw = new PrintWriter(f);
     pw.println("uint8_t " + sheetName + "[] PROGMEM = {");
     for (int k = 0; k < images.size(); k++) {
@@ -553,5 +557,4 @@ void importImagesFromCArray(Scanner s) throws IOException {
     }
   }
 }
-
 
