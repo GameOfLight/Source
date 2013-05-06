@@ -126,7 +126,7 @@ void GameOfLightSim::getButtons() {
 	bytes_red = Serial.readBytes(serial_data, NUM_PLAYERS*2);
 
 	if(bytes_red == NUM_PLAYERS*2) { 
-		for(int i = 0; i < NUM_PLAYERS; i++) {
+		for(int i = 0; i < NUM_PLAYERS*2; i+=2) {
 			Start[i] = ((serial_data[i] & (1 << 7)) == 0)? 1 : 0;
 			Select[i] = ((serial_data[i] & (1 << 6)) == 0)? 1 : 0;
 			L[i] = ((serial_data[i] & (1 << 5)) == 0)? 1 : 0;
