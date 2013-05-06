@@ -275,7 +275,7 @@ uint8_t GameOfLight::getR(uint8_t player){
   return 0;
 }
 
-direction GameOfLight::getDir(uint8_t player){
+uint8_t GameOfLight::getDir(uint8_t player){
   if (!N[player]) { 
     N[player] = 1;
     return NORTH;

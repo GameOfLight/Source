@@ -38,7 +38,11 @@
 #define PLAYER3 2
 #define PLAYER4 3
 
-enum direction {NORTH, SOUTH, EAST, WEST, NONE};
+#define NORTH 0  //00
+#define WEST 1   //01
+#define EAST 2   //10: opposite og 01
+#define SOUTH 3  //11: opposite of 00
+#define NONE 4
 
 static const unsigned char PROGMEM font[]  = {
   0x00, 0x00, 0x00, 0x00, 0x00,   // sp
@@ -187,7 +191,7 @@ class GameOfLight {
   uint8_t getR(uint8_t Player);
   uint8_t getStart(uint8_t Player);
   uint8_t getSelect(uint8_t Player);  
-  direction getDir(uint8_t Player); //returns enum NORTH SOUTH EAST WEST NONE TODO sideskift
+  uint8_t getDir(uint8_t Player); //returns one of: NORTH SOUTH EAST WEST NONE
   void resetButtons();
     
   //The following methods are in GameOfLightSim/GameOfLightHW:
