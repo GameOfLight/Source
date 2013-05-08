@@ -210,6 +210,51 @@ void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
   }
 }
 
+
+//Scrolls the entire board 1px left leaving a blank column along the right edge
+void GameOfLight::scrollLeft() {
+  uint8_t i;
+  for (i = 0; i < 8; i++) {
+    scrollLeft(i, 0, 0);
+  }
+}
+
+
+//Scrolls the given line 1px to the left. Pads the end of the line with the given bytes
+void GameOfLight::scrollLeft(uint8_t line, uint8_t padGreen, uint8_t padRed) {
+  uint8_t i;
+
+  for (i = 0; i < 127; i++) {
+    //Green & red. The wrong data at buff[line][63] is fixed in a bit...
+    buff[line][i] = buff[line][i+1];
+  }
+
+  buff[line][63] = padGreen;
+  buff[line][127] = padRed;
+}
+
+
+//Scrolls the entire board 1px right leaving a blank column along the left edge
+void GameOfLight::scrollRight() {
+  uint8_t i;
+  for (i = 0; i < 8; i++) {
+    scrollRight(i, 0, 0);
+  }
+}
+
+//Scrolls the given line 1px to the right. Pads the start of the line with the given bytes
+void GameOfLight::scrollRight(uint8_t line, uint8_t padGreen, uint8_t padRed) {
+  uint8_t i;
+  for (i = 127; i < 128; i--) { //Note: uint, hence seemingly weird test
+    //Green & red. The wrong data at buff[line][64] is fixed in a bit...
+    buff[line][i] = buff[line][i-1];
+  }
+
+  buff[line][0] = padGreen;
+  buff[line][64] = padRed;
+}
+
+
 uint8_t GameOfLight::getA(uint8_t player){
   if(!A[player]){
     A[player] = 1;

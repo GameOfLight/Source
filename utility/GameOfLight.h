@@ -164,10 +164,18 @@ class GameOfLight {
   void clear(int count); /* Clears count spaces ahead of cursor */
   void write(const uint8_t data); //Direct write to the buffer's current position
   void blit(const uint8_t *sprite, int x, int y); // Blits a sprite onto the screen
-
+  
+  void scrollLeft();
+  void scrollLeft(uint8_t line, uint8_t padGreen, uint8_t padRed);
+  void scrollRight();
+  void scrollRight(uint8_t line, uint8_t padGreen, uint8_t padRed);
+  
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
   uint8_t *red[8];
   uint8_t *green[8];
+
+
+
   //Storage for controller-info: stores inverted
   uint8_t B[4];
   uint8_t Y[4];
