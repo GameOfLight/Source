@@ -69,8 +69,8 @@ void GameOfLightSim::clearDisplay() {
 
 
 void GameOfLightSim::update() {
-//	GameOfLight::update(); //doesn't use the correct class when updating :/
-	int line;
+	uint8_t line;
+	_screen_line = 0xff; //Illegal value to force a resync on first line sent
 	for (line = 0; line < 8; line++) {
 		update(line);
 	}
@@ -79,7 +79,7 @@ void GameOfLightSim::update() {
 
 /* Sends a single line to the screen */
 void GameOfLightSim::update(const uint8_t line) {
-	int i;
+	uint8_t i;
 	screen_goto(0, line);
 	//Switch to burst mode to reduce transmission overhead:
 	Serial.write(SCREEN_DATA_BURST);
@@ -114,9 +114,9 @@ void GameOfLightSim::screen_goto(uint8_t index, uint8_t line) {
 	}
 }
 
+
 /* Asks simulator for stored keyboard-values, then reads response from serial 
  * Data comes in NUM_PLAYERS*2 bytes.  */
-
 void GameOfLightSim::getButtons() {
 	// Sending request to arduino
 	Serial.write(REQUEST_KEYS);
