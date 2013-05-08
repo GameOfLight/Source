@@ -50,7 +50,7 @@ class GameOfLightHW : public GameOfLight {
      uint8_t _screen_line;
      uint8_t _screen_index;
 
-     uint8_t data[4] = {2, 3, 4, 5}; //pins on Arduino to read from.  to HW
+     uint8_t controller[4]; //pins on Arduino where the SNES-controller data pins are connected
 };
 
 #endif

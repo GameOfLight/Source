@@ -23,6 +23,10 @@
 GameOfLightHW::GameOfLightHW() {
 	uint8_t _screen_line = 0;
 	uint8_t _screen_index = 0;
+	controller[0] = 2;
+	controller[1] = 3;
+	controller[2] = 4;
+	controller[3] = 5; //pins on Arduino where the SNES-controller data pins are connected
 }
 
 
@@ -31,10 +35,10 @@ void GameOfLightHW::begin() {
 	SPI.begin();
 	SPI.setClockDivider(SPI_CLOCK_DIV8);
 	pinMode(SCREEN_SS_PIN, OUTPUT);
-	pinMode(data[0], INPUT);
-	pinMode(data[1], INPUT);
-	pinMode(data[2], INPUT);
-	pinMode(data[3], INPUT);
+	pinMode(controller[0], INPUT);
+	pinMode(controller[1], INPUT);
+	pinMode(controller[2], INPUT);
+	pinMode(controller[3], INPUT);
 	pinMode(SNES_CLK_PIN, OUTPUT);
 	pinMode(SNES_LATCH_PIN, OUTPUT);
 	digitalWrite(SCREEN_SS_PIN, HIGH);
@@ -128,61 +132,61 @@ void GameOfLightHW::getButtons(){
   digitalWrite(SNES_LATCH_PIN, LOW);
 
 	for(int i = 0; i<4; i++){
-		B[i]=digitalRead(data[i]);
+		B[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Y[i]=digitalRead(data[i]);
+		Y[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Select[i]=digitalRead(data[i]);
+		Select[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Start[i]=digitalRead(data[i]);
+		Start[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		N[i]=digitalRead(data[i]);
+		N[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		S[i]=digitalRead(data[i]);
+		S[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		W[i]=digitalRead(data[i]);
+		W[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		E[i]=digitalRead(data[i]);
+		E[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		A[i]=digitalRead(data[i]);
+		A[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		X[i]=digitalRead(data[i]);
+		X[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		L[i]=digitalRead(data[i]);
+		L[i]=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		R[i]=digitalRead(data[i]);
+		R[i]=digitalRead(controller[i]);
 	}
 }
