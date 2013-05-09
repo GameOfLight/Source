@@ -89,7 +89,7 @@ void GameOfLight::blit(const uint8_t *sprite, int x, int y) {
   int8_t i;
   y >>= 3; // Divide by 8 and round towards negative infinity
   
-  if (y < -1) {
+  if (y < -1 || y > 7) {
     return;
 
   } else if (y > -1) { // Draw the top half
