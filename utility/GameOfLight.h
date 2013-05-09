@@ -169,6 +169,10 @@ class GameOfLight {
   void scrollLeft(uint8_t line, uint8_t padGreen, uint8_t padRed);
   void scrollRight();
   void scrollRight(uint8_t line, uint8_t padGreen, uint8_t padRed);
+  void scrollUp();
+  void scrollUp(uint8_t index, uint8_t padcolour);
+  void scrollDown();
+  void scrollDown(uint8_t index, uint8_t padcolour);
   
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
   uint8_t *red[8];
