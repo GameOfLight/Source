@@ -38,7 +38,11 @@
 #define PLAYER3 2
 #define PLAYER4 3
 
-enum direction {NORTH, SOUTH, EAST, WEST, NONE};
+#define NORTH 0  //00
+#define WEST 1   //01
+#define EAST 2   //10: opposite og 01
+#define SOUTH 3  //11: opposite of 00
+#define NONE 4
 
 static const unsigned char PROGMEM font[]  = {
   0x00, 0x00, 0x00, 0x00, 0x00,   // sp
@@ -159,11 +163,23 @@ class GameOfLight {
   void clear();  /* Clears buffer */
   void clear(int count); /* Clears count spaces ahead of cursor */
   void write(const uint8_t data); //Direct write to the buffer's current position
-  void blit(const prog_uchar *sprite, int x, int y); // Blits a sprite onto the screen
-
+  void blit(const uint8_t *sprite, int x, int y); // Blits a sprite onto the screen
+  
+  void scrollLeft();
+  void scrollLeft(uint8_t line, uint8_t padGreen, uint8_t padRed);
+  void scrollRight();
+  void scrollRight(uint8_t line, uint8_t padGreen, uint8_t padRed);
+  void scrollUp();
+  void scrollUp(uint8_t index, uint8_t padcolour);
+  void scrollDown();
+  void scrollDown(uint8_t index, uint8_t padcolour);
+  
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
   uint8_t *red[8];
   uint8_t *green[8];
+
+
+
   //Storage for controller-info: stores inverted
   uint8_t B[4];
   uint8_t Y[4];
@@ -187,7 +203,7 @@ class GameOfLight {
   uint8_t getR(uint8_t Player);
   uint8_t getStart(uint8_t Player);
   uint8_t getSelect(uint8_t Player);  
-  direction getDir(uint8_t Player); //returns enum NORTH SOUTH EAST WEST NONE TODO sideskift
+  uint8_t getDir(uint8_t Player); //returns one of: NORTH SOUTH EAST WEST NONE
   void resetButtons();
     
   //The following methods are in GameOfLightSim/GameOfLightHW:

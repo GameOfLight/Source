@@ -69,8 +69,8 @@ void GameOfLightSim::clearDisplay() {
 
 
 void GameOfLightSim::update() {
-//	GameOfLight::update(); //doesn't use the correct class when updating :/
-	int line;
+	uint8_t line;
+	_screen_line = 0xff; //Illegal value to force a resync on first line sent
 	for (line = 0; line < 8; line++) {
 		update(line);
 	}
@@ -79,7 +79,7 @@ void GameOfLightSim::update() {
 
 /* Sends a single line to the screen */
 void GameOfLightSim::update(const uint8_t line) {
-	int i;
+	uint8_t i;
 	screen_goto(0, line);
 	//Switch to burst mode to reduce transmission overhead:
 	Serial.write(SCREEN_DATA_BURST);
@@ -114,9 +114,9 @@ void GameOfLightSim::screen_goto(uint8_t index, uint8_t line) {
 	}
 }
 
+
 /* Asks simulator for stored keyboard-values, then reads response from serial 
  * Data comes in NUM_PLAYERS*2 bytes.  */
-
 void GameOfLightSim::getButtons() {
 	// Sending request to arduino
 	Serial.write(REQUEST_KEYS);
@@ -126,19 +126,19 @@ void GameOfLightSim::getButtons() {
 	bytes_red = Serial.readBytes(serial_data, NUM_PLAYERS*2);
 
 	if(bytes_red == NUM_PLAYERS*2) { 
-		for(int i = 0; i < NUM_PLAYERS; i+=2) {
-			Start[i] = ((serial_data[i] & (1 << 7)) == 0)? 1 : 0;
-			Select[i] = ((serial_data[i] & (1 << 6)) == 0)? 1 : 0;
-			L[i] = ((serial_data[i] & (1 << 5)) == 0)? 1 : 0;
-			R[i] = ((serial_data[i] & (1 << 4)) == 0)? 1 : 0; 
-			N[i] = ((serial_data[i+1] & (1 << 7)) == 0)? 1 : 0;
-			W[i] = ((serial_data[i+1] & (1 << 6)) == 0)? 1 : 0;
-			S[i] = ((serial_data[i+1] & (1 << 5)) == 0)? 1 : 0;
-			E[i] = ((serial_data[i+1] & (1 << 4)) == 0)? 1 : 0;
-			X[i] = ((serial_data[i+1] & (1 << 3)) == 0)? 1 : 0;
-			Y[i] = ((serial_data[i+1] & (1 << 2)) == 0)? 1 : 0;
-			B[i] = ((serial_data[i+1] & (1 << 1)) == 0)? 1 : 0;
-			A[i] = ((serial_data[i+1] & (1 << 0)) == 0)? 1 : 0;
+		for(int i = 0; i < NUM_PLAYERS; i++) {
+			Start[i] = ((serial_data[i*2] & (1 << 7)) == 0)? 1 : 0;
+			Select[i] = ((serial_data[i*2] & (1 << 6)) == 0)? 1 : 0;
+			L[i] = ((serial_data[i*2] & (1 << 5)) == 0)? 1 : 0;
+			R[i] = ((serial_data[i*2] & (1 << 4)) == 0)? 1 : 0; 
+			N[i] = ((serial_data[i*2+1] & (1 << 7)) == 0)? 1 : 0;
+			W[i] = ((serial_data[i*2+1] & (1 << 6)) == 0)? 1 : 0;
+			S[i] = ((serial_data[i*2+1] & (1 << 5)) == 0)? 1 : 0;
+			E[i] = ((serial_data[i*2+1] & (1 << 4)) == 0)? 1 : 0;
+			X[i] = ((serial_data[i*2+1] & (1 << 3)) == 0)? 1 : 0;
+			Y[i] = ((serial_data[i*2+1] & (1 << 2)) == 0)? 1 : 0;
+			B[i] = ((serial_data[i*2+1] & (1 << 1)) == 0)? 1 : 0;
+			A[i] = ((serial_data[i*2+1] & (1 << 0)) == 0)? 1 : 0;
 		}
 	}
 }

@@ -82,7 +82,7 @@ void GameOfLight::write(const uint8_t data) {
  * Copies an 8x8 tile from program memory to the screen buffer.
  * Only the parts that are actually on the screen gets copied.
  */
-void GameOfLight::blit(const prog_uchar *sprite, int x, int y) {
+void GameOfLight::blit(const uint8_t *sprite, int x, int y) {
   int8_t offset = y & 0x07; // Combined ABS and modulo
   int8_t maxCol = min(64 - x, 8); // Used to avoid drawing outside the right edge
   int8_t start = max(-x, 0); // Used to avoid drawing outside the left edge.
@@ -210,6 +210,126 @@ void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
   }
 }
 
+
+//Scrolls the entire board 1px left leaving a blank column along the right edge
+void GameOfLight::scrollLeft() {
+  uint8_t i;
+  for (i = 0; i < 8; i++) {
+    scrollLeft(i, 0, 0);
+  }
+}
+
+//Scrolls the given line 1px to the left. Pads the end of the line with the given bytes
+void GameOfLight::scrollLeft(uint8_t line, uint8_t padGreen, uint8_t padRed) {
+  uint8_t i;
+
+  for (i = 0; i < 127; i++) {
+    //Green & red. The wrong data at buff[line][63] is fixed in a bit...
+    buff[line][i] = buff[line][i+1];
+  }
+
+  buff[line][63] = padGreen;
+  buff[line][127] = padRed;
+}
+
+
+//Scrolls the entire board 1px right leaving a blank column along the left edge
+void GameOfLight::scrollRight() {
+  uint8_t i;
+  for (i = 0; i < 8; i++) {
+    scrollRight(i, 0, 0);
+  }
+}
+
+//Scrolls the given line 1px to the right. Pads the start of the line with the given bytes
+void GameOfLight::scrollRight(uint8_t line, uint8_t padGreen, uint8_t padRed) {
+  uint8_t i;
+  for (i = 127; i < 128; i--) { //Note: uint, hence seemingly weird test
+    //Green & red. The wrong data at buff[line][64] is fixed in a bit...
+    buff[line][i] = buff[line][i-1];
+  }
+
+  buff[line][0] = padGreen;
+  buff[line][64] = padRed;
+}
+
+
+//Scrolls the entire board 1px up leaving a blank line along the bottom edge
+void GameOfLight::scrollUp() {
+  uint8_t i;
+  for (i = 0; i < 64; i++) {
+    scrollUp(i, BLACK);
+  }
+}
+
+//Scrolls the given column 1px up. Pads in a pixel of the given colour
+void GameOfLight::scrollUp(uint8_t index, uint8_t padcolour) {
+  uint8_t i, carry, carryOld, curr;
+
+  //Could use some optimization. Using the carry flag is an option
+
+  carry = (padcolour & GREEN) << 7; //Padding with green
+  
+  for (i = 7; i < 8; i--) {
+    carryOld = carry;
+    curr = buff[i][index];
+    carry = curr << 7;
+    curr >>= 1;
+    curr |= carryOld;
+    buff[i][index] = curr;
+  }
+
+  carry = (padcolour & RED) << 6; //Padding with red
+
+  for (i = 7; i < 8; i--) {
+    carryOld = carry;
+    curr = buff[i][index + 64];
+    carry = curr << 7;
+    curr >>= 1;
+    curr |= carryOld;
+    buff[i][index + 64] = curr;
+  }
+}
+
+
+//Scrolls the entire board 1px down leaving a blank line along the top edge
+void GameOfLight::scrollDown() {
+  uint8_t i;
+  for (i = 0; i < 64; i++) {
+    scrollDown(i, BLACK);
+  }
+}
+
+//Scrolls the given column 1px down. Pads in a pixel of the given colour
+void GameOfLight::scrollDown(uint8_t index, uint8_t padcolour) {
+  uint8_t i, carry, carryOld, curr;
+
+  //Could use some optimization. Using the carry flag is an option
+
+  carry = padcolour & GREEN; //Padding with green
+
+  for (i = 0; i < 8; i++) {
+    carryOld = carry;
+    curr = buff[i][index];
+    carry = curr >> 7;
+    curr <<= 1;
+    curr |= carryOld;
+    buff[i][index] = curr;
+  }
+
+  carry = (padcolour & RED) >> 1; //Padding with red
+
+  for (i = 0; i < 8; i++) {
+    carryOld = carry;
+    curr = buff[i][index + 64];
+    carry = curr >> 7;
+    curr <<= 1;
+    curr |= carryOld;
+    buff[i][index + 64] = curr;
+  }
+}
+
+
 uint8_t GameOfLight::getA(uint8_t player){
   if(!A[player]){
     A[player] = 1;
@@ -275,7 +395,7 @@ uint8_t GameOfLight::getR(uint8_t player){
   return 0;
 }
 
-direction GameOfLight::getDir(uint8_t player){
+uint8_t GameOfLight::getDir(uint8_t player){
   if (!N[player]) { 
     N[player] = 1;
     return NORTH;
