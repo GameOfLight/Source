@@ -195,15 +195,15 @@ class GameOfLight {
   uint8_t R[4];
 
   //Controller-methods: resets button when called
-  uint8_t getA(uint8_t Player);
-  uint8_t getB(uint8_t Player);
-  uint8_t getX(uint8_t Player);
-  uint8_t getY(uint8_t Player);
-  uint8_t getL(uint8_t Player);
-  uint8_t getR(uint8_t Player);
-  uint8_t getStart(uint8_t Player);
-  uint8_t getSelect(uint8_t Player);  
-  uint8_t getDir(uint8_t Player); //returns one of: NORTH SOUTH EAST WEST NONE
+  uint8_t getA(uint8_t player);
+  uint8_t getB(uint8_t player);
+  uint8_t getX(uint8_t player);
+  uint8_t getY(uint8_t player);
+  uint8_t getL(uint8_t player);
+  uint8_t getR(uint8_t player);
+  uint8_t getStart(uint8_t player);
+  uint8_t getSelect(uint8_t player);  
+  uint8_t getDir(uint8_t player); //returns one of: NORTH SOUTH EAST WEST NONE
   void resetButtons();
     
   //The following methods are in GameOfLightSim/GameOfLightHW:
