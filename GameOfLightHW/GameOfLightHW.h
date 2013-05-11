@@ -45,6 +45,8 @@ class GameOfLightHW : public GameOfLight {
      void screen_goto(uint8_t index, uint8_t line);
      void getButtons();
 
+     static void btnCallBack();
+
  private:
      //Keep track of current screen position
      uint8_t _screen_line;

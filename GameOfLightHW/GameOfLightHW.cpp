@@ -18,7 +18,11 @@
 */
 
 #include <Arduino.h>
+#include "utility/MsTimer2.h"
 #include "GameOfLightHW.h"
+
+//Pointer to self for use with the MsTimer2 library
+static GameOfLightHW *thisclass = 0;
 
 GameOfLightHW::GameOfLightHW() {
 	uint8_t _screen_line = 0;
@@ -27,6 +31,9 @@ GameOfLightHW::GameOfLightHW() {
 	controller[1] = 3;
 	controller[2] = 4;
 	controller[3] = 5; //pins on Arduino where the SNES-controller data pins are connected
+
+	MsTimer2::set(1, btnCallBack); //Autotriggering of the getButton-routine every 1ms
+	MsTimer2::start();
 }
 
 
@@ -44,6 +51,7 @@ void GameOfLightHW::begin() {
 	digitalWrite(SCREEN_SS_PIN, HIGH);
 	digitalWrite(SCREEN_SS_PIN, LOW);
 	clearDisplay();
+	thisclass = this;
 }
 
 
@@ -188,5 +196,12 @@ void GameOfLightHW::getButtons(){
 	
 	for(int i = 0; i<4; i++){
 		R[i]=digitalRead(controller[i]);
+	}
+}
+
+//A bit of a hack to get around the calling conventions of the MsTimer2 library.
+void GameOfLightHW::btnCallBack() {
+	if (thisclass) {
+		thisclass->getButtons();
 	}
 }
