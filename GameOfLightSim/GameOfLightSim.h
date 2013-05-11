@@ -31,16 +31,29 @@
 class GameOfLightSim : public GameOfLight {
  public:
 	GameOfLightSim();
-     void begin();
+  void begin();
 
-     /* methods for talking to the simulatorscreen */
-     void update(); 
-     void update(const uint8_t line);
-     void clearDisplay();
-     void screen_cmd(uint8_t type, uint8_t value);
-     void screen_data(uint8_t data);
-     void screen_goto(uint8_t index, uint8_t line);
-     void getButtons();
+  /* methods for talking to the simulatorscreen */
+  void update(); 
+  void update(const uint8_t line);
+  void clearDisplay();
+  void screen_cmd(uint8_t type, uint8_t value);
+  void screen_data(uint8_t data);
+  void screen_goto(uint8_t index, uint8_t line);
+  void getButtons();
+
+  //Controller-methods: resets button when called
+  //Overrides and adds to the GameOfLight-functions of the same name
+  uint8_t getA(uint8_t player);
+  uint8_t getB(uint8_t player);
+  uint8_t getX(uint8_t player);
+  uint8_t getY(uint8_t player);
+  uint8_t getL(uint8_t player);
+  uint8_t getR(uint8_t player);
+  uint8_t getStart(uint8_t player);
+  uint8_t getSelect(uint8_t player);  
+  uint8_t getDir(uint8_t player); //returns one of: NORTH SOUTH EAST WEST NONE
+  void resetButtons();
 
  private:
      //Keep track of current screen position
@@ -49,6 +62,7 @@ class GameOfLightSim : public GameOfLight {
      uint8_t controller[4];
      char serial_data[10];
      int bytes_red;
+     long btnTimer;
 };
 
 #endif

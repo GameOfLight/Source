@@ -20,8 +20,9 @@
 #include "GameOfLightSim.h"
 
 GameOfLightSim::GameOfLightSim() {
-	uint8_t _screen_line = 0;
-	uint8_t _screen_index = 0;
+	_screen_line = 0;
+	_screen_index = 0;
+	btnTimer = 0;
 }
 
 
@@ -118,27 +119,84 @@ void GameOfLightSim::screen_goto(uint8_t index, uint8_t line) {
 /* Asks simulator for stored keyboard-values, then reads response from serial 
  * Data comes in NUM_PLAYERS*2 bytes.  */
 void GameOfLightSim::getButtons() {
-	// Sending request to arduino
-	Serial.write(REQUEST_KEYS);
-	Serial.write('\n');
+	//Ignores further requests unless it's been atleast 10ms since last time.
+	//Note that the simulator buffers any keypresses made during this period.
+	if ((millis() - btnTimer) >= 10) {
+		// Sending request to arduino
+		Serial.write(REQUEST_KEYS);
+		Serial.write('\n');
 
-	// Reading from Serial
-	bytes_red = Serial.readBytes(serial_data, NUM_PLAYERS*2);
+		// Reading from Serial
+		bytes_red = Serial.readBytes(serial_data, NUM_PLAYERS*2);
 
-	if(bytes_red == NUM_PLAYERS*2) { 
-		for(int i = 0; i < NUM_PLAYERS; i++) {
-			Start[i] = ((serial_data[i*2] & (1 << 7)) == 0)? 1 : 0;
-			Select[i] = ((serial_data[i*2] & (1 << 6)) == 0)? 1 : 0;
-			L[i] = ((serial_data[i*2] & (1 << 5)) == 0)? 1 : 0;
-			R[i] = ((serial_data[i*2] & (1 << 4)) == 0)? 1 : 0; 
-			N[i] = ((serial_data[i*2+1] & (1 << 7)) == 0)? 1 : 0;
-			W[i] = ((serial_data[i*2+1] & (1 << 6)) == 0)? 1 : 0;
-			S[i] = ((serial_data[i*2+1] & (1 << 5)) == 0)? 1 : 0;
-			E[i] = ((serial_data[i*2+1] & (1 << 4)) == 0)? 1 : 0;
-			X[i] = ((serial_data[i*2+1] & (1 << 3)) == 0)? 1 : 0;
-			Y[i] = ((serial_data[i*2+1] & (1 << 2)) == 0)? 1 : 0;
-			B[i] = ((serial_data[i*2+1] & (1 << 1)) == 0)? 1 : 0;
-			A[i] = ((serial_data[i*2+1] & (1 << 0)) == 0)? 1 : 0;
+		if(bytes_red == NUM_PLAYERS*2) { 
+			for(int i = 0; i < NUM_PLAYERS; i++) {
+				Start[i] = ((serial_data[i*2] & (1 << 7)) == 0)? 1 : 0;
+				Select[i] = ((serial_data[i*2] & (1 << 6)) == 0)? 1 : 0;
+				L[i] = ((serial_data[i*2] & (1 << 5)) == 0)? 1 : 0;
+				R[i] = ((serial_data[i*2] & (1 << 4)) == 0)? 1 : 0; 
+				N[i] = ((serial_data[i*2+1] & (1 << 7)) == 0)? 1 : 0;
+				W[i] = ((serial_data[i*2+1] & (1 << 6)) == 0)? 1 : 0;
+				S[i] = ((serial_data[i*2+1] & (1 << 5)) == 0)? 1 : 0;
+				E[i] = ((serial_data[i*2+1] & (1 << 4)) == 0)? 1 : 0;
+				X[i] = ((serial_data[i*2+1] & (1 << 3)) == 0)? 1 : 0;
+				Y[i] = ((serial_data[i*2+1] & (1 << 2)) == 0)? 1 : 0;
+				B[i] = ((serial_data[i*2+1] & (1 << 1)) == 0)? 1 : 0;
+				A[i] = ((serial_data[i*2+1] & (1 << 0)) == 0)? 1 : 0;
+			}
 		}
+		btnTimer = millis();
 	}
+}
+
+void GameOfLightSim::resetButtons() {
+	//To ensure the user can get updated buttons if he calls reset followed by update we need
+	//to reset the timer:
+	btnTimer = 0;
+	GameOfLight::resetButtons();
+}
+
+uint8_t GameOfLightSim::getA(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getA(player);
+}
+
+uint8_t GameOfLightSim::getB(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getB(player);
+}
+
+uint8_t GameOfLightSim::getX(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getX(player);
+}
+
+uint8_t GameOfLightSim::getY(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getY(player);
+}
+
+uint8_t GameOfLightSim::getL(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getL(player);
+}
+
+uint8_t GameOfLightSim::getR(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getR(player);
+}
+
+uint8_t GameOfLightSim::getStart(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getStart(player);
+}
+
+uint8_t GameOfLightSim::getSelect(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getSelect(player);
+}
+
+uint8_t GameOfLightSim::getDir(uint8_t player) {
+	getButtons(); //Fetch buttons anew if more than 10ms have passed since last time
+	return GameOfLight::getDir(player);
 }
