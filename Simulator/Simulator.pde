@@ -471,7 +471,7 @@ void keyPressed() {
 
 /* Sets appropriate bit in storage bytes to 1 when button is released.
  * (1 is the default "off" value in our "snes" controllers) */
-void keyReleased() {
+/*void keyReleased() {
     int key_press = keyCode;
     switch(key_press) {
         case p1_START : p1[0] &= ~(1 << 7); break;
@@ -499,7 +499,7 @@ void keyReleased() {
         case p2_B     : p2[1] &= ~(1 << 1); break;
         case p2_A     : p2[1] &= ~(1 << 0); break;
     }
-}
+}*/
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
 void poll_keys() {
@@ -507,6 +507,12 @@ void poll_keys() {
   port.write(p1[1]);
   port.write(p2[0]);
   port.write(p2[1]);
+  
+  //Buttons sent. Time to delete the saved data so new keypresses can be recorded.
+  p1[0] = 0;
+  p1[1] = 0;
+  p2[0] = 0;
+  p2[1] = 0;
 }
 
 
