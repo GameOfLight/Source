@@ -24,6 +24,7 @@ GameOfLight::GameOfLight() {
     red[i] = &buff[i][64];
     green[i] = &buff[i][0];
   }
+  resetButtons();
 }
 
 /* Pick location in the buffer for subsequent writes */
