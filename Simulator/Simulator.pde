@@ -505,8 +505,19 @@ void keyPressed() {
 
 
 /* Marks a button as no longer held down. The actual keypress will still be reported. */
-void keyReleased() { 
-  keys[keyCode] = false;
+void keyReleased() {
+  int released = keyCode;
+  keys[released] = false;
+  
+  if ((released == p1_UP && p1[1] == 0x80) || (released == p1_LEFT && p1[1] == 0x40) || (released == p1_DOWN && p1[1] == 0x20) || (released == p1_RIGHT && p1[1] == 0x10)) {
+    p1Stopped = true;
+    p1[1] = 0;
+  }
+  if ((released == p2_UP && p2[1] == 0x80) || (released == p2_LEFT && p2[1] == 0x40) || (released == p2_DOWN && p2[1] == 0x20) || (released == p2_RIGHT && p2[1] == 0x10)) {
+    p2Stopped = true;
+    p2[1] = 0;
+  }
+  
   if (!(keys[p1_UP] || keys[p1_LEFT] || keys[p1_DOWN] || keys[p1_RIGHT])) {
     //None pressed, hold still
     p1Stopped = true;
