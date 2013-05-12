@@ -511,7 +511,7 @@ void keyReleased() {
     //None pressed, hold still
     p1Stopped = true;
     if (p1LastDir == p1[1]) p1[1] = 0;
-    
+  }
   if (!(keys[p2_UP] || keys[p2_LEFT] || keys[p2_DOWN] || keys[p2_RIGHT])) {
     //None pressed, hold still
     p2Stopped = true;
