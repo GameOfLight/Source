@@ -18,6 +18,7 @@
 */
 
 import processing.serial.*;
+import java.awt.event.KeyEvent;
 
 /* Markers used to mark a message as for the simulator or as a message to be 
  * printed to the terminal in case such a character isn't present */
@@ -91,32 +92,32 @@ final static color WHITE = #FFFFFF;
 final static color GREY = #272822; 
 
 // Keykodes p1:
-final static int p1_START = 32; //Space
+final static int p1_START = KeyEvent.VK_SPACE; //Space
 final static int p1_SELECT = 17;//Ctrl
-final static int p1_L = 50;     // vanlig 2 
-final static int p1_R = 55;     // vanlig 7
-final static int p1_UP = 87;    //W
-final static int p1_LEFT = 65;  //A
-final static int p1_DOWN = 83;  //S
-final static int p1_RIGHT = 68; //D
-final static int p1_X = 89;     //Y
-final static int p1_Y = 71;     //G
-final static int p1_B = 72;     //H
-final static int p1_A = 74;     //J
+final static int p1_L = KeyEvent.VK_2;     // vanlig 2 
+final static int p1_R = KeyEvent.VK_7;     // vanlig 7
+final static int p1_UP = KeyEvent.VK_W;    //W
+final static int p1_LEFT = KeyEvent.VK_A;  //A
+final static int p1_DOWN = KeyEvent.VK_S;  //S
+final static int p1_RIGHT = KeyEvent.VK_D; //D
+final static int p1_X = KeyEvent.VK_Y;     //Y
+final static int p1_Y = KeyEvent.VK_G;     //G
+final static int p1_B = KeyEvent.VK_H;     //H
+final static int p1_A = KeyEvent.VK_J;     //J
 
 //Keykodes p2:
 final static int p2_START = 107; //num+
 final static int p2_SELECT = 109;//num-
-final static int p2_L = 35;      //end
+final static int p2_L = KeyEvent.VK_END;      //end
 final static int p2_R = 111;     //num*
-final static int p2_UP = 38;     //up-arrow
-final static int p2_LEFT = 37;   //left-arrow
-final static int p2_DOWN = 40;   //right-arrow
-final static int p2_RIGHT = 39;  //down-arrow
-final static int p2_X = 104;     // num8
-final static int p2_Y = 100;     // num4
-final static int p2_B = 98;      // num2
-final static int p2_A = 102;     // num6
+final static int p2_UP = KeyEvent.VK_UP;     //up-arrow
+final static int p2_LEFT = KeyEvent.VK_LEFT;   //left-arrow
+final static int p2_DOWN = KeyEvent.VK_DOWN;   //right-arrow
+final static int p2_RIGHT = KeyEvent.VK_RIGHT;  //down-arrow
+final static int p2_X = KeyEvent.VK_NUMPAD8;     // num8
+final static int p2_Y = KeyEvent.VK_NUMPAD4;     // num4
+final static int p2_B = KeyEvent.VK_NUMPAD2;      // num2
+final static int p2_A = KeyEvent.VK_NUMPAD6;     // num6
 
 // Processing drawing sizes
 final static int BOARD_SIZE = 640; // Total length/witdh of board on screen
@@ -147,9 +148,10 @@ int ledx, ledy, linex, liney; // Used by mouseClick() for writing currenct coord
 //bytes used for storage of keyboard-input. p3 and p4 can be added.
 int []p1 = new int[2];
 int []p2 = new int[2];
-boolean[] p1Held = new boolean[12];
-boolean[] p2Held = new boolean[12];
+boolean p1Stopped; //Indicates whetever the player is stationary or not.
+boolean p2Stopped;
 
+boolean[] keys = new boolean[526]; //All keycodes and whetever they're currently pressed or not.
 
 void setup() {
   size(BOARD_SIZE, BOARD_SIZE + INFO_BAR);
@@ -172,7 +174,6 @@ void setup() {
 
 /* DEBUGING: Uncommenting will spam the terminal as long as new data is coming in */
 void draw() {
-  //println(frameRate)
 }
 
 void mouseClicked() {
@@ -303,7 +304,7 @@ void next_byte() {
 void reset() {
   line = 0;
   index = 0;
-  println("reset");
+  println("Simulator reset");
   background(GREY);
   fill(BLACK);
   buff = new int[8][128];
@@ -438,203 +439,81 @@ void serialEvent(Serial port) {
  * -one byte (startselect) for start/select buttons for all players.
  * -one byte for each player (p1, p2 etc), storing movement/action buttons
 */
-
-/* Sets appropriate bit in storage bytes to 0 when button is pressed.
- * (0 is the default "on" value in our "snes" controllers) */
-void keyPressed() {
-    int key_release = keyCode;
-    switch(key_release) {
-        case p1_START : 
-          p1[0] |= (1 << 7);
-          p1Held[0] = true;
-          break;
-        case p1_SELECT: 
-          p1[0] |= (1 << 6);
-          p1Held[1] = true;
-          break;
-        case p1_L     : 
-          p1[0] |= (1 << 5);
-          p1Held[2] = true;
-          break;
-        case p1_R     : 
-          p1[0] |= (1 << 4);
-          p1Held[3] = true; 
-          break;
-        case p1_UP    : 
-          p1[1] |= (1 << 7); 
-          //Reset other directions so we only remember the last pressed
-          p1[1] &= ~(1 << 6);
-          p1[1] &= ~(1 << 5);
-          p1[1] &= ~(1 << 4);
-          p1Held[4] = true;
-          break;
-        case p1_LEFT  : 
-          p1[1] |= (1 << 6);
-          //Reset other directions so we only remember the last pressed
-          p1[1] &= ~(1 << 7);
-          p1[1] &= ~(1 << 5);
-          p1[1] &= ~(1 << 4);
-          p1Held[5] = true;
-          break;
-        case p1_DOWN  : 
-          p1[1] |= (1 << 5);
-          p1[1] &= ~(1 << 7);
-          p1[1] &= ~(1 << 6);
-          p1[1] &= ~(1 << 4);
-          p1Held[6] = true;
-          break;
-        case p1_RIGHT : 
-          p1[1] |= (1 << 4); 
-          p1[1] &= ~(1 << 7);
-          p1[1] &= ~(1 << 6);
-          p1[1] &= ~(1 << 5);
-          p1Held[7] = true;
-          break;
-        case p1_X     :
-          p1[1] |= (1 << 3);
-          p1Held[8] = true;
-          break;
-        case p1_Y     :
-          p1[1] |= (1 << 2);
-          p1Held[9] = true;
-          break;
-        case p1_B     :
-          p1[1] |= (1 << 1);
-          p1Held[10] = true;
-          break;
-        case p1_A     :
-          p1[1] |= (1 << 0);
-          p1Held[11] = true;
-          break;
-        case p2_START :
-          p2[0] |= (1 << 7);
-          break;
-        case p2_SELECT:
-          p2[0] |= (1 << 6);
-          break;
-        case p2_L     :
-          p2[0] |= (1 << 5);
-          break;
-        case p2_R     :
-        p2[0] |= (1 << 4);
-        break;
-        case p2_UP    : 
-          p2[1] |= (1 << 7); 
-          p2[1] &= ~(1 << 6);
-          p2[1] &= ~(1 << 5);
-          p2[1] &= ~(1 << 4);
-          break;
-        case p2_LEFT  : 
-          p2[1] |= (1 << 6);
-          p2[1] &= ~(1 << 7);
-          p2[1] &= ~(1 << 5);
-          p2[1] &= ~(1 << 4); 
-          break;
-        case p2_DOWN  : 
-          p2[1] |= (1 << 5); 
-          p2[1] &= ~(1 << 7);
-          p2[1] &= ~(1 << 6);
-          p2[1] &= ~(1 << 4);
-          break;
-        case p2_RIGHT : 
-          p2[1] |= (1 << 4); 
-          p2[1] &= ~(1 << 7);
-          p2[1] &= ~(1 << 6);
-          p2[1] &= ~(1 << 5);
-          break;
-        case p2_X     :
-          p2[1] |= (1 << 3);
-          break;
-        case p2_Y     :
-          p2[1] |= (1 << 2);
-          break;
-        case p2_B     :
-          p2[1] |= (1 << 1);
-          break;
-        case p2_A     :
-          p2[1] |= (1 << 0);
-          break;
-    }
+/* Sets appropriate bit in storage bytes to 0 when button is pressed. */
+void keyPressed() { 
+  int pressed = keyCode;
+  keys[pressed] = true;
+  //println(KeyEvent.getKeyText(keyCode));
+  
+  //Keep the last given direction for player 1:
+  if (pressed == p1_UP) {
+    p1[1] = 0x80;
+    p1Stopped = false;
+  } else if (pressed == p1_LEFT) {
+    p1[1] = 0x40;
+    p1Stopped = false; 
+  } else if (pressed == p1_DOWN) {
+    p1[1] = 0x20; 
+    p1Stopped = false;
+  } else if (pressed == p1_RIGHT) {
+    p1[1] = 0x10; 
+    p1Stopped = false;
+  } else if (pressed == p1_START) {
+    p1[0] |= (1 << 7);  
+  } else if (pressed == p1_SELECT) {
+    p1[0] |= (1 << 6);
+  } else if (pressed == p1_L) {
+    p1[0] |= (1 << 5);
+  } else if (pressed == p1_R) { 
+    p1[0] |= (1 << 4);
+  } else if (pressed == p1_X) {
+    p1[1] |= (1 << 3);
+  } else if (pressed == p1_Y) {
+    p1[1] |= (1 << 2);
+  } else if (pressed == p1_B) {
+    p1[1] |= (1 << 1);
+  } else if (pressed == p2_UP) { //PLAYER 2
+    p2[1] = 0x80;
+    p2Stopped = false;
+  } else if (pressed == p2_LEFT) {
+    p2[1] = 0x40;
+    p2Stopped = false; 
+  } else if (pressed == p2_DOWN) {
+    p2[1] = 0x20; 
+    p2Stopped = false;
+  } else if (pressed == p2_RIGHT) {
+    p2[1] = 0x10; 
+    p2Stopped = false;
+  } else if (pressed == p2_START) {
+    p2[0] |= (1 << 7);  
+  } else if (pressed == p2_SELECT) {
+    p2[0] |= (1 << 6);
+  } else if (pressed == p2_L) {
+    p2[0] |= (1 << 5);
+  } else if (pressed == p2_R) { 
+    p2[0] |= (1 << 4);
+  } else if (pressed == p2_X) {
+    p2[1] |= (1 << 3);
+  } else if (pressed == p2_Y) {
+    p2[1] |= (1 << 2);
+  } else if (pressed == p2_B) {
+    p2[1] |= (1 << 1);
+  }
 }
+
 
 /* Marks a button as no longer held down. The actual keypress will still be reported. */
-void keyReleased() {
-    int key_press = keyCode;
-    switch(key_press) {
-        case p1_START :
-          p1Held[0] = false;
-          break;
-        case p1_SELECT:
-          p1Held[1] = false;
-          break;
-        case p1_L     :
-          p1Held[2] = false; 
-          break;
-        case p1_R     :
-          p1Held[3] = false;
-          break;
-        case p1_UP    : 
-          p1Held[4] = false;
-          break;
-        case p1_LEFT  : 
-          p1Held[5] = false;
-          break;
-        case p1_DOWN  : 
-          p1Held[6] = false;
-          break;
-        case p1_RIGHT : 
-          p1Held[7] = false;
-          break;
-        case p1_X     :
-          p1Held[8] = false;
-          break;
-        case p1_Y     : 
-          p1Held[9] = false;
-          break;
-        case p1_B     : 
-          p1Held[10] = false;
-          break;
-        case p1_A     : 
-          p1Held[11] = false;
-          break;
-        case p2_START :
-          p2Held[0] = false;
-          break;
-        case p2_SELECT:
-          p2Held[1] = false;
-          break;
-        case p2_L     :
-          p2Held[2] = false; 
-          break;
-        case p2_R     :
-          p2Held[3] = false;
-          break;
-        case p2_UP    : 
-          p2Held[4] = false;
-          break;
-        case p2_LEFT  : 
-          p2Held[5] = false;
-          break;
-        case p2_DOWN  : 
-          p2Held[6] = false;
-          break;
-        case p2_RIGHT : 
-          p2Held[7] = false;
-          break;
-        case p2_X     :
-          p2Held[8] = false;
-          break;
-        case p2_Y     : 
-          p2Held[9] = false;
-          break;
-        case p2_B     : 
-          p2Held[10] = false;
-          break;
-        case p2_A     : 
-          p2Held[11] = false;
-          break;
-    }
+void keyReleased() { 
+  keys[keyCode] = false;
+  if (!(keys[p1_UP] || keys[p1_LEFT] || keys[p1_DOWN] || keys[p1_RIGHT])) {
+    //None pressed, hold still
+    p1Stopped = true;
+  } else if (!(keys[p2_UP] || keys[p2_LEFT] || keys[p2_DOWN] || keys[p2_RIGHT])) {
+    //None pressed, hold still
+    p2Stopped = true;
+  }
 }
+
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
 void poll_keys() {
@@ -645,84 +524,22 @@ void poll_keys() {
   
   //Buttons sent. Time to delete the saved data so new keypresses can be recorded.
   p1[0] = 0;
-  p1[1] = 0;
+  if (p1Stopped) {
+   p1[1] = 0; 
+  } else {
+    p1[1] &= 0xF0; //keep the current direction as a movement key is still held down
+  }
   p2[0] = 0;
-  p2[1] = 0;
+  if (p2Stopped) {
+    p2[1] = 0;
+  } else {
+    p2[1] &= 0xF0; //keep the current direction as a movement key is still held down
+  }
   
-  // Re-add currently held buttons at this point
-  if (p1Held[0]) {
-    p1[0] |= (1 << 7);
-  }
-  if (p1Held[1]) {
-    p1[0] |= (1 << 6);
-  }
-  if (p1Held[2]) {
-    p1[0] |= (1 << 5);
-  }
-  if (p1Held[3]) {
-    p1[0] |= (1 << 4);
-  }
-  if (p1Held[4]) {
-    p1[1] |= (1 << 7);
-  }
-  if (p1Held[5]) {
-    p1[1] |= (1 << 6);
-  }
-  if (p1Held[6]) {
-    p1[1] |= (1 << 5);
-  }
-  if (p1Held[7]) {
-    p1[1] |= (1 << 4);
-  }
-  if (p1Held[8]) {
-    p1[1] |= (1 << 3);
-  }
-  if (p1Held[9]) {
-    p1[1] |= (1 << 2);
-  }
-  if (p1Held[10]) {
-    p1[1] |= (1 << 1);
-  }
-  if (p1Held[11]) {
-    p1[1] |= (1 << 0);
-  }
-  //Hurrah for functions....
-  if (p2Held[0]) {
-    p2[0] |= (1 << 7);
-  }
-  if (p2Held[1]) {
-    p2[0] |= (1 << 6);
-  }
-  if (p2Held[2]) {
-    p2[0] |= (1 << 5);
-  }
-  if (p2Held[3]) {
-    p2[0] |= (1 << 4);
-  }
-  if (p2Held[4]) {
-    p2[1] |= (1 << 7);
-  }
-  if (p2Held[5]) {
-    p2[1] |= (1 << 6);
-  }
-  if (p2Held[6]) {
-    p2[1] |= (1 << 5);
-  }
-  if (p2Held[7]) {
-    p2[1] |= (1 << 4);
-  }
-  if (p2Held[8]) {
-    p2[1] |= (1 << 3);
-  }
-  if (p2Held[9]) {
-    p2[1] |= (1 << 2);
-  }
-  if (p2Held[10]) {
-    p2[1] |= (1 << 1);
-  }
-  if (p2Held[11]) {
-    p2[1] |= (1 << 0);
-  }
+  //This would be a good point to add code for fully supporting other held buttons.
+  //The other buttons will work, but if held they will produce 1 press followed by a short break dicatated by the
+  //keyboard repeat delay before once more reporting being pressed.
+  //Ie: check the keys[] if they are still pressed, then refill the bytes based on this information.
 }
 
 
