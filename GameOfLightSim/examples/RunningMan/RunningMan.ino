@@ -9,13 +9,14 @@ int x = 24;
 int y = 32;
 boolean moving = false;
 boolean flip = false;
+uint8_t dir;
 
 void setup() {
   frame.begin();
 }
 
 void loop() {
-  delay(25);
+  delay(35);
   frame.clear();
   if (!flip) {
     frame.blit(sheet + frames[index] * 16, x, y);
@@ -23,27 +24,27 @@ void loop() {
     frame.blit(sheet + (frames[index] + 3) * 16, x, y);
   }
   frame.update();
-  
-  frame.getButtons();
+
   moving = false;
 
-  if (!frame.N[0]) {
+  dir = frame.getDir(PLAYER1);
+
+  if (dir == NORTH) {
     y--;
     moving = true;
-  } else if (!frame.S[0]) {
+  } else if (dir == SOUTH) {
     y++;
     moving = true;
   }
-  if (!frame.E[0]) {
+  if (dir == EAST) {
     x++;
     moving = true;
     flip = false;
-  } else if (!frame.W[0]) {
+  } else if (dir == WEST) {
     x--;
     moving = true;
     flip = true;
   }
-  
   if (x < -1) {
     x = -1;
   } else if (x > 57) {
@@ -60,5 +61,3 @@ void loop() {
     index = 0;
   }
 }
-
-
