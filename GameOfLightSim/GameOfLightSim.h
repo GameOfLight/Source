@@ -42,27 +42,16 @@ class GameOfLightSim : public GameOfLight {
   void screen_goto(uint8_t index, uint8_t line);
   void getButtons();
 
-  //Controller-methods: resets button when called
-  //Overrides and adds to the GameOfLight-functions of the same name
-  uint8_t getA(uint8_t player);
-  uint8_t getB(uint8_t player);
-  uint8_t getX(uint8_t player);
-  uint8_t getY(uint8_t player);
-  uint8_t getL(uint8_t player);
-  uint8_t getR(uint8_t player);
-  uint8_t getStart(uint8_t player);
-  uint8_t getSelect(uint8_t player);  
-  uint8_t getDir(uint8_t player); //returns one of: NORTH SOUTH EAST WEST NONE
-  void resetButtons();
+  static void btnCallBack();
 
  private:
-     //Keep track of current screen position
-     uint8_t _screen_line;
-     uint8_t _screen_index;
-     uint8_t controller[4];
-     char serial_data[10];
-     int bytes_red;
-     long btnTimer;
+    //Keep track of current screen position
+    uint8_t _screen_line;
+    uint8_t _screen_index;
+    uint8_t controller[4];
+    char serial_data[10];
+    int bytes_red;
+    uint8_t btnRequestSent;
 };
 
 #endif
