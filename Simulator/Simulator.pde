@@ -147,6 +147,8 @@ int ledx, ledy, linex, liney; // Used by mouseClick() for writing currenct coord
 //bytes used for storage of keyboard-input. p3 and p4 can be added.
 int []p1 = new int[2];
 int []p2 = new int[2];
+boolean[] p1Held = new boolean[12];
+boolean[] p2Held = new boolean[12];
 
 
 void setup() {
@@ -442,64 +444,197 @@ void serialEvent(Serial port) {
 void keyPressed() {
     int key_release = keyCode;
     switch(key_release) {
-        case p1_START : p1[0] |= (1 << 7); break;
-        case p1_SELECT: p1[0] |= (1 << 6); break;
-        case p1_L     : p1[0] |= (1 << 5); break;
-        case p1_R     : p1[0] |= (1 << 4); break;
-        case p1_UP    : p1[1] |= (1 << 7); break;
-        case p1_LEFT  : p1[1] |= (1 << 6); break;
-        case p1_DOWN  : p1[1] |= (1 << 5); break;
-        case p1_RIGHT : p1[1] |= (1 << 4); break;
-        case p1_X     : p1[1] |= (1 << 3); break;
-        case p1_Y     : p1[1] |= (1 << 2); break;
-        case p1_B     : p1[1] |= (1 << 1); break;
-        case p1_A     : p1[1] |= (1 << 0); break;
-        case p2_START : p2[0] |= (1 << 7); break;
-        case p2_SELECT: p2[0] |= (1 << 6); break;
-        case p2_L     : p2[0] |= (1 << 5); break;
-        case p2_R     : p2[0] |= (1 << 4); break;
-        case p2_UP    : p2[1] |= (1 << 7); break;
-        case p2_LEFT  : p2[1] |= (1 << 6); break;
-        case p2_DOWN  : p2[1] |= (1 << 5); break;
-        case p2_RIGHT : p2[1] |= (1 << 4); break;
-        case p2_X     : p2[1] |= (1 << 3); break;
-        case p2_Y     : p2[1] |= (1 << 2); break;
-        case p2_B     : p2[1] |= (1 << 1); break;
-        case p2_A     : p2[1] |= (1 << 0); break;
+        case p1_START : 
+          p1[0] |= (1 << 7);
+          p1Held[0] = true;
+          break;
+        case p1_SELECT: 
+          p1[0] |= (1 << 6);
+          p1Held[1] = true;
+          break;
+        case p1_L     : 
+          p1[0] |= (1 << 5);
+          p1Held[2] = true;
+          break;
+        case p1_R     : 
+          p1[0] |= (1 << 4);
+          p1Held[3] = true; 
+          break;
+        case p1_UP    : 
+          p1[1] |= (1 << 7); 
+          //Reset other directions so we only remember the last pressed
+          p1[1] &= ~(1 << 6);
+          p1[1] &= ~(1 << 5);
+          p1[1] &= ~(1 << 4);
+          p1Held[4] = true;
+          break;
+        case p1_LEFT  : 
+          p1[1] |= (1 << 6);
+          //Reset other directions so we only remember the last pressed
+          p1[1] &= ~(1 << 7);
+          p1[1] &= ~(1 << 5);
+          p1[1] &= ~(1 << 4);
+          p1Held[5] = true;
+          break;
+        case p1_DOWN  : 
+          p1[1] |= (1 << 5);
+          p1[1] &= ~(1 << 7);
+          p1[1] &= ~(1 << 6);
+          p1[1] &= ~(1 << 4);
+          p1Held[6] = true;
+          break;
+        case p1_RIGHT : 
+          p1[1] |= (1 << 4); 
+          p1[1] &= ~(1 << 7);
+          p1[1] &= ~(1 << 6);
+          p1[1] &= ~(1 << 5);
+          p1Held[7] = true;
+          break;
+        case p1_X     :
+          p1[1] |= (1 << 3);
+          p1Held[8] = true;
+          break;
+        case p1_Y     :
+          p1[1] |= (1 << 2);
+          p1Held[9] = true;
+          break;
+        case p1_B     :
+          p1[1] |= (1 << 1);
+          p1Held[10] = true;
+          break;
+        case p1_A     :
+          p1[1] |= (1 << 0);
+          p1Held[11] = true;
+          break;
+        case p2_START :
+          p2[0] |= (1 << 7);
+          break;
+        case p2_SELECT:
+          p2[0] |= (1 << 6);
+          break;
+        case p2_L     :
+          p2[0] |= (1 << 5);
+          break;
+        case p2_R     :
+        p2[0] |= (1 << 4);
+        break;
+        case p2_UP    : 
+          p2[1] |= (1 << 7); 
+          p2[1] &= ~(1 << 6);
+          p2[1] &= ~(1 << 5);
+          p2[1] &= ~(1 << 4);
+          break;
+        case p2_LEFT  : 
+          p2[1] |= (1 << 6);
+          p2[1] &= ~(1 << 7);
+          p2[1] &= ~(1 << 5);
+          p2[1] &= ~(1 << 4); 
+          break;
+        case p2_DOWN  : 
+          p2[1] |= (1 << 5); 
+          p2[1] &= ~(1 << 7);
+          p2[1] &= ~(1 << 6);
+          p2[1] &= ~(1 << 4);
+          break;
+        case p2_RIGHT : 
+          p2[1] |= (1 << 4); 
+          p2[1] &= ~(1 << 7);
+          p2[1] &= ~(1 << 6);
+          p2[1] &= ~(1 << 5);
+          break;
+        case p2_X     :
+          p2[1] |= (1 << 3);
+          break;
+        case p2_Y     :
+          p2[1] |= (1 << 2);
+          break;
+        case p2_B     :
+          p2[1] |= (1 << 1);
+          break;
+        case p2_A     :
+          p2[1] |= (1 << 0);
+          break;
     }
 }
 
-/* Sets appropriate bit in storage bytes to 1 when button is released.
- * (1 is the default "off" value in our "snes" controllers) */
-/*void keyReleased() {
+/* Marks a button as no longer held down. The actual keypress will still be reported. */
+void keyReleased() {
     int key_press = keyCode;
     switch(key_press) {
-        case p1_START : p1[0] &= ~(1 << 7); break;
-        case p1_SELECT: p1[0] &= ~(1 << 6); break;
-        case p1_L     : p1[0] &= ~(1 << 5); break;
-        case p1_R     : p1[0] &= ~(1 << 4); break;
-        case p1_UP    : p1[1] &= ~(1 << 7); break;
-        case p1_LEFT  : p1[1] &= ~(1 << 6); break;
-        case p1_DOWN  : p1[1] &= ~(1 << 5); break;
-        case p1_RIGHT : p1[1] &= ~(1 << 4); break;
-        case p1_X     : p1[1] &= ~(1 << 3); break;
-        case p1_Y     : p1[1] &= ~(1 << 2); break;
-        case p1_B     : p1[1] &= ~(1 << 1); break;
-        case p1_A     : p1[1] &= ~(1 << 0); break;
-        case p2_START : p2[0] &= ~(1 << 7); break;
-        case p2_SELECT: p2[0] &= ~(1 << 6); break;
-        case p2_L     : p2[0] &= ~(1 << 5); break;
-        case p2_R     : p2[0] &= ~(1 << 4); break;
-        case p2_UP    : p2[1] &= ~(1 << 7); break;
-        case p2_LEFT  : p2[1] &= ~(1 << 6); break;
-        case p2_DOWN  : p2[1] &= ~(1 << 5); break;
-        case p2_RIGHT : p2[1] &= ~(1 << 4); break;
-        case p2_X     : p2[1] &= ~(1 << 3); break;
-        case p2_Y     : p2[1] &= ~(1 << 2); break;
-        case p2_B     : p2[1] &= ~(1 << 1); break;
-        case p2_A     : p2[1] &= ~(1 << 0); break;
+        case p1_START :
+          p1Held[0] = false;
+          break;
+        case p1_SELECT:
+          p1Held[1] = false;
+          break;
+        case p1_L     :
+          p1Held[2] = false; 
+          break;
+        case p1_R     :
+          p1Held[3] = false;
+          break;
+        case p1_UP    : 
+          p1Held[4] = false;
+          break;
+        case p1_LEFT  : 
+          p1Held[5] = false;
+          break;
+        case p1_DOWN  : 
+          p1Held[6] = false;
+          break;
+        case p1_RIGHT : 
+          p1Held[7] = false;
+          break;
+        case p1_X     :
+          p1Held[8] = false;
+          break;
+        case p1_Y     : 
+          p1Held[9] = false;
+          break;
+        case p1_B     : 
+          p1Held[10] = false;
+          break;
+        case p1_A     : 
+          p1Held[11] = false;
+          break;
+        case p2_START :
+          p2Held[0] = false;
+          break;
+        case p2_SELECT:
+          p2Held[1] = false;
+          break;
+        case p2_L     :
+          p2Held[2] = false; 
+          break;
+        case p2_R     :
+          p2Held[3] = false;
+          break;
+        case p2_UP    : 
+          p2Held[4] = false;
+          break;
+        case p2_LEFT  : 
+          p2Held[5] = false;
+          break;
+        case p2_DOWN  : 
+          p2Held[6] = false;
+          break;
+        case p2_RIGHT : 
+          p2Held[7] = false;
+          break;
+        case p2_X     :
+          p2Held[8] = false;
+          break;
+        case p2_Y     : 
+          p2Held[9] = false;
+          break;
+        case p2_B     : 
+          p2Held[10] = false;
+          break;
+        case p2_A     : 
+          p2Held[11] = false;
+          break;
     }
-}*/
+}
 
 /* Writes current pressed/not pressed keys to the Serial. Called upon request from arduino with DC4. */
 void poll_keys() {
@@ -513,6 +648,81 @@ void poll_keys() {
   p1[1] = 0;
   p2[0] = 0;
   p2[1] = 0;
+  
+  // Re-add currently held buttons at this point
+  if (p1Held[0]) {
+    p1[0] |= (1 << 7);
+  }
+  if (p1Held[1]) {
+    p1[0] |= (1 << 6);
+  }
+  if (p1Held[2]) {
+    p1[0] |= (1 << 5);
+  }
+  if (p1Held[3]) {
+    p1[0] |= (1 << 4);
+  }
+  if (p1Held[4]) {
+    p1[1] |= (1 << 7);
+  }
+  if (p1Held[5]) {
+    p1[1] |= (1 << 6);
+  }
+  if (p1Held[6]) {
+    p1[1] |= (1 << 5);
+  }
+  if (p1Held[7]) {
+    p1[1] |= (1 << 4);
+  }
+  if (p1Held[8]) {
+    p1[1] |= (1 << 3);
+  }
+  if (p1Held[9]) {
+    p1[1] |= (1 << 2);
+  }
+  if (p1Held[10]) {
+    p1[1] |= (1 << 1);
+  }
+  if (p1Held[11]) {
+    p1[1] |= (1 << 0);
+  }
+  //Hurrah for functions....
+  if (p2Held[0]) {
+    p2[0] |= (1 << 7);
+  }
+  if (p2Held[1]) {
+    p2[0] |= (1 << 6);
+  }
+  if (p2Held[2]) {
+    p2[0] |= (1 << 5);
+  }
+  if (p2Held[3]) {
+    p2[0] |= (1 << 4);
+  }
+  if (p2Held[4]) {
+    p2[1] |= (1 << 7);
+  }
+  if (p2Held[5]) {
+    p2[1] |= (1 << 6);
+  }
+  if (p2Held[6]) {
+    p2[1] |= (1 << 5);
+  }
+  if (p2Held[7]) {
+    p2[1] |= (1 << 4);
+  }
+  if (p2Held[8]) {
+    p2[1] |= (1 << 3);
+  }
+  if (p2Held[9]) {
+    p2[1] |= (1 << 2);
+  }
+  if (p2Held[10]) {
+    p2[1] |= (1 << 1);
+  }
+  if (p2Held[11]) {
+    p2[1] |= (1 << 0);
+  }
 }
 
 
