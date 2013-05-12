@@ -181,18 +181,18 @@ class GameOfLight {
 
 
   //Storage for controller-info: stores inverted
-  uint8_t B[4];
-  uint8_t Y[4];
-  uint8_t Select[4];
-  uint8_t Start[4];
-  uint8_t N[4];
-  uint8_t S[4];
-  uint8_t W[4];
-  uint8_t E[4];
-  uint8_t A[4];
-  uint8_t X[4];
-  uint8_t L[4];
-  uint8_t R[4];
+  volatile uint8_t B[4];
+  volatile uint8_t Y[4];
+  volatile uint8_t Select[4];
+  volatile uint8_t Start[4];
+  volatile uint8_t N[4];
+  volatile uint8_t S[4];
+  volatile uint8_t W[4];
+  volatile uint8_t E[4];
+  volatile uint8_t A[4];
+  volatile uint8_t X[4];
+  volatile uint8_t L[4];
+  volatile uint8_t R[4];
 
   //Controller-methods: resets button when called
   uint8_t getA(uint8_t player);
