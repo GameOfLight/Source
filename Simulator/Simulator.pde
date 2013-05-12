@@ -150,6 +150,8 @@ int []p1 = new int[2];
 int []p2 = new int[2];
 boolean p1Stopped; //Indicates whetever the player is stationary or not.
 boolean p2Stopped;
+int p1LastDir = 0;
+int p2LastDir = 0;
 
 boolean[] keys = new boolean[526]; //All keycodes and whetever they're currently pressed or not.
 
@@ -508,9 +510,12 @@ void keyReleased() {
   if (!(keys[p1_UP] || keys[p1_LEFT] || keys[p1_DOWN] || keys[p1_RIGHT])) {
     //None pressed, hold still
     p1Stopped = true;
-  } else if (!(keys[p2_UP] || keys[p2_LEFT] || keys[p2_DOWN] || keys[p2_RIGHT])) {
+    if (p1LastDir == p1[1]) p1[1] = 0;
+    
+  if (!(keys[p2_UP] || keys[p2_LEFT] || keys[p2_DOWN] || keys[p2_RIGHT])) {
     //None pressed, hold still
     p2Stopped = true;
+    if (p2LastDir == p2[1]) p2[1] = 0;
   }
 }
 
@@ -528,12 +533,14 @@ void poll_keys() {
    p1[1] = 0; 
   } else {
     p1[1] &= 0xF0; //keep the current direction as a movement key is still held down
+    p1LastDir = p1[1];
   }
   p2[0] = 0;
   if (p2Stopped) {
     p2[1] = 0;
   } else {
     p2[1] &= 0xF0; //keep the current direction as a movement key is still held down
+    p2LastDir = p2[1];
   }
   
   //This would be a good point to add code for fully supporting other held buttons.
