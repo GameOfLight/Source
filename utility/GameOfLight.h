@@ -174,9 +174,9 @@ class GameOfLight {
   void scrollDown();
   void scrollDown(uint8_t index, uint8_t padcolour);
 
-  void drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t colour);
-  void drawRect(uint8_t x0, uint8_t y0, uint8_t width, uint8_t height, uint8_t colour);
-  void drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint8_t colour);
+  void drawLine(int8_t x0, int8_t y0, int8_t x1, int8_t y1, uint8_t colour);
+  void drawRect(int8_t x0, int8_t y0, uint8_t width, uint8_t height, uint8_t colour);
+  void drawCircle(int8_t x0, int8_t y0, uint8_t radius, uint8_t colour);
 
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
   uint8_t *red[8];

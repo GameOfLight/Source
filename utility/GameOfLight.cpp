@@ -211,7 +211,7 @@ void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
 }
 
 
-void GameOfLight::drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t colour) {
+void GameOfLight::drawLine(int8_t x0, int8_t y0, int8_t x1, int8_t y1, uint8_t colour) {
   //Draws a line from (x0, y0) to (x1, y1) using only integer arithmatic (hence fast on this platform)
   //Bresenham's line drawing algorithm, see http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
   uint8_t dx, dy;
@@ -246,7 +246,7 @@ void GameOfLight::drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8
 }
 
 
-void GameOfLight::drawRect(uint8_t x0, uint8_t y0, uint8_t width, uint8_t height, uint8_t colour) {
+void GameOfLight::drawRect(int8_t x0, int8_t y0, uint8_t width, uint8_t height, uint8_t colour) {
   //Draws an unfilled rectangle with the upper left corner in the coordinates specified (x0, y0)
   width--;
   height--;
@@ -257,8 +257,9 @@ void GameOfLight::drawRect(uint8_t x0, uint8_t y0, uint8_t width, uint8_t height
 }
 
 
-void GameOfLight::drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint8_t colour) {
+void GameOfLight::drawCircle(int8_t x0, int8_t y0, uint8_t radius, uint8_t colour) {
   //Draws an unfilled circle with center around the given coordinates
+  //See http://en.wikipedia.org/wiki/Midpoint_circle_algorithm
   int8_t err, x, y;
   err = -radius;
   x = radius;
