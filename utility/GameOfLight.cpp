@@ -191,9 +191,8 @@ uint8_t GameOfLight::getPixel(const uint8_t x, const uint8_t y) {
 void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
   uint8_t line, y_bm;
 
-  //sanityfix in case of too large a value. Max 63 to prevent write accidents
-  y &= 0x3F;
-  x &= 0x3F; // Should these protections be removed for more speedy execution?
+  //Ignore too large a value to prevent write accidents and allow more creative use
+  if (x > 63 || y > 63) return;
 
   line = y >> 3; // y/8
   y_bm = (1 << (y % 8));
@@ -208,6 +207,81 @@ void GameOfLight::setPixel(uint8_t x, uint8_t y, uint8_t colour) {
   }
   if (colour & RED) {
     buff[line][x + 64] |= y_bm;
+  }
+}
+
+
+void GameOfLight::drawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t colour) {
+  //Draws a line from (x0, y0) to (x1, y1) using only integer arithmatic (hence fast on this platform)
+  //Bresenham's line drawing algorithm, see http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+  uint8_t dx, dy;
+  int8_t sx, sy, err, e2;
+
+  dx = abs(x1 - x0);
+  dy = abs(y1 - y0);
+
+  sx = x0 < x1 ? 1 : -1;
+  sy = y0 < y1 ? 1 : -1;
+
+  err = dx - dy;
+
+  while(1) {
+    setPixel(x0, y0, colour);
+    if (x0 == x1 && y0 == y1) break;
+    e2 = err << 1;
+
+    if (e2 > -dy) {
+      err -= dy;
+      x0 += sx;
+    }
+    if (x0 == x1 && y0 == y1) {
+      setPixel(x0, y0, colour);
+      break;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y0 += sy;
+    }
+  }
+}
+
+
+void GameOfLight::drawRect(uint8_t x0, uint8_t y0, uint8_t width, uint8_t height, uint8_t colour) {
+  //Draws an unfilled rectangle with the upper left corner in the coordinates specified (x0, y0)
+  width--;
+  height--;
+  drawLine(x0, y0, x0, y0+height, colour);
+  drawLine(x0, y0, x0+width, y0, colour);
+  drawLine(x0, y0+height, x0+width, y0+height, colour);
+  drawLine(x0+width, y0, x0+width, y0+height, colour);
+}
+
+
+void GameOfLight::drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint8_t colour) {
+  //Draws an unfilled circle with center around the given coordinates
+  int8_t err, x, y;
+  err = -radius;
+  x = radius;
+  y = 0;
+
+  while(x >= y) {
+    //The circle is XY symmetrical, reuse the calculation to plot in each quadrant
+    setPixel(x0 + x, y0 + y, colour);
+    setPixel(x0 - x, y0 + y, colour);
+    setPixel(x0 + x, y0 - y, colour);
+    setPixel(x0 - x, y0 - y, colour);
+
+    setPixel(x0 + y, y0 + x, colour);
+    setPixel(x0 - y, y0 + x, colour);
+    setPixel(x0 + y, y0 - x, colour);
+    setPixel(x0 - y, y0 - x, colour);
+
+    err += y++;
+    err += y;
+    if (err >= 0) {
+      err -= x--;
+      err -= x;
+    }
   }
 }
 
