@@ -474,6 +474,8 @@ void keyPressed() {
     p1[1] |= (1 << 2);
   } else if (pressed == p1_B) {
     p1[1] |= (1 << 1);
+  } else if (pressed == p1_A) {
+    p1[1] |= (1 << 0);
   } else if (pressed == p2_UP) { //PLAYER 2
     p2[1] = 0x80;
     p2Stopped = false;
@@ -500,6 +502,8 @@ void keyPressed() {
     p2[1] |= (1 << 2);
   } else if (pressed == p2_B) {
     p2[1] |= (1 << 1);
+  } else if (pressed == p2_A) {
+    p2[1] |= (1 << 0);
   }
 }
 
