@@ -472,21 +472,42 @@ uint8_t GameOfLight::getR(uint8_t player){
 }
 
 uint8_t GameOfLight::getDir(uint8_t player){
-  if (!N[player]) { 
-    N[player] = 1;
-    return NORTH;
-  }
-  if (!S[player]) { 
-    S[player] = 1;
-    return SOUTH;
-  }
-  if (!W[player]) { 
-    W[player] = 1;
-    return WEST;}
-  if (!E[player]) { 
-    E[player] = 1;
-    return EAST;
-  }
+  #ifndef GOL_CONTROLS_NOINVERT
+    //Invert direction for players on the opposite side of the board
+    if (!N[player]) { 
+      N[player] = 1;
+      return player > PLAYER2 ? SOUTH : NORTH;
+    }
+    if (!S[player]) { 
+      S[player] = 1;
+      return player > PLAYER2 ? NORTH : SOUTH;
+    }
+    if (!W[player]) { 
+      W[player] = 1;
+      return player > PLAYER2 ? EAST : WEST;
+    }
+    if (!E[player]) { 
+      E[player] = 1;
+      return player > PLAYER2 ? WEST : EAST;
+    }
+
+  #else
+    if (!N[player]) { 
+      N[player] = 1;
+      return NORTH;
+    }
+    if (!S[player]) { 
+      S[player] = 1;
+      return SOUTH;
+    }
+    if (!W[player]) { 
+      W[player] = 1;
+      return WEST;}
+    if (!E[player]) { 
+      E[player] = 1;
+      return EAST;
+    }
+  #endif
   return NONE;
 }
 void GameOfLight::resetButtons(){
