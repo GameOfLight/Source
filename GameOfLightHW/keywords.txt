@@ -14,6 +14,10 @@ scrollRight	KEYWORD2
 scrollUp	KEYWORD2
 scrollDown	KEYWORD2
 
+drawLine	KEYWORD2
+drawRect	KEYWORD2
+drawCircle	KEYWORD2
+
 begin	KEYWORD2
 update	KEYWORD2
 clearDisplay	KEYWORD2
