@@ -27,10 +27,10 @@ static GameOfLightHW *thisclass = 0;
 GameOfLightHW::GameOfLightHW() {
 	uint8_t _screen_line = 0;
 	uint8_t _screen_index = 0;
-	controller[0] = 2;
-	controller[1] = 3;
-	controller[2] = 4;
-	controller[3] = 5; //pins on Arduino where the SNES-controller data pins are connected
+	controller[0] = 4;
+	controller[1] = 5;
+	controller[2] = 2;
+	controller[3] = 3; //pins on Arduino where the SNES-controller data pins are connected
 
 	MsTimer2::set(1, btnCallBack); //Autotriggering of the getButton-routine every 1ms
 	MsTimer2::start();

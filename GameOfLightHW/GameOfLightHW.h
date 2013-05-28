@@ -26,6 +26,8 @@
 #define CMD_TYPE_LINE 0x08 //Single line sent in a burst
 #define CMD_TYPE_DATA 0x04 //Single data
 
+//#define SNES_CLK_PIN 6 //to HW
+//#define SNES_LATCH_PIN 7 //to HW
 #define SNES_CLK_PIN 6 //to HW
 #define SNES_LATCH_PIN 7 //to HW
 #define TICK {digitalWrite(SNES_CLK_PIN,HIGH); digitalWrite(SNES_CLK_PIN,LOW);} //to HW
