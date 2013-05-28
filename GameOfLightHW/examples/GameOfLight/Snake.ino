@@ -144,6 +144,12 @@ void snake_drawBorder() {
 	frame.drawLine(50, 55, 50, 63, ORANGE);
 	frame.drawLine(0, 55, 13, 55, ORANGE);
 	frame.drawLine(50, 55, 63, 55, ORANGE);
+
+        //Draw holes in the border to allow the snakes to wrap
+        frame.drawLine(0, 31, 0, 32, BLACK);
+        frame.drawLine(63, 31, 63, 32, BLACK);
+        frame.drawLine(31, 0, 32, 0, BLACK);
+        frame.drawLine(31, 63, 32, 63, BLACK);
 }
 
 
@@ -197,6 +203,9 @@ void snake_moveHandler(uint8_t player) {
 	}
 	snake_headPosX[player] += snake_dirToX(dir);
 	snake_headPosY[player] += snake_dirToY(dir);
+        
+        snake_headPosX[player] &= 0x3F;
+        snake_headPosY[player] &= 0x3F;
 }
 
 void snake_move(uint8_t player) {
