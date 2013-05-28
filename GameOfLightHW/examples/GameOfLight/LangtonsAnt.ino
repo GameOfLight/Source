@@ -148,7 +148,7 @@ void langton_loop() {
   }
 
   //Send only the two updated bytes:
-  frame.screen_data(frame.update(antY/8); //Red data
+  frame.update(antY/8); //Red data
   delay(3);
 }
 
