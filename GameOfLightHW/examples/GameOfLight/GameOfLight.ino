@@ -20,9 +20,8 @@
 #include <GameOfLightHW.h>
 GameOfLightHW frame;
 
-#define PROGRAMCOUNT 2
+#define PROGRAMCOUNT 4
 #define IDLE_START_COUNT 0
-
 
 uint8_t player[4]; //Set to 0 if player is not playing, otherwise non-zero.
 uint8_t playerCnt;
@@ -32,10 +31,6 @@ uint8_t arrowR[] PROGMEM = {0xff, 0x0, 0xff, 0x0, 0x7e, 0x0, 0x3c, 0x0, 0x18, 0x
 
 uint8_t idle_counter = IDLE_START_COUNT;
 uint8_t curr = 0;
-
-/*void begin2() {
-  frame.clear();
-}*/
 
 void (*menu_option[PROGRAMCOUNT])(); //Draw splashscreen of current item
 void (*menu_idle[PROGRAMCOUNT])(uint8_t); //If inactive on a menu item; run this every frame
@@ -50,19 +45,18 @@ void setup() {
     menu_idle[1] = 0;
     menu_run[1] = langton_run;
 
+    menu_option[2] = gameOfLife_splash;
+    menu_idle[2] = 0;
+    menu_run[2] = gameSetup;
+    
+    menu_option[3] = rule30_splash;
+    menu_idle[3] = 0;
+    menu_run[3] = ruleSetup;
+
     frame.begin();
     (*menu_option[0])();
     frame.resetButtons();
 }
-
-/*
-void menu_test() {
-  menu_playerStart(2);
-  frame.gotoXY(0, 7);
-  frame.print("Hei");
-  frame.update();
-  delay(1000);
-}*/
 
 
 uint8_t menu_flipByte(uint8_t in) {
@@ -211,6 +205,7 @@ void loop() {
     //Display previous menu item
     curr--;
     idle_counter = IDLE_START_COUNT;
+    delay(250);
     frame.resetButtons();
     menu_showOption();
 
@@ -218,6 +213,7 @@ void loop() {
     //Display next menu item
     curr++;
     idle_counter = IDLE_START_COUNT;
+    delay(250);
     frame.resetButtons();
     menu_showOption();
 
@@ -227,6 +223,7 @@ void loop() {
       (*menu_run[curr])(); //Run program
       frame.clear();
       menu_showOption();
+      delay(500);
       frame.resetButtons();
       idle_counter = IDLE_START_COUNT;
     }
