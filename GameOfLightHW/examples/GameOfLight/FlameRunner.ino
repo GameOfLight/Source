@@ -1,4 +1,5 @@
 #include <GameOfLightHW.h>
+#include "chickensoft.h"
 #include "flames.h"
 #include "jumpman.h"
 #include "fireball.h"
@@ -26,6 +27,7 @@ uint8_t FR_pFrame;
 uint8_t FR_state;
 uint8_t FR_dir;
 uint8_t FR_jumpHeight;
+uint8_t FR_deathCountdown;
 
 char FR_score[5];
 uint8_t FR_consecutives;
@@ -38,28 +40,31 @@ uint8_t FR_screen;
 int8_t FR_ball[4];
 
 void FR_run() {
-  FR_screen = FR_PLAYING;
-  FR_odd = 0;
-  FR_even = 4;
   FR_start();
   while (FR_screen != FR_EXIT) {
     FR_loop();
   }
 }
 
-void FR_splash() {
-  frame.clear();
-
+void FR_drawFlames(uint8_t y) {
   for (int i = 0; i < 5; i++) {
-    frame.blit(flames + FR_even * 16, i * 16 - (FR_x & 0x0F), 48);
+    frame.blit(flames + FR_even * 16, i * 16 - (FR_x & 0x0F), y);
   }
   for (int i = 0; i < 5; i++) {
-    frame.blit(flames + FR_odd * 16, i * 16 + 8 - (FR_x & 0x0F), 48);
+    frame.blit(flames + FR_odd * 16, i * 16 + 8 - (FR_x & 0x0F), y);
   }
   FR_odd++;
   FR_even++;
   FR_odd &= 0x07;
   FR_even &= 0x07;
+}
+
+void FR_splash() {
+  frame.clear();
+  
+  FR_x = 0;
+  FR_odd = 0;
+  FR_even = 4;
 
   FR_drawStartScreen();
 }
@@ -72,17 +77,6 @@ void FR_idle(uint8_t idle_count) {
   frame.clear(36);
   frame.gotoXY(0, 6);
   frame.clear(64);
-  for (int i = 0; i < 5; i++) {
-    frame.blit(flames + FR_even * 16, i * 16 - (FR_x & 0x0F), 48);
-  }
-  for (int i = 0; i < 5; i++) {
-    frame.blit(flames + FR_odd * 16, i * 16 + 8 - (FR_x & 0x0F), 48);
-  }
-
-  FR_odd++;
-  FR_even++;
-  FR_odd &= 0x07;
-  FR_even &= 0x07;
 
   FR_drawStartScreen();
 }
@@ -97,6 +91,9 @@ void FR_start() {
   FR_dir = 0;
   FR_jumpHeight = 0;
   FR_ball[2] = -8;
+  FR_screen = FR_PLAYING;
+  FR_odd = 0;
+  FR_even = 4;
 
   for (int i = 0; i < 64; i++) {
     FR_platforms[i] = 40;
@@ -111,14 +108,21 @@ void FR_start() {
 }
 
 void FR_drawStartScreen() {
+  FR_drawFlames(48);
+  
+  frame.blit(chickensoft, 24, 0);
+  frame.blit(chickensoft + 16, 32, 0);
+  frame.blit(chickensoft + 32, 24, 8);
+  frame.blit(chickensoft + 48, 32, 8);
+  
   frame.gotoXY(17, 3);
   frame.print("FLAME", RED);
   frame.gotoXY(14, 4);
   frame.print("RUNNER", RED);
   for (int i = 0; i < 16; i++) {
     for (int j = 14; j < 50; j++) { //reduced interval so we don't mess up the menu arrows
-      if (frame.getPixel(j, i + 24) && random(2)) {
-        frame.setPixel(j, i + 23, ORANGE);
+      if (frame.getPixel(j, i + 23) && random(2)) {
+        frame.setPixel(j, i + 22, ORANGE);
       }
     }
   }
@@ -148,19 +152,9 @@ void FR_loop() {
   delay(FR_DELAY);
   frame.clear();
 
-  for (int i = 0; i < 5; i++) {
-    frame.blit(flames + FR_even * 16, i * 16 - (FR_x & 0x0F), 56);
-  }
-  for (int i = 0; i < 5; i++) {
-    frame.blit(flames + FR_odd * 16, i * 16 + 8 - (FR_x & 0x0F), 56);
-  }
+  FR_drawFlames(56);
 
-  FR_odd++;
-  FR_even++;
-  FR_odd &= 0x07;
-  FR_even &= 0x07;
-
-  if (FR_state >= 4 && FR_pFrame == 3) {
+  if (FR_state >= 4 && FR_deathCountdown-- <= 0) {
     FR_screen = FR_GAMEOVER;
     FR_state = 0;
   }
@@ -178,19 +172,13 @@ void FR_loop() {
   frame.gotoXY(20,0);
   frame.print(FR_score, RED);  
 
-  frame.blit(fireball + (FR_ball[0] + FR_ball[1]) * 16, FR_ball[2], FR_ball[3]);
-  FR_ball[0] = (FR_ball[0] + 1) % 2;
-  FR_ball[3] += -2 + FR_ball[1];
-  FR_ball[2]--;
-
   if (FR_ball[3] > 62) {
     FR_ball[1] = 0;
   } else if (FR_ball[3] < 18) {
     FR_ball[1] = 4;
   }
 
-  if (!frame.B[0] && FR_state < 2) {
-    frame.B[0] = 1;
+  if (frame.getB(0) && FR_state < 2) {
     FR_jumpHeight = FR_JUMPHEIGHT;
   }
 
@@ -212,23 +200,19 @@ void FR_loop() {
     }
   }
 
-  if (FR_state < 4 && (FR_pY == 52 || (FR_pX < FR_ball[2] + 6 && FR_pX > FR_ball[2] - 6 && FR_pY < FR_ball[3] + 6 && FR_pY > FR_ball[3] - 6))) {
-    FR_state = 4;
-    FR_pFrame = 3;
-  }
-
   FR_pFrame = (FR_pFrame + 1) & 0x03;
-  if (!frame.E[0]) {
-    frame.E[0] = 1;
+  switch(frame.getDir(0)) {
+  case EAST:
     FR_dir = 0;
     FR_pX++;
-  } 
-  else if (!frame.W[0]) {
-    frame.W[0] = 1;
+    break;
+    
+  case WEST:
     FR_dir = 1;
     FR_pX -= 2;
-  } 
-  else {
+    break;
+    
+  default:
     if (FR_state < 2) {
       FR_pFrame = 0;
     }
@@ -247,6 +231,27 @@ void FR_loop() {
   }
 
   frame.blit(jumpman + FR_manframes[FR_state][FR_pFrame] * 16, FR_pX, FR_pY);
+
+  if (FR_state < 4) {
+    if (FR_pY == 52) {
+      FR_state = 4 + (FR_state % 2 ? 1 : 0);
+      FR_pFrame = 3;
+    }
+    
+    for (int i = max(0, FR_ball[2] + 2); FR_state != 4 && i < min(FR_ball[2] + 6, 63); i++) {
+      for (int j = FR_ball[3] + 1; FR_state != 4 && j < min(FR_ball[3] + 7, 52); j++) {
+        if (frame.getPixel(i, j) == GREEN) {
+          FR_state = 4 + (FR_state % 2 ? 1 : 0);
+          FR_pFrame = 3;
+        }
+      }
+    }
+  }
+  
+  frame.blit(fireball + (FR_ball[0] + FR_ball[1]) * 16, FR_ball[2], FR_ball[3]);
+  FR_ball[0] = (FR_ball[0] + 1) % 2;
+  FR_ball[3] += -2 + FR_ball[1];
+  FR_ball[2]--;
 
   for (int i = 0; i < 64; i++) {
     frame.setPixel(i, FR_platforms[(i + FR_x) & 0x3F], 2);
