@@ -16,11 +16,12 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   */
+
 #include <SPI.h>
 #include <GameOfLightHW.h>
 GameOfLightHW frame;
 
-#define PROGRAMCOUNT 4
+#define PROGRAMCOUNT 6
 #define IDLE_START_COUNT 0
 
 uint8_t player[4]; //Set to 0 if player is not playing, otherwise non-zero.
@@ -41,23 +42,31 @@ void setup() {
     menu_idle[0] = snake_idle;
     menu_run[0] = snake_run;
 
-    menu_option[1] = langton_splash;
-    menu_idle[1] = 0;
-    menu_run[1] = langton_run;
+    menu_option[1] = FR_splash;
+    menu_idle[1] = FR_idle;
+    menu_run[1] = FR_run;
 
-    menu_option[2] = gameOfLife_splash;
+    menu_option[2] = langton_splash;
     menu_idle[2] = 0;
-    menu_run[2] = gameSetup;
-    
-    menu_option[3] = rule30_splash;
+    menu_run[2] = langton_run;
+
+    menu_option[3] = gameOfLife_splash;
     menu_idle[3] = 0;
-    menu_run[3] = ruleSetup;
+    menu_run[3] = gameSetup;
+    
+    menu_option[4] = rule30_splash;
+    menu_idle[4] = 0;
+    menu_run[4] = ruleSetup;
+
+    menu_option[5] = about_splash;
+    menu_idle[5] = 0;
+    menu_run[5] = about_run;
+
 
     frame.begin();
     (*menu_option[0])();
     frame.resetButtons();
 }
-
 
 uint8_t menu_flipByte(uint8_t in) {
   uint8_t out;
@@ -223,7 +232,8 @@ void loop() {
       (*menu_run[curr])(); //Run program
       frame.clear();
       menu_showOption();
-      delay(500);
+      frame.update();
+      delay(1000);
       frame.resetButtons();
       idle_counter = IDLE_START_COUNT;
     }
@@ -239,3 +249,5 @@ void loop() {
   frame.update();
   delay(50);
 }
+
+
