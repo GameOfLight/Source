@@ -70,12 +70,12 @@ uint8_t langton_splashscrn[] PROGMEM = {
 
 
 //Start coordinates of ant
-uint8_t antX = 32;
-uint8_t antY = 31;
+uint8_t antX;
+uint8_t antY;
 
 uint8_t dirX[] = {0, 1, 0, -1};
 uint8_t dirY[] = {1, 0, -1, 0};
-uint8_t antDir = 0; //Starts going up
+uint8_t antDir; //Starts going up
 
 void (*langton_dir[4])();
 
@@ -96,13 +96,16 @@ void langton_splash() {
 void langton_run() {
   uint8_t langton_isRunning = 1;
 
+  antX = 32;
+  antY = 31;
+  antDir = 0;
+
   frame.clear();
   frame.update();
   delay(500);
   while (langton_isRunning) {
     langton_loop();
     
-    delay(9); //Delay to ensure buttons are read due to reseting timer on frame.update()
     if (frame.getStart(PLAYER1)) langton_isRunning = 0;
   }
 }
@@ -123,8 +126,8 @@ void langton_loop() {
   uint8_t colour;
 
   //Update ant position
-  antX = (antX + dirX[antDir]) % 64;
-  antY = (antY + dirY[antDir]) % 64;
+  antX = (antX + dirX[antDir]) & 0x3f;//% 64;
+  antY = (antY + dirY[antDir]) & 0x3f;//% 64;
 
   //Grab colour of new position and decide what to do:
   colour = frame.getPixel(antX, antY);
@@ -148,8 +151,11 @@ void langton_loop() {
   }
 
   //Send only the two updated bytes:
-  frame.update(antY/8); //Red data
-  delay(3);
+  frame.update(antY>>3); //Red data
+  //delay(3);
+  delayMicroseconds(50);
 }
+
+
 
 
