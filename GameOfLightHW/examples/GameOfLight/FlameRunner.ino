@@ -16,7 +16,7 @@ extern GameOfLightHW frame;
 
 //Use left and right to control character, B-button to jump.
 
-uint8_t FR_odd, FR_even, FR_x;
+uint8_t FR_odd, FR_x;
 
 uint8_t FR_manframes[][4] = {
   {0, 1, 0, 2}, {3, 4, 3, 5}, {6, 6, 6, 6}, {7, 7, 7, 7}, {8, 9, 10, 11}, {12, 13, 14, 15}
@@ -47,6 +47,7 @@ void FR_run() {
 }
 
 void FR_drawFlames(uint8_t y) {
+  uint8_t FR_even = (FR_odd + 4) & 0x07;
   for (int i = 0; i < 5; i++) {
     frame.blit(flames + FR_even * 16, i * 16 - (FR_x & 0x0F), y);
   }
@@ -54,9 +55,7 @@ void FR_drawFlames(uint8_t y) {
     frame.blit(flames + FR_odd * 16, i * 16 + 8 - (FR_x & 0x0F), y);
   }
   FR_odd++;
-  FR_even++;
   FR_odd &= 0x07;
-  FR_even &= 0x07;
 }
 
 void FR_splash() {
@@ -64,13 +63,14 @@ void FR_splash() {
   
   FR_x = 0;
   FR_odd = 0;
-  FR_even = 4;
 
   FR_drawStartScreen();
 }
 
 void FR_idle(uint8_t idle_count) {
   //Clear title and flame area so we may redraw with new state
+  frame.gotoXY(14,2);
+  frame.clear(36);
   frame.gotoXY(14,3);
   frame.clear(36);
   frame.gotoXY(14, 4);
@@ -93,7 +93,7 @@ void FR_start() {
   FR_ball[2] = -8;
   FR_screen = FR_PLAYING;
   FR_odd = 0;
-  FR_even = 4;
+  FR_deathCountdown = 5;
 
   for (int i = 0; i < 64; i++) {
     FR_platforms[i] = 40;
@@ -121,8 +121,8 @@ void FR_drawStartScreen() {
   frame.print("RUNNER", RED);
   for (int i = 0; i < 16; i++) {
     for (int j = 14; j < 50; j++) { //reduced interval so we don't mess up the menu arrows
-      if (frame.getPixel(j, i + 23) && random(2)) {
-        frame.setPixel(j, i + 22, ORANGE);
+      if (frame.getPixel(j, i + 24) && random(2)) {
+        frame.setPixel(j, i + 23, ORANGE);
       }
     }
   }
@@ -154,7 +154,7 @@ void FR_loop() {
 
   FR_drawFlames(56);
 
-  if (FR_state >= 4 && FR_deathCountdown-- <= 0) {
+  if (FR_state >= 4 && --FR_deathCountdown <= 0) {
     FR_screen = FR_GAMEOVER;
     FR_state = 0;
   }
