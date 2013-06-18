@@ -1,6 +1,6 @@
 To use the libraries in arduino:
 1. Copy utility into both GameOfLightSim and GameOfLightHW
 2. Copy GameOfLightSim and GameOfLightHW into <your-arduino-folder>/libraries/
-3. Import the library you need into your program in Arudino IDE
+3. Import the library you need into your program in Arduino IDE
 4. Make a GameOfLightSim/GameOfLightHW object (e.g. GameOfLightSim frame; )
 5. Use it.
