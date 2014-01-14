@@ -21,7 +21,7 @@
 #include <GameOfLightHW.h>
 GameOfLightHW frame;
 
-#define PROGRAMCOUNT 6
+#define PROGRAMCOUNT 7
 #define IDLE_START_COUNT 0
 
 uint8_t player[4]; //Set to 0 if player is not playing, otherwise non-zero.
@@ -58,9 +58,13 @@ void setup() {
     menu_idle[4] = 0;
     menu_run[4] = ruleSetup;
 
-    menu_option[5] = about_splash;
-    menu_idle[5] = 0;
-    menu_run[5] = about_run;
+    menu_option[5] = plasma_splash;
+    menu_idle[5] = plasma_idle;
+    menu_run[5] = plasma_run;
+
+    menu_option[6] = about_splash;
+    menu_idle[6] = 0;
+    menu_run[6] = about_run;
 
 
     frame.begin();
