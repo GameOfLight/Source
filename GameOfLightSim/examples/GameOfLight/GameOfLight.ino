@@ -2,25 +2,26 @@
   GameOfLight - the main menu for the GameOfLight project
   Copyright (c) 2013 Stian Selbek.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
+  This file is part of Game Of Light.
 
-  This library is distributed in the hope that it will be useful,
+  Game Of Light is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Game Of Light is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  You should have received a copy of the GNU General Public License
+  along with Game Of Light.  If not, see <http://www.gnu.org/licenses/>.
   */
 
 #include <GameOfLightSim.h>
 GameOfLightSim frame;
 
-#define PROGRAMCOUNT 2
+#define PROGRAMCOUNT 5
 #define IDLE_START_COUNT 0
 
 
@@ -33,10 +34,6 @@ uint8_t arrowR[] PROGMEM = {0xff, 0x0, 0xff, 0x0, 0x7e, 0x0, 0x3c, 0x0, 0x18, 0x
 uint8_t idle_counter = IDLE_START_COUNT;
 uint8_t curr = 0;
 
-/*void begin2() {
-  frame.clear();
-}*/
-
 void (*menu_option[PROGRAMCOUNT])(); //Draw splashscreen of current item
 void (*menu_idle[PROGRAMCOUNT])(uint8_t); //If inactive on a menu item; run this every frame
 void (*menu_run[PROGRAMCOUNT])(); //If 'start' is pressed, run the current menu item
@@ -46,9 +43,21 @@ void setup() {
     menu_idle[0] = snake_idle;
     menu_run[0] = snake_run;
 
-    menu_option[1] = langton_splash;
-    menu_idle[1] = 0;
-    menu_run[1] = langton_run;
+    menu_option[1] = FR_splash;
+    menu_idle[1] = FR_idle;
+    menu_run[1] = FR_run;
+
+    menu_option[2] = langton_splash;
+    menu_idle[2] = 0;
+    menu_run[2] = langton_run;
+
+    menu_option[3] = plasma_splash;
+    menu_idle[3] = plasma_idle;
+    menu_run[3] = plasma_run;
+
+    menu_option[4] = about_splash;
+    menu_idle[4] = 0;
+    menu_run[4] = about_run;
 
     frame.begin();
     (*menu_option[0])();
@@ -211,6 +220,7 @@ void loop() {
     //Display previous menu item
     curr--;
     idle_counter = IDLE_START_COUNT;
+    delay(250);
     frame.resetButtons();
     menu_showOption();
 
@@ -218,6 +228,7 @@ void loop() {
     //Display next menu item
     curr++;
     idle_counter = IDLE_START_COUNT;
+    delay(250);
     frame.resetButtons();
     menu_showOption();
 
@@ -227,6 +238,8 @@ void loop() {
       (*menu_run[curr])(); //Run program
       frame.clear();
       menu_showOption();
+      frame.update();
+      delay(1000);
       frame.resetButtons();
       idle_counter = IDLE_START_COUNT;
     }
