@@ -20,7 +20,6 @@
 #ifndef GameOfLight_h
 #define GameOfLight_h
 #include "Arduino.h"
-#include "GameOfLight.h"
 #include <avr/pgmspace.h>
 
 #define BLACK 0
