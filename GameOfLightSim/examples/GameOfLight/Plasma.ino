@@ -38,24 +38,14 @@ void plasma_splash() {
 	plasma_spd_mod[0] = 7; //3
 	plasma_spd_mod[1] = 9; //6
 	plasma_spd_mod[2] = 10; //6
-	plasma_spd_mod[3] = 12; //9
-	plasma_dither = 1;
+	plasma_spd_mod[3] = 5; //9
+	plasma_dither = 0;
 
 	plasma_idle(0);
 }
 
-void plasma_onText(uint8_t x, uint8_t y, uint8_t colour) {
-	//Writes the selected pixel only if there's something there allready. Useful for decorating text.
-	if (frame.getPixel(x, y)) {
-		frame.setPixel(x, y, colour);
-	}
-}
 
-void plasma_direct(uint8_t x, uint8_t y, uint8_t colour) {
-	frame.setPixel(x, y, colour);
-}
-
-void plasma_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end, void func(uint8_t x, uint8_t y, uint8_t colour)) {
+void plasma_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end) {
 	uint8_t px;
 
 	plasma_vptr1 = plasma_ptr[2];
@@ -86,7 +76,7 @@ void plasma_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end,
 				px /= 64;
 			}
 			//Decide what to do with this new pixel
-			func(x, y, plasma_colours[px]);
+			frame.setPixel(x, y, plasma_colours[px]);
 		}
 	}
 	//Prepare for next frame:
@@ -100,13 +90,9 @@ void plasma_idle(uint8_t counter) {
 	//Write title:
 	frame.gotoXY(14, 2);
   	frame.print("Plasma", GREEN);
-  	frame.gotoXY(14, 3);
-  	frame.print("Plasma");
-  	frame.gotoXY(14, 4);
-  	frame.print("Plasma");
 
-  	//Then decorate the text with the plasma effect:
-  	plasma_step(12, 52, 16, 48, plasma_onText);
+  	//Play the plasma effect in a smaller window:
+  	plasma_step(12, 52, 23, 48);
 }
 
 void plasma_randomize() {
@@ -124,9 +110,10 @@ void plasma_randomize() {
 
 void plasma_run() {
 	plasma_randomize();
+	plasma_dither = 1;
 
 	while (1) {
-		plasma_step(0, 64, 0, 64, plasma_direct);
+		plasma_step(0, 64, 0, 64);
 		frame.update();
 		rand_8(); //Increase percieved randomness. New pattern if requested will now also rely on when you press.
 
