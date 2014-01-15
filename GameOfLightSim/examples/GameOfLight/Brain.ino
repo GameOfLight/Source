@@ -27,6 +27,10 @@
 *
 * Tends to lead to directional movement.
 * See http://en.wikipedia.org/wiki/Brian's_Brain for more information
+*
+* Controls:
+*  PLAYER1 start - return to menu
+*  PLAYER1 select - add som random data to the screen to seed the algorithm
 */
 
 #include <GameOfLightSim.h>
@@ -105,10 +109,14 @@ uint8_t brain_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_en
 }
 
 void brain_randomStart() {
-	frame.gotoXY(22,3);
+	//Add some random data as a start point
+	frame.gotoXY(22,2);
 	frame.setColour(BRAIN_ALIVE);
 	for (int i = 0; i < 20; i++) {
-		//Add some random data in the middle as a start point
+		frame.write(rand_8());
+	}
+	frame.gotoXY(22,5);
+	for (int i = 0; i < 20; i++) {
 		frame.write(rand_8());
 	}
 }
@@ -142,5 +150,7 @@ void brain_run() {
 		frame.update();
 		delay(9);
 		if (frame.getStart(PLAYER1)) break;
+
+		if (frame.getSelect(PLAYER1)) brain_randomStart();
 	}
 }
