@@ -1,6 +1,6 @@
 /*
   GameOfLight - the main menu for the GameOfLight project
-  Copyright (c) 2013 Stian Selbek.  All right reserved.
+  Copyright (c) 2013-2014 Stian Selbek.  All right reserved.
 
   This file is part of Game Of Light.
 
@@ -21,15 +21,17 @@
 #include <GameOfLightSim.h>
 GameOfLightSim frame;
 
-#define PROGRAMCOUNT 5
+#define PROGRAMCOUNT 6
 #define IDLE_START_COUNT 0
 
+extern int __bss_end;
+extern int *__brkval;
 
 uint8_t player[4]; //Set to 0 if player is not playing, otherwise non-zero.
 uint8_t playerCnt;
 
-uint8_t arrowL[] PROGMEM = {0x18, 0x0, 0x3c, 0x0, 0x7e, 0x0, 0xff, 0x0, 0xff, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
-uint8_t arrowR[] PROGMEM = {0xff, 0x0, 0xff, 0x0, 0x7e, 0x0, 0x3c, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+uint8_t PROGMEM arrowL[] = {0x18, 0x0, 0x3c, 0x0, 0x7e, 0x0, 0xff, 0x0, 0xff, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+uint8_t PROGMEM arrowR[] = {0xff, 0x0, 0xff, 0x0, 0x7e, 0x0, 0x3c, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
 uint8_t idle_counter = IDLE_START_COUNT;
 uint8_t curr = 0;
@@ -55,23 +57,31 @@ void setup() {
     menu_idle[3] = plasma_idle;
     menu_run[3] = plasma_run;
 
-    menu_option[4] = about_splash;
-    menu_idle[4] = 0;
-    menu_run[4] = about_run;
+    menu_option[4] = brain_splash;
+    menu_idle[4] = brain_idle;
+    menu_run[4] = brain_run;
+
+    menu_option[5] = about_splash;
+    menu_idle[5] = 0;
+    menu_run[5] = about_run;
 
     frame.begin();
     (*menu_option[0])();
     frame.resetButtons();
 }
 
-/*
-void menu_test() {
-  menu_playerStart(2);
-  frame.gotoXY(0, 7);
-  frame.print("Hei");
-  frame.update();
-  delay(1000);
-}*/
+
+int freeRam() {
+  //Fetches the amount of available ram. Useful for debugging
+  int free_memory;
+
+  if((int)__brkval == 0)
+    free_memory = ((int)&free_memory) - ((int)&__bss_end);
+  else
+    free_memory = ((int)&free_memory) - ((int)__brkval);
+
+  return free_memory;
+}
 
 
 uint8_t menu_flipByte(uint8_t in) {
@@ -235,6 +245,7 @@ void loop() {
   } else if (frame.getStart(PLAYER1)) {
     if (*menu_run[curr]) {
       Serial.println("start");
+      frame.resetButtons(); //Remove any lingering unused button presses
       (*menu_run[curr])(); //Run program
       frame.clear();
       menu_showOption();
@@ -251,6 +262,16 @@ void loop() {
       (*menu_idle[curr])(idle_counter);
     }
   }
+
+  //DEBUG - Displays available ram.
+  /*char buff[8];
+  int free;
+  free = freeRam();
+  itoa(free, buff, 10);
+  frame.gotoXY(0,0);
+  frame.clear(40);
+  frame.print(buff, ORANGE);*/
+
   menu_Btns();
   frame.update();
   delay(50);
