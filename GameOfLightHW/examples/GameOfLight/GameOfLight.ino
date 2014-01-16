@@ -22,7 +22,7 @@
 #include <GameOfLightHW.h>
 GameOfLightHW frame;
 
-#define PROGRAMCOUNT 7
+#define PROGRAMCOUNT 8
 #define IDLE_START_COUNT 0
 
 uint8_t player[4]; //Set to 0 if player is not playing, otherwise non-zero.
@@ -63,9 +63,13 @@ void setup() {
     menu_idle[5] = plasma_idle;
     menu_run[5] = plasma_run;
 
-    menu_option[6] = about_splash;
-    menu_idle[6] = 0;
-    menu_run[6] = about_run;
+    menu_option[6] = brain_splash;
+    menu_idle[6] = brain_idle;
+    menu_run[6] = brain_run;
+
+    menu_option[7] = about_splash;
+    menu_idle[7] = 0;
+    menu_run[7] = about_run;
 
 
     frame.begin();
@@ -234,6 +238,7 @@ void loop() {
   } else if (frame.getStart(PLAYER1)) {
     if (*menu_run[curr]) {
       Serial.println("start");
+      frame.resetButtons(); //Remove any lingering unused button presses
       (*menu_run[curr])(); //Run program
       frame.clear();
       menu_showOption();
