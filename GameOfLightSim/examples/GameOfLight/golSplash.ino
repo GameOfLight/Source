@@ -24,6 +24,7 @@
 extern GameOfLightSim frame;
 
 #define BOARD 64
+#define MATCH_TABLE_SIZE 8
 
 
 uint8_t gameOfLife_splashscrn[] PROGMEM =  {
@@ -67,6 +68,13 @@ void gameSetup()
 {
   frame.clear();
 
+  //Glider testpattern
+  /*frame.setPixel(32, 32, RED);
+  frame.setPixel(33, 33, RED);
+  frame.setPixel(34, 33, RED);
+  frame.setPixel(32, 34, RED);
+  frame.setPixel(33, 34, RED);*/
+
   pop(); //random start
   lifeCycle(); //start the game!
 }
@@ -76,12 +84,20 @@ void pop() {
     int x = int(random(BOARD));
     int y = int(random(BOARD));
     //setter pixel til � leve
-    frame.setPixel(x, y, ORANGE);
+    frame.setPixel(x, y, RED);
   }
 }
 
 void lifeCycle() {
+  //Various variables used to catch frames containing only oscillating and stationary formations
+  uint8_t res_hash; //A very simple hash of the resurrected pixels this frame.
+  uint8_t res_arr[MATCH_TABLE_SIZE];  //Cyclical buffer of previous res_hashes
+  uint8_t res_idx = 0;
+  uint8_t res_match_count = 0; //The current pattern matches this many steps of the buffer
+  uint8_t res_match_idx = 0;
+
   while(!frame.getStart(PLAYER1)) {
+    res_hash = 0;
 
     //Empty the green area
     for (uint8_t i = 0; i < 8; i++) {
@@ -123,6 +139,7 @@ void lifeCycle() {
           }
         } else if (count == 3) { //dead, to be resurrected
           frame.setPixel(x, y, GREEN);
+          res_hash += x; //Will overflow, but that's ok.
         }
         //Otherwise the LED becomes/stays off.
       }
@@ -139,5 +156,33 @@ void lifeCycle() {
     for (uint8_t i = 0; i < 8; i++) {
       memcpy(frame.red[i], frame.green[i], 64);
     }
+
+    //Check deadlock
+    if (res_arr[res_match_idx] == res_hash) {
+      //This number matches a previous iteration, could be a loop
+      res_match_count++;
+      res_match_idx++;
+      if (res_match_idx >= MATCH_TABLE_SIZE) res_match_idx = 0;
+
+      if (res_match_count > 10) {
+        //The game of life is has looped for a while now. Regenerate!
+        res_match_count = 0;
+        pop();
+      }
+    } else {
+      res_match_count = 0;
+
+      //Scan for a match in what we've read previously
+      for (int i = 0; i < MATCH_TABLE_SIZE; i++) {
+        if (res_arr[i] == res_hash) {
+          //Match found, prepare for the next one (if any)
+          res_match_idx = i + 1;
+          if (res_match_idx >= MATCH_TABLE_SIZE) res_match_idx = 0;
+        }
+      }
+    }
+    //Save current resurrection count for use with later comparisons
+    res_arr[res_idx++] = res_hash;
+    if (res_idx >= MATCH_TABLE_SIZE) res_idx = 0;
   }
 }
