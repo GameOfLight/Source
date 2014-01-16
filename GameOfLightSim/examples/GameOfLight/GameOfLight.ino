@@ -21,7 +21,7 @@
 #include <GameOfLightSim.h>
 GameOfLightSim frame;
 
-#define PROGRAMCOUNT 6
+#define PROGRAMCOUNT 7
 #define IDLE_START_COUNT 0
 
 extern int __bss_end;
@@ -53,17 +53,21 @@ void setup() {
     menu_idle[2] = 0;
     menu_run[2] = langton_run;
 
-    menu_option[3] = plasma_splash;
-    menu_idle[3] = plasma_idle;
-    menu_run[3] = plasma_run;
+    menu_option[3] = gameOfLife_splash;
+    menu_idle[3] = 0;
+    menu_run[3] = gameSetup;
 
-    menu_option[4] = brain_splash;
-    menu_idle[4] = brain_idle;
-    menu_run[4] = brain_run;
+    menu_option[4] = plasma_splash;
+    menu_idle[4] = plasma_idle;
+    menu_run[4] = plasma_run;
 
-    menu_option[5] = about_splash;
-    menu_idle[5] = 0;
-    menu_run[5] = about_run;
+    menu_option[5] = brain_splash;
+    menu_idle[5] = brain_idle;
+    menu_run[5] = brain_run;
+
+    menu_option[6] = about_splash;
+    menu_idle[6] = 0;
+    menu_run[6] = about_run;
 
     frame.begin();
     (*menu_option[0])();
@@ -276,3 +280,4 @@ void loop() {
   frame.update();
   delay(50);
 }
+
