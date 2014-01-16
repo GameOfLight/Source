@@ -22,6 +22,7 @@
 #include <GameOfLightSim.h>
 #include <String.h>
 extern GameOfLightSim frame;
+uint8_t rand_8(); //from Snake.ino
 
 #define BOARD 64
 #define MATCH_TABLE_SIZE 8
@@ -81,8 +82,8 @@ void gameSetup()
 
 void pop() {
   for (int i = 0; i < BOARD*BOARD*0.4; i++) {
-    int x = int(random(BOARD));
-    int y = int(random(BOARD));
+    uint8_t x = rand_8() >> 2;
+    uint8_t y = rand_8() >> 2;
     //setter pixel til � leve
     frame.setPixel(x, y, RED);
   }
