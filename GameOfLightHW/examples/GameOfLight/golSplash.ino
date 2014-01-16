@@ -20,6 +20,7 @@
 
 
 #include <GameOfLightHW.h>
+#include <String.h>
 extern GameOfLightHW frame;
 
 #define BOARD 64
@@ -65,9 +66,9 @@ void gameOfLife_splash() {
 void gameSetup() 
 {
   frame.clear();
-  pop();
-  frame.update();
-  lifeCycle();
+
+  pop(); //random start
+  lifeCycle(); //start the game!
 }
 
 void pop() {
@@ -75,70 +76,68 @@ void pop() {
     int x = int(random(BOARD));
     int y = int(random(BOARD));
     //setter pixel til � leve
-    frame.setPixel(x, y, GREEN);
+    frame.setPixel(x, y, ORANGE);
   }
 }
 
-void lifeCycle() 
-{
+void lifeCycle() {
   while(!frame.getStart(PLAYER1)) {
-    for (int i = 1; i < (BOARD-1); i++) {
-      for (int j = 1; j < (BOARD-1); j++) {
-        //fargen p� n�v�rende pixel
-        int alive = frame.getPixel(i, j);
-        //antall naboer
-        int count = neighbors(i, j);
-        //en d�d celle
-        if (alive == GREEN || alive == ORANGE) {
-          if (count == 2 || count == 3) {
-            //lever videre
-            frame.setPixel(i, j, GREEN);
-          } else {
-            //Skal d� ut
-            frame.setPixel(i, j, ORANGE);
-          }
-          //her kommer vi inn hvor cellene er d�de BLACK || RED
-        } else {
-          if (count == 3) {
-            //gir cellen nytt liv
-            frame.setPixel(i, j, RED);
-          }
+
+    //Empty the green area
+    for (uint8_t i = 0; i < 8; i++) {
+      memset(frame.green[i], 0, 64);
+    }
+
+    //Calculate the next generation
+    for (uint8_t x = 0; x < 64; x++) {
+      //Number of alive pixels in the window function
+      uint8_t top = 0;
+      uint8_t mid = 0;
+      uint8_t btm = 0;
+
+      //Precalculate (what will become the) mid row of the window function
+      if (x > 0 && (frame.getPixel(x-1, 0) & RED)) btm++; //Checking ORANGE or RED
+      if (frame.getPixel(x, 0) == RED) btm++;
+      if (x < 63 && frame.getPixel(x+1, 0) == RED) btm++;
+
+      for (uint8_t y = 0; y < 64; y++) {
+        //The current pixel
+        uint8_t alive = frame.getPixel(x, y);
+
+        top = mid;
+        mid = btm;
+        btm = 0;
+
+        if (y < 63) {
+          if (x > 0 && (frame.getPixel(x-1, y+1) & RED)) btm++;
+          if (frame.getPixel(x, y+1) == RED) btm++;
+          if (x < 63 && frame.getPixel(x+1, y+1) == RED) btm++;
         }
+
+        //Number of neighbours (including this square)
+        uint8_t count = top + mid + btm;
+
+        if (alive == RED) {
+          if ((count == 3) || (count == 4))  { //NOTE: count includes this square hence testing on 3 and 4
+            frame.setPixel(x, y, ORANGE);
+          }
+        } else if (count == 3) { //dead, to be resurrected
+          frame.setPixel(x, y, GREEN);
+        }
+        //Otherwise the LED becomes/stays off.
       }
     }
-//    frame.update();
-//    delay(50);
-    for (int i = 0; i < BOARD; i++) {
-      for (int j = 0; j< BOARD; j++) {
-        uint8_t col = frame.getPixel(i, j);
-        if (col == RED) {
-          frame.setPixel(i, j, GREEN);
-        } if (col == ORANGE) {
-          frame.setPixel(i,j, BLACK);
-        }
-      }
+
+    //Clear previous (now red). This will leave both the orange and green pixels as green pixels.
+    for (uint8_t i = 0; i < 8; i++) {
+      memset(frame.red[i], 0, 64);
     }
+
     frame.update();
-    delay(3);
+
+    //Copy current frame to old in preparation for the next frame
+    for (uint8_t i = 0; i < 8; i++) {
+      memcpy(frame.red[i], frame.green[i], 64);
+    }
   }
-}
-
-
-int neighbors(int x, int y) {
-  return alivePixel((x+1)%BOARD, y) +
-    alivePixel(x, (y+1)%BOARD) +
-    alivePixel((x+BOARD-1)%BOARD, y) +
-    alivePixel(x, (y+BOARD-1)%BOARD) +
-    alivePixel((x+1)%BOARD, (y+1)%BOARD) +
-    alivePixel((x+BOARD-1)%BOARD, (y+1)%BOARD) +
-    alivePixel((x+BOARD-1)%BOARD, (y+BOARD-1)%BOARD) +
-    alivePixel((x+1)%BOARD, (y+BOARD-1)%BOARD);
-}
-
-int alivePixel(int x, int y) {
-  uint8_t col = frame.getPixel(x, y);
-  if (col == GREEN || col == ORANGE) {
-    return 1;
-  }
-  return 0;
 }
