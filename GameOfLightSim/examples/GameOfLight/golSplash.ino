@@ -97,6 +97,8 @@ void lifeCycle() {
   uint8_t res_match_count = 0; //The current pattern matches this many steps of the buffer
   uint8_t res_match_idx = 0;
 
+  uint8_t lotsOfColour = 0; //Draw just the new pixels or both new and old frame thereby causing lots of colour?
+
   while(!frame.getStart(PLAYER1)) {
     res_hash = 0;
 
@@ -146,17 +148,36 @@ void lifeCycle() {
       }
     }
 
+    if (lotsOfColour) {
+      frame.update();
+    }
+
     //Clear previous (now red). This will leave both the orange and green pixels as green pixels.
     for (uint8_t i = 0; i < 8; i++) {
       memset(frame.red[i], 0, 64);
     }
 
-    frame.update();
+    if (!lotsOfColour) {
+      frame.update();
+    }
+    
 
     //Copy current frame to old in preparation for the next frame
     for (uint8_t i = 0; i < 8; i++) {
       memcpy(frame.red[i], frame.green[i], 64);
     }
+
+    if (frame.getSelect(PLAYER1)) {
+      //User forced regen of screen
+      res_match_count = 0;
+      pop();
+    }
+    if (frame.getA(PLAYER1)) {
+      lotsOfColour ^= 1;
+    }
+
+
+
 
     //Check deadlock
     if (res_arr[res_match_idx] == res_hash) {
@@ -166,7 +187,7 @@ void lifeCycle() {
       if (res_match_idx >= MATCH_TABLE_SIZE) res_match_idx = 0;
 
       if (res_match_count > 10) {
-        //The game of life is has looped for a while now. Regenerate!
+        //The game of life has looped for a while now. Regenerate!
         res_match_count = 0;
         pop();
       }
