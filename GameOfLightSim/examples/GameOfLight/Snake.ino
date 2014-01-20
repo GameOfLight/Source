@@ -40,8 +40,8 @@ extern void menu_playerStart(uint8_t maxPlayers);
 //Position check for being outside the score areas
 #define IS_ILLEGAL_FOOD_POS(x, y) ((y < 8 || y > 55) && (x < 13 || x > 50))
 
-#define MAXSEGMENTS 31 //maximum number of segments in a snake
-#define SPEEUP_FACTOR 6 //The nr of ms framedelay to remove per food eaten
+#define MAXSEGMENTS 63 //maximum number of segments in a snake
+#define SPEEUP_FACTOR 4 //The nr of ms framedelay to remove per food eaten
 //#define PLAYER1 0
 //#define PLAYER2 1
 
@@ -97,6 +97,7 @@ uint8_t snake_headPosY[4];
 	
 uint8_t foodX;
 uint8_t foodY;
+uint8_t food_timer;
 
 uint8_t delayT; // time between each frame of the game
 uint8_t rand_8();
@@ -146,6 +147,12 @@ void snake_drawBorder() {
 	frame.drawLine(50, 55, 50, 63, ORANGE);
 	frame.drawLine(0, 55, 13, 55, ORANGE);
 	frame.drawLine(50, 55, 63, 55, ORANGE);
+
+	//Draw holes in the border to allow the snakes to wrap
+	frame.drawLine(0, 31, 0, 32, BLACK);
+	frame.drawLine(63, 31, 63, 32, BLACK);
+	frame.drawLine(31, 0, 32, 0, BLACK);
+	frame.drawLine(31, 63, 32, 63, BLACK);
 }
 
 
@@ -161,7 +168,7 @@ void snake_addSeg(const uint8_t player) {
 }
 
 
-uint8_t snake_checkCollision(uint8_t player) {
+uint8_t snake_checkCollision(uint8_t player, uint8_t p_alive[4]) {
 	uint8_t i;
 	if (frame.getPixel(snake_headPosX[player], snake_headPosY[player])) {
 		//Checks new head location for collision
@@ -169,7 +176,7 @@ uint8_t snake_checkCollision(uint8_t player) {
 	}
 	//Check all snake head locations as they haven't been painted yet, but will lead to a collision
 	for (i = 0; i < 4; i++) {
-		if (i != player && (snake_headPosX[player] == snake_headPosX[i]) && (snake_headPosY[player] == snake_headPosY[i])) {
+		if (i != player && p_alive[i] && (snake_headPosX[player] == snake_headPosX[i]) && (snake_headPosY[player] == snake_headPosY[i])) {
 			return 1;
 		}
 	}
@@ -178,6 +185,7 @@ uint8_t snake_checkCollision(uint8_t player) {
 
 
 void snake_newFood() {
+	food_timer = 0;
 	do {
 		foodX = rand_8()>>2; //max 64
 		foodY = rand_8()>>2; //max 64
@@ -216,6 +224,10 @@ uint8_t snake_moveHandler(uint8_t player) {
 	snake_headPosX[player] += snake_dirToX(dir);
 	snake_headPosY[player] += snake_dirToY(dir);
 
+	//To allow the snake to use the shortcuts along the edges
+	snake_headPosX[player] &= 0x3F;
+	snake_headPosY[player] &= 0x3F;
+
 	return dir;
 }
 
@@ -238,6 +250,9 @@ void snake_move(uint8_t player) {
 		}
 		snake_tailPosX[player] += snake_dirToX(snake_seg[player][0] & 0x03);
 		snake_tailPosY[player] += snake_dirToY(snake_seg[player][0] & 0x03);
+
+		snake_tailPosX[player] &= 0x3F;
+		snake_tailPosY[player] &= 0x3F;
 	}
 	//save used direction
 	snake_setSegDir(player, snake_head[player], dir);
@@ -359,7 +374,7 @@ void snake_updateCornerScores() {
 
 		if (player[i]) { //If player is playing
 			//Fetch score
-			itoa(snake_count[i]-3, buff, 10);
+			itoa((snake_count[i]-3) >> 1, buff, 10);
 
 			frame.clear(11);
 			frame.print(buff, i < 2 ? GREEN : RED);
@@ -430,6 +445,7 @@ void snake_run() {
 						frame.setPixel(snake_headPosX[i], snake_headPosY[i], BLACK);
 						//has eaten, update head, keep rest of snake stationary
 						snake_addSeg(i);
+						snake_addSeg(i);
 					}
 				}
 
@@ -438,7 +454,7 @@ void snake_run() {
 				for (i = 0; i < 4; i++) {
 					if (player[i]) {
 						if (p_alive[i]) {
-							p_alive[i] = !snake_checkCollision(i);
+							p_alive[i] = !snake_checkCollision(i, p_alive);
 
 							if (p_alive[i]) {
 								//Draw new head:
@@ -455,6 +471,13 @@ void snake_run() {
 						//Keep game running if one player is still alive:
 						gameOn |= p_alive[i];
 					}
+				}
+				food_timer++;
+				if (food_timer > 96) {
+					//clear current food:
+					frame.setPixel(foodX, foodY, BLACK);
+					//Make new:
+					snake_newFood();
 				}
 
 				snake_updateCornerScores();
@@ -519,3 +542,4 @@ void snake_run() {
 		isRunning = 0;	//CHANGE LATER ON when/if the menu is implemented
 	}
 }
+
