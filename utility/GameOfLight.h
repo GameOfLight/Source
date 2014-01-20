@@ -174,8 +174,12 @@ class GameOfLight {
   void scrollDown();
   void scrollDown(uint8_t index, uint8_t padcolour);
 
+  void drawLine(int8_t x1, int8_t y1);
+  void drawLine(int8_t x0, int8_t y0, int8_t x1, int8_t y1);
   void drawLine(int8_t x0, int8_t y0, int8_t x1, int8_t y1, uint8_t colour);
+  void drawRect(int8_t x0, int8_t y0, uint8_t width, uint8_t height);
   void drawRect(int8_t x0, int8_t y0, uint8_t width, uint8_t height, uint8_t colour);
+  void drawCircle(int8_t x0, int8_t y0, uint8_t radius);
   void drawCircle(int8_t x0, int8_t y0, uint8_t radius, uint8_t colour);
 
   uint8_t buff[8][128]; /* Screen buffer[line][index]. index < 64 == green, else red. Combine for orange */
@@ -224,6 +228,7 @@ class GameOfLight {
 
  private:
   uint8_t _colour;     //Active colour
+  int8_t _x0, _y0;     //The end coordinates of the last figure drawn (line, rect)
   uint8_t _curr_line;  //Cursor location in the buffer
   uint8_t _curr_index; //Cursor location in the buffer
 };
