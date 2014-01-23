@@ -33,9 +33,9 @@
 
 //From the main menu:
 extern GameOfLightSim frame;
-extern uint8_t player[4]; //must call menu_playerStart for valid content
+extern int8_t player[4]; //must call menu_playerStart for valid content
 extern uint8_t playerCnt; //must call menu_playerStart for valid count
-extern void menu_playerStart(uint8_t maxPlayers);
+extern void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t player_x[4], const int8_t player_line[4]);
 
 //Position check for being outside the score areas
 #define IS_ILLEGAL_FOOD_POS(x, y) ((y < 8 || y > 55) && (x < 13 || x > 50))
@@ -168,15 +168,16 @@ void snake_addSeg(const uint8_t player) {
 }
 
 
-uint8_t snake_checkCollision(uint8_t player, uint8_t p_alive[4]) {
+uint8_t snake_checkCollision(uint8_t playerCurr, uint8_t p_alive[4]) {
 	uint8_t i;
-	if (frame.getPixel(snake_headPosX[player], snake_headPosY[player])) {
+	if (frame.getPixel(snake_headPosX[playerCurr], snake_headPosY[playerCurr])) {
 		//Checks new head location for collision
 		return 1;
 	}
 	//Check all snake head locations as they haven't been painted yet, but will lead to a collision
-	for (i = 0; i < 4; i++) {
-		if (i != player && p_alive[i] && (snake_headPosX[player] == snake_headPosX[i]) && (snake_headPosY[player] == snake_headPosY[i])) {
+	for (i = 0; i < playerCnt; i++) {
+		int8_t other = player[i];
+		if (other != playerCurr && p_alive[other] && (snake_headPosX[playerCurr] == snake_headPosX[other]) && (snake_headPosY[playerCurr] == snake_headPosY[other])) {
 			return 1;
 		}
 	}
@@ -301,18 +302,18 @@ void snake_newGame() {
 	frame.clear();
 	snake_drawBorder();
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < playerCnt; i++) {
 		//Player body init:
-		if (player[i]) {
-			snake_startPos(i, 7 + ((i == 1 || i == 2) ? 45 : 0), 15 + ((i < 2) ? 34 : 0), playerdir[i]);
-			snake_reDraw(i);
-		}
+		uint8_t ctrl = player[i]; //Which controller is playing this player
+		snake_startPos(ctrl, 7 + ((i == 1 || i == 2) ? 45 : 0), 15 + ((i < 2) ? 34 : 0), playerdir[i]);
+		snake_reDraw(ctrl);
 	}
 
 	snake_newFood();
 	
 	frame.update();
 	delay(2000);
+	frame.resetButtons();
 }
 
 
@@ -355,8 +356,7 @@ void snake_updateCornerScores() {
 	uint8_t i;
 	char buff[5]; //Number to ascii buffer
 
-
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < playerCnt; i++) {
 		switch(i) {
 			case PLAYER1:
 				frame.gotoXY(1,7);
@@ -372,34 +372,37 @@ void snake_updateCornerScores() {
 				break;
 		}
 
-		if (player[i]) { //If player is playing
-			//Fetch score
-			itoa((snake_count[i]-3) >> 1, buff, 10);
+		//Fetch score
+		itoa((snake_count[player[i]]-3) >> 1, buff, 10);
 
-			frame.clear(11);
-			frame.print(buff, i < 2 ? GREEN : RED);
-			if (i > 1) {
-				//Flip score display of player 3 and 4
-				menu_flipArea(0, i == PLAYER3 ? 52 : 1, 10, 3);
-			}
-		}
+		frame.clear(11);
+		frame.print(buff, i < 2 ? GREEN : RED);
+		/*if (i > 1) {
+			//Flip score display of player 3 and 4
+			menu_flipArea(0, i == PLAYER3 ? 52 : 1, 10, 3);
+		}*/
 	}
 }
 
 
 uint8_t snake_menu() { //HANDLED BY MENU INSTEAD?
+	const int8_t x_coord[] = {5, 47, 5, 47};
+	const int8_t y_coord[] = {5, 5, 2, 2};
 	uint8_t count = 0;
 	frame.clear();
 	snake_splash();
 
 	frame.resetButtons();
 	frame.update();
-	delay(500);
+	delay(1000);
 
 	//TODO: Add actual menu here
 
 	//Fetch players
-	menu_playerStart(4);
+	frame.clear();
+	snake_drawBorder();
+	menu_playerStart(1, 3, x_coord, y_coord);
+	//menu_playerStart(4);
 
 	return 1;
 }
@@ -420,57 +423,57 @@ void snake_run() {
 			delayT = 150;
 			gameOn = 1;
 
-			for (i = 0; i < 4; i++) {
-				if (player[i]) {
-					//Set all joined players to alive:
-					p_alive[i] = 1;
-				}
+			for (i = 0; i < playerCnt; i++) {
+				//if (player[i] != -1) {
+				//Set all joined players to alive:
+				p_alive[player[i]] = 1;
+				//}
 			}
 
 			while(gameOn) { //Main game loop
 				gameOn = 0; //A live player will set this back to 1
 				
 				//Execute all moves
-				for (i = 0; i < 4; i++) {
-					if (player[i] && p_alive[i]) {
-						snake_move(i);
+				for (i = 0; i < playerCnt; i++) {
+					if (p_alive[player[i]]) {
+						snake_move(player[i]);
 					}
 				}
 
 				//Check food
-				for (i = 0; i < 4; i++) {
-					if ((player[i] && p_alive[i]) && (snake_headPosX[i] == foodX) && (snake_headPosY[i] == foodY)) {
+				for (i = 0; i < playerCnt; i++) {
+					uint8_t ctrl = player[i];
+					if (p_alive[ctrl] && (snake_headPosX[ctrl] == foodX) && (snake_headPosY[ctrl] == foodY)) {
 						snake_newFood();
 						//Clear old food so we don't collide with it....
-						frame.setPixel(snake_headPosX[i], snake_headPosY[i], BLACK);
+						frame.setPixel(snake_headPosX[ctrl], snake_headPosY[ctrl], BLACK);
 						//has eaten, update head, keep rest of snake stationary
-						snake_addSeg(i);
-						snake_addSeg(i);
+						snake_addSeg(ctrl);
+						snake_addSeg(ctrl);
 					}
 				}
 
 				//Now that the foodcoloured pixels have been taken care of it's safe to assume
 				//any remaining pixels are actual collisions.
-				for (i = 0; i < 4; i++) {
-					if (player[i]) {
-						if (p_alive[i]) {
-							p_alive[i] = !snake_checkCollision(i, p_alive);
+				for (i = 0; i < playerCnt; i++) {
+					uint8_t ctrl = player[i];
+					if (p_alive[ctrl]) {
+						p_alive[ctrl] = !snake_checkCollision(ctrl, p_alive);
 
-							if (p_alive[i]) {
-								//Draw new head:
-								frame.setPixel(snake_headPosX[i], snake_headPosY[i], (i & 1) ? ORANGE : (i < 2 ? GREEN : RED));
-							}
-							//Set old head to body colour: (will embed head in object if a collision happened)
-							uint8_t prevX, prevY, prevDir;
-							prevDir = snake_getLastDir(i);
-							prevX = snake_headPosX[i] - snake_dirToX(prevDir);
-							prevY = snake_headPosY[i] - snake_dirToY(prevDir);
-
-							frame.setPixel(prevX, prevY, (i < 2) ? GREEN : RED);
+						if (p_alive[ctrl]) {
+							//Draw new head:
+							frame.setPixel(snake_headPosX[ctrl], snake_headPosY[ctrl], (i & 1) ? ORANGE : (i < 2 ? GREEN : RED));
 						}
-						//Keep game running if one player is still alive:
-						gameOn |= p_alive[i];
+						//Set old head to body colour: (will embed head in object if a collision happened)
+						uint8_t prevX, prevY, prevDir;
+						prevDir = snake_getLastDir(ctrl);
+						prevX = snake_headPosX[ctrl] - snake_dirToX(prevDir);
+						prevY = snake_headPosY[ctrl] - snake_dirToY(prevDir);
+
+						frame.setPixel(prevX, prevY, (i < 2) ? GREEN : RED);
 					}
+					//Keep game running if one player is still alive:
+					gameOn |= p_alive[ctrl];
 				}
 				food_timer++;
 				if (food_timer > 96) {
