@@ -88,8 +88,8 @@ void plasma_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end)
 
 void plasma_idle(uint8_t counter) {
 	//Write title:
-	frame.gotoXY(14, 2);
-  	frame.print("Plasma", GREEN);
+	frame.gotoXY(14, 15);
+  	frame.print("Plasma", RED);
 
   	//Play the plasma effect in a smaller window:
   	plasma_step(12, 52, 23, 48);
@@ -125,3 +125,4 @@ void plasma_run() {
 		if (frame.getA(PLAYER1)) plasma_dither ^= 1;
 	}
 }
+

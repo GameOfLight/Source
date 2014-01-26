@@ -325,7 +325,7 @@ void snake_splash() {
       frame.blit(snake_splashscrn+x*16+y*96, 8+x*8, 8+y*8);
     }
   }
-  frame.gotoXY(32, 2);
+  frame.gotoXY(32, 16);
   frame.print("Snake", GREEN);
 }
 
@@ -359,10 +359,10 @@ void snake_updateCornerScores() {
 	for (i = 0; i < playerCnt; i++) {
 		switch(i) {
 			case PLAYER1:
-				frame.gotoXY(1,7);
+				frame.gotoXY(1,56);
 				break;
 			case PLAYER2:
-				frame.gotoXY(52,7);
+				frame.gotoXY(52,56);
 				break;
 			case PLAYER3:
 				frame.gotoXY(52,0);
@@ -387,7 +387,7 @@ void snake_updateCornerScores() {
 
 uint8_t snake_menu() { //HANDLED BY MENU INSTEAD?
 	const int8_t x_coord[] = {5, 47, 5, 47};
-	const int8_t y_coord[] = {5, 5, 2, 2};
+	const int8_t y_coord[] = {40, 40, 16, 16};
 	uint8_t count = 0;
 	frame.clear();
 	snake_splash();
@@ -401,8 +401,7 @@ uint8_t snake_menu() { //HANDLED BY MENU INSTEAD?
 	//Fetch players
 	frame.clear();
 	snake_drawBorder();
-	menu_playerStart(1, 3, x_coord, y_coord);
-	//menu_playerStart(4);
+	menu_playerStart(1, 28, x_coord, y_coord);
 
 	return 1;
 }
@@ -530,7 +529,7 @@ void snake_run() {
 				frame.print(buff, GREEN);
 				
 				itoa(snake_count[PLAYER2]-3, buff, 10);
-				frame.gotoXY(1, 1);
+				frame.gotoXY(1, 8);
 				frame.print("P:", RED);
 				frame.print(buff, RED);
 				
