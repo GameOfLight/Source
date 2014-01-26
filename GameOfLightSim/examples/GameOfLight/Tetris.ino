@@ -32,7 +32,7 @@
 * Score:
 * Clearing 1, 2, 3 or 4 rows gives 1, 3, 5 and 8 points respectivly. 
 * No bonus based on level or difficult rotations.
-* Points are tracked up to 65,535, but only the first 999 are displayed. +++ displayed for scores above this.
+* Points are tracked up to 65,535, but only the first 9999 are displayed. ++++ displayed for scores above this.
 *
 * The game speeds up automatically for every 10 rows cleared. Max level 20.
 */
@@ -439,18 +439,19 @@ void tetris_drawLevelLine(uint8_t p, uint8_t progress) {
 
 void tetris_drawScore(uint8_t p, uint16_t score) {
   //Score has apparently changed. Update the display!
-  frame.gotoXY(tetris_bounds[p][0]+2, 8);
-  frame.clear(17);
-  if (score <= 999) {
-    char buff[4];
-    for (int8_t i = 2; i >= 0; i--) {
+  frame.gotoXY(tetris_bounds[p][0]+2, 9);
+  frame.setFont(GOL_FONT_3x5);
+  frame.clear(17, 0x1F); //Clear only the area occupied by the font
+  if (score <= 9999) {
+    char buff[5];
+    for (int8_t i = 3; i >= 0; i--) {
       buff[i] = (score % 10) + '0';
       score /= 10;      
     }
-    buff[3] = 0;
+    buff[4] = 0;
     frame.print(buff, RED);
   } else {
-    frame.print("+++", RED);
+    frame.print("++++", RED);
   }  
 }
 
