@@ -26,6 +26,7 @@ GameOfLight::GameOfLight() {
     green[i] = &buff[i][0];
   }
   resetButtons();
+  setFont(GOL_FONT_5x7);
 }
 
 /* Pick location in the buffer for subsequent writes */
@@ -121,9 +122,9 @@ void GameOfLight::blit(const uint8_t *sprite, int x, int y) {
 
 void GameOfLight::print(const char ch) {
   uint8_t i;
-  for(i=0; i<5; i++) {
+  for(i=0; i<_font_width; i++) {
     /* Fetch and print the pieces that makes up the letter given */	
-    write(pgm_read_byte(font+(ch-0x20)*5+i));
+    write(pgm_read_byte(_font+(ch-0x20)*_font_width+i));
   }
   write(0x00); //Space between letters
 }
@@ -144,6 +145,20 @@ void GameOfLight::print(const char *string, const uint8_t colour) {
   setColour(colour);
   print((char*)string);
 }
+
+void GameOfLight::setFont(uint8_t fonttype) {
+  if (fonttype == GOL_FONT_3x5) {
+    //Tiny 3x5 font
+    _font_width = 3;
+    _font = font_3x5;
+
+  } else {
+    //Default 5x7 font
+    _font_width = 5;
+    _font = font_5x7;
+  }
+}
+
 
 void GameOfLight::setColour(const uint8_t colour) {
   _colour = colour & 0x03; // Only GREEN, RED and ORANGE allowed
