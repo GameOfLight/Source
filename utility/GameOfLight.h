@@ -161,7 +161,8 @@ class GameOfLight {
   uint8_t getColour();
   void setPixel(uint8_t x, uint8_t y, uint8_t val);
   void clear();  /* Clears buffer */
-  void clear(int count); /* Clears count spaces ahead of cursor */
+  void clear(uint8_t count); /* Clears count spaces ahead of cursor */
+  void clear(uint8_t count, uint8_t pattern); /* Clears count spaces ahead of cursor using pattern */
   void write(const uint8_t data); //Direct write to the buffer's current position
   void blit(const uint8_t *sprite, int x, int y); // Blits a sprite onto the screen
   
@@ -230,6 +231,7 @@ class GameOfLight {
   uint8_t _colour;     //Active colour
   int8_t _x0, _y0;     //The end coordinates of the last figure drawn (line, rect)
   uint8_t _curr_line;  //Cursor location in the buffer
+  uint8_t _curr_shift;
   uint8_t _curr_index; //Cursor location in the buffer
 };
 

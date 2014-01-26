@@ -29,9 +29,10 @@ GameOfLight::GameOfLight() {
 }
 
 /* Pick location in the buffer for subsequent writes */
-void GameOfLight::gotoXY(const uint8_t index, const uint8_t line) {
-  _curr_line = line & 0x07;   //range [0,  7]
-  _curr_index = index & 0x3F; //range [0, 63]
+void GameOfLight::gotoXY(const uint8_t x, const uint8_t y) {
+  _curr_line = y >> 3;   //range [0,  7]
+  _curr_shift = y & 0x07; //y % 8
+  _curr_index = x & 0x3F; //range [0, 63]
 }
 
 /*Returns the current line*/
@@ -51,33 +52,33 @@ uint8_t GameOfLight::getColour() {
 
 /* Enters the given data at the current cursor position with the current colour*/
 void GameOfLight::write(const uint8_t data) {
-  //Clears any off-colour data present in positions occupied by 'data'. If further
-  //clearing is required use clear(amount) first to empty the area first.
+  //Only adds colourdata, doesn't remove what is allready there. 
+  // If clearing is required use clear(amount) to empty the area first.
+
+  if (_curr_index > 63) return; //Ignore out of bounds
 
   if (_colour & GREEN) {
     //add green in position indicated by 'data'
-    buff[_curr_line][_curr_index] |= data;
-  } else {
-    //clear green if it shouldn't be set
-    buff[_curr_line][_curr_index] &= ~data;
+    buff[_curr_line][_curr_index] |= data << _curr_shift;
   }
   if (_colour & RED) {
     //add red in position indicated by 'data'
-    buff[_curr_line][_curr_index + 64] |= data;
-  } else {
-    //Clear red if it shouldn't be set
-    buff[_curr_line][_curr_index + 64] &= ~data;
+    buff[_curr_line][_curr_index + 64] |= data << _curr_shift;
   }
 
-  // Update buffer position by wrapping to new line if overflowing.
-  _curr_index++;
-  if (_curr_index > 63) {
-    _curr_index = 0;
-    _curr_line++;
-    if (_curr_line > 7) {
-      _curr_line = 0;
-    }	
+  if ((_curr_line != 7) && _curr_shift) {
+    //Draw the remainder, if any, into the byte below this one
+    if (_colour & GREEN) {
+      //add green in position indicated by 'data'
+      buff[_curr_line+1][_curr_index] |= data >> (8 - _curr_shift);
+    }
+    if (_colour & RED) {
+      //add red in position indicated by 'data'
+      buff[_curr_line+1][_curr_index + 64] |= data >> (8 - _curr_shift);
+    }
   }
+
+  _curr_index++; //Will eventually push it to 64 at which point no new write operations will take place
 }
 
 /*
@@ -153,23 +154,29 @@ void GameOfLight::clear() {
   memset(buff, 0, sizeof buff);
 }
 
-void GameOfLight::clear(int count) {
-  //Clears count spaces ahead of cursor. Stops once count has been cleared or
-  // screen overflows back to position 0,0
+void GameOfLight::clear(uint8_t count) {
+  //Clears all data count spaces ahead of cursor. Stops at end of line if encountered.
+  clear(count, 0xff);
+}
 
-  //A bit slow, change to memset implementation later? (But make sure to check whetever all of
-  // count ends up within the actual array before you do!)
-  for (uint8_t line = _curr_line; line < 8 && count; line++) {
-    for (uint8_t x = _curr_index; x < 64 && count; x++) {
-      buff[line][x] = 0;		//Clear green
-      buff[line][x + 64] = 0; //Clear red
-      count--;
+void GameOfLight::clear(uint8_t count, uint8_t pattern) {
+  //Clears count spaces ahead of current cursor position with the specified pattern.
+  // Stops at the end of the line.
+  // Pattern is which bits to remove in a 8 bit vertical column dropping down from
+  //  the current coordinates.
+  uint8_t end = min(64, _curr_index + count);
+  uint8_t pattern_low = ~pattern >> (8 - _curr_shift);
+  pattern = ~pattern << _curr_shift;
+
+  for (uint8_t x = _curr_index; x < end; x++) {
+    buff[_curr_line][x] &= pattern; //Clear green
+    buff[_curr_line][x + 64] &= pattern; //Clear red
+
+    if (_curr_line != 7) {
+      buff[_curr_line+1][x] &= pattern_low; //Clear green
+      buff[_curr_line+1][x + 64] &= pattern_low; //Clear red
     }
   }
-  /*if (count) {
-  //Overran the last line. Clear rest:
-  clear(count);
-  }*/
 }
 
 // Returns the colour of the given pixel
