@@ -298,6 +298,7 @@ void loop() {
       frame.resetButtons(); //Remove any lingering unused button presses
       (*menu_run[curr])(); //Run program
       frame.clear();
+      frame.setFont(GOL_FONT_5x7);
       menu_showOption();
       frame.update();
       delay(1000);
