@@ -57,11 +57,11 @@ void gameOfLife_splash() {
       frame.blit(gameOfLife_splashscrn+x*16+y*48, 20+x*8, 5+y*8);
     }
   }
-  frame.gotoXY(20, 4);
+  frame.gotoXY(20, 32);
   frame.print("Game ", RED);
-  frame.gotoXY(24, 5);
+  frame.gotoXY(24, 40);
   frame.print("Of", GREEN);
-  frame.gotoXY(20, 6);
+  frame.gotoXY(20, 48);
   frame.print("Life", ORANGE);
 }
 
