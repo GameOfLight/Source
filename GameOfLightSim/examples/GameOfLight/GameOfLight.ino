@@ -17,10 +17,10 @@
   You should have received a copy of the GNU General Public License
   along with Game Of Light.  If not, see <http://www.gnu.org/licenses/>.
   */
-
 #include <GameOfLightSim.h>
 GameOfLightSim frame;
 
+#define GOL_CONTROLS_NOINVERT; //Turn off control inversion on player 3 and 4
 #define PROGRAMCOUNT 8
 #define IDLE_START_COUNT 0
 
@@ -148,13 +148,14 @@ void menu_flipArea(uint8_t line, uint8_t x0, uint8_t width, uint8_t flip) {
 //Assigns the players to the slots of the player[] in the order they press the start button.
 // Attempts to do so without doing undue damage to the currently displayed image.
 //  Will only clear around the actual prompts.
-//Uses the coordinates from player_x and player_line to determine where on the screen the 
-// playerslots will have their prompt displayed after a player joins. Also the location where 
-// the countdown timers appear once the minimum number of players have joined.
+//Displays a player join prompt at the coordinates given:
+// player_x[] - x coordinates of the prompts for the (up to) 4 players
+// player_y[] - y coordinates of the prompts for the (up to) 4 players
+//Once minPlayers has been reached the unjoined player's prompts change to a countdown
 //The max number of players is specified by leaving the last few slots of player_x as -1.
-//A "press start"-prompt is displayed centered on the line specified in 'press_start_line'
-// Can be disabled by setting this parameter to -1.
-void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t player_x[4], const int8_t player_line[4]) {
+//A "press start"-prompt is displayed centered on the y-coordinates specified in 'press_start_y'
+// This prompt can be disabled by setting this parameter to -1.
+void menu_playerStart(uint8_t minPlayers, int8_t press_start_y, const int8_t player_x[4], const int8_t player_y[4]) {
   uint8_t maxPlayers, i;
   uint8_t countDown = 80;
   uint8_t player_joined = 0;
@@ -179,7 +180,7 @@ void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t 
       if (frame.getStart(i) && !(player_joined & (1 << i))) {
         //Player i reserved spot playerCnt
         player[playerCnt] = i;
-        frame.gotoXY(player_x[playerCnt], player_line[playerCnt]);
+        frame.gotoXY(player_x[playerCnt], player_y[playerCnt]);
         frame.clear(11);
         frame.print("P", GREEN);
         frame.print('1'+i, GREEN);
@@ -197,7 +198,7 @@ void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t 
       countDown--;
       for (int i = playerCnt; i < maxPlayers; i++) {
         //Enough players reached, display countdown for the remaining spots
-        frame.gotoXY(player_x[i], player_line[i]);
+        frame.gotoXY(player_x[i], player_y[i]);
         frame.clear(11);
         frame.print(' ');
         frame.print('0'+(countDown>>4), RED);
@@ -205,15 +206,15 @@ void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t 
     } else if ((idle_counter & 0x07) == 0) {
       //Epilleptic-fit display function ... (adds ?? to each unused slot on the screen in various colours)
       for (i = playerCnt; i < maxPlayers; i++) {
-        frame.gotoXY(player_x[i], player_line[i]);
+        frame.gotoXY(player_x[i], player_y[i]);
         frame.clear(11);
         frame.print("??", (rand_8() % 3) + 1);
       }
     }
 
     //Blinking press start prompt
-    if (press_start_line != -1 && (idle_counter & 0x0F) == 0) {
-      frame.gotoXY(17, press_start_line);
+    if (press_start_y != -1 && (idle_counter & 0x0F) == 0) {
+      frame.gotoXY(17, press_start_y);
       frame.clear(30);
       if (idle_counter & 0x10) {
         frame.print("Start", (rand_8() % 3) + 1);
@@ -227,12 +228,12 @@ void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t 
   }
 
   //Clear the start prompt line and the unused playerslot locations (if any)
-  if (press_start_line != -1) {
-    frame.gotoXY(17, press_start_line);
+  if (press_start_y != -1) {
+    frame.gotoXY(17, press_start_y);
     frame.clear(30);
   }
   for (i = playerCnt; i < maxPlayers; i++) { //Unused player slots
-    frame.gotoXY(player_x[i], player_line[i]);
+    frame.gotoXY(player_x[i], player_y[i]);
     frame.clear(11);
   }
   //Display the final positions of each joined player for 1 second:
@@ -241,7 +242,7 @@ void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t 
 
   //Remove the player prompts as well:
   for (i = 0; i < playerCnt; i++) {
-    frame.gotoXY(player_x[i], player_line[i]);
+    frame.gotoXY(player_x[i], player_y[i]);
     frame.clear(11);
   }
   frame.update();
@@ -249,10 +250,10 @@ void menu_playerStart(uint8_t minPlayers, int8_t press_start_line, const int8_t 
 
 
 void menu_Btns() {
-  frame.gotoXY(1, 7);
+  frame.gotoXY(1, 56);
   if (*menu_run[curr] && (idle_counter & 16)) {
     frame.print("Press", GREEN);
-    frame.gotoXY(34, 7);
+    frame.gotoXY(34, 56);
     frame.print("start");
   } else {
     frame.clear(62);
