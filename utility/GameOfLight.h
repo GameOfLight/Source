@@ -44,8 +44,8 @@
 #define SOUTH 3  //11: opposite of 00
 #define NONE 4
 
-#define GOL_FONT_5x7 0
-#define GOL_FONT_3x5 1
+#define FONT_5x7 0
+#define FONT_3x5 1
 
 static const unsigned char PROGMEM font_5x7[]  = {
   0x00, 0x00, 0x00, 0x00, 0x00,   // sp

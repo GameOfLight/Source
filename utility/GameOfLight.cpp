@@ -147,7 +147,7 @@ void GameOfLight::print(const char *string, const uint8_t colour) {
 }
 
 void GameOfLight::setFont(uint8_t fonttype) {
-  if (fonttype == GOL_FONT_3x5) {
+  if (fonttype == FONT_3x5) {
     //Tiny 3x5 font
     _font_width = 3;
     _font = font_3x5;

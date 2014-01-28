@@ -440,7 +440,7 @@ void tetris_drawLevelLine(uint8_t p, uint8_t progress) {
 void tetris_drawScore(uint8_t p, uint16_t score) {
   //Score has apparently changed. Update the display!
   frame.gotoXY(tetris_bounds[p][0]+2, 9);
-  frame.setFont(GOL_FONT_3x5);
+  frame.setFont(FONT_3x5);
   frame.clear(17, 0x1F); //Clear only the area occupied by the font
   if (score <= 9999) {
     char buff[5];
