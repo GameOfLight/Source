@@ -21,7 +21,7 @@
 GameOfLightSim frame;
 
 #define GOL_CONTROLS_NOINVERT; //Turn off control inversion on player 3 and 4
-#define PROGRAMCOUNT 8
+#define PROGRAMCOUNT 9
 #define IDLE_START_COUNT 0
 
 extern uint8_t rand_8();
@@ -70,9 +70,13 @@ void setup() {
     menu_idle[6] = brain_idle;
     menu_run[6] = brain_run;
 
-    menu_option[7] = about_splash;
-    menu_idle[7] = 0;
-    menu_run[7] = about_run;
+    menu_option[7] = countdown_splash;
+    menu_idle[7] = countdown_idle;
+    menu_run[7] = countdown_run;
+
+    menu_option[8] = about_splash;
+    menu_idle[8] = 0;
+    menu_run[8] = about_run;
 
     frame.begin();
     Serial.println(freeRam());
@@ -298,7 +302,7 @@ void loop() {
       frame.resetButtons(); //Remove any lingering unused button presses
       (*menu_run[curr])(); //Run program
       frame.clear();
-      frame.setFont(GOL_FONT_5x7);
+      frame.setFont(FONT_5x7);
       menu_showOption();
       frame.update();
       delay(1000);
