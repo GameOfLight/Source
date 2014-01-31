@@ -26,7 +26,7 @@ GameOfLight::GameOfLight() {
     green[i] = &buff[i][0];
   }
   resetButtons();
-  setFont(GOL_FONT_5x7);
+  setFont(FONT_5x7);
 }
 
 /* Pick location in the buffer for subsequent writes */
