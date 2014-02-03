@@ -37,7 +37,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 extern GameOfLightSim frame;
-uint8_t rand_8(); //from Snake.ino
+extern uint8_t rand_8(); //from Snake.ino
 
 #define BRAIN_DEAD BLACK
 #define BRAIN_DYING RED
