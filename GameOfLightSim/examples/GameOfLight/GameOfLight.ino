@@ -20,7 +20,7 @@
 #include <GameOfLightSim.h>
 GameOfLightSim frame;
 
-#define GOL_CONTROLS_NOINVERT; //Turn off control inversion on player 3 and 4
+#define GOL_CONTROLS_NOINVERT //Turn off control inversion on player 3 and 4
 #define PROGRAMCOUNT 9
 #define IDLE_START_COUNT 0
 
