@@ -87,13 +87,13 @@ void FR_splash() {
 
 void FR_idle(uint8_t idle_count) {
   //Clear title and flame area so we may redraw with new state
-  frame.gotoXY(14,2);
+  frame.gotoXY(14,16);
   frame.clear(36);
-  frame.gotoXY(14,3);
+  frame.gotoXY(14,24);
   frame.clear(36);
-  frame.gotoXY(14, 4);
+  frame.gotoXY(14, 32);
   frame.clear(36);
-  frame.gotoXY(0, 6);
+  frame.gotoXY(0, 48);
   frame.clear(64);
 
   FR_drawStartScreen();
@@ -133,9 +133,9 @@ void FR_drawStartScreen() {
   frame.blit(chickensoft + 32, 24, 8);
   frame.blit(chickensoft + 48, 32, 8);
   
-  frame.gotoXY(17, 3);
+  frame.gotoXY(17, 24);
   frame.print("FLAME", RED);
-  frame.gotoXY(14, 4);
+  frame.gotoXY(14, 32);
   frame.print("RUNNER", RED);
   for (int i = 0; i < 16; i++) {
     for (int j = 14; j < 50; j++) { //reduced interval so we don't mess up the menu arrows
@@ -148,9 +148,9 @@ void FR_drawStartScreen() {
 }
 
 void FR_drawGameOverScreen() {
-  frame.gotoXY(6,3);
+  frame.gotoXY(6,24);
   frame.print("GAME OVER", RED);
-  frame.gotoXY(20,4);
+  frame.gotoXY(20,32);
   frame.print(FR_score, RED);
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 64; j++) {

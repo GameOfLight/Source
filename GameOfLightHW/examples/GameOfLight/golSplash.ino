@@ -57,11 +57,11 @@ void gameOfLife_splash() {
       frame.blit(gameOfLife_splashscrn+x*16+y*48, 20+x*8, 5+y*8);
     }
   }
-  frame.gotoXY(20, 4);
+  frame.gotoXY(20, 32);
   frame.print("Game ", RED);
-  frame.gotoXY(24, 5);
+  frame.gotoXY(24, 40);
   frame.print("Of", GREEN);
-  frame.gotoXY(20, 6);
+  frame.gotoXY(20, 48);
   frame.print("Life", ORANGE);
 }
 
@@ -99,6 +99,7 @@ void lifeCycle() {
 
   uint8_t lotsOfColour = 0; //Draw just the new pixels or both new and old frame thereby causing lots of colour?
 
+  frame.resetButtons();
   while(!frame.getStart(PLAYER1)) {
     res_hash = 0;
 

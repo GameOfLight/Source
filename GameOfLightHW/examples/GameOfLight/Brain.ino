@@ -37,7 +37,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 extern GameOfLightHW frame;
-uint8_t rand_8(); //from Snake.ino
+extern uint8_t rand_8(); //from Snake.ino
 
 #define BRAIN_DEAD BLACK
 #define BRAIN_DYING RED
@@ -47,7 +47,7 @@ void brain_splash() {
 	frame.clear();
 	
 	//Write title:
-	frame.gotoXY(11, 2);
+	frame.gotoXY(11, 16);
   	frame.print("Brian's", GREEN);
   	brain_idle(0);
 }
@@ -110,12 +110,12 @@ uint8_t brain_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_en
 
 void brain_randomStart() {
 	//Add some random data as a start point
-	frame.gotoXY(22,2);
+	frame.gotoXY(22,16);
 	frame.setColour(BRAIN_ALIVE);
 	for (int i = 0; i < 20; i++) {
 		frame.write(rand_8());
 	}
-	frame.gotoXY(22,5);
+	frame.gotoXY(22,40);
 	for (int i = 0; i < 20; i++) {
 		frame.write(rand_8());
 	}
@@ -123,7 +123,7 @@ void brain_randomStart() {
 
 void brain_idle(uint8_t counter) {
 	//Runs the cellular automaton in a window around the text "Brain" in the Game of Light menu
-	frame.gotoXY(17, 4);
+	frame.gotoXY(17, 32);
   	frame.print("Brain", ORANGE);
 
 	brain_step(12, 52, 23, 48);
@@ -131,7 +131,7 @@ void brain_idle(uint8_t counter) {
 	if (counter & 4) {
 		//brain_step() will turn the text RED, this periodically reverts that
 		// causing the text to blink red->orange
-		frame.gotoXY(17, 4);
+		frame.gotoXY(17, 32);
 		frame.print("Brain", ORANGE);
 	}
 }
@@ -154,3 +154,4 @@ void brain_run() {
 		if (frame.getSelect(PLAYER1)) brain_randomStart();
 	}
 }
+

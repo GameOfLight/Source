@@ -88,9 +88,9 @@ void langton_splash() {
       frame.blit(langton_splashscrn+x*16+y*48, 20+x*8, 29+y*8);
     }
   }
-  frame.gotoXY(5, 2);
+  frame.gotoXY(5, 16);
   frame.print("Langton's", GREEN);
-  frame.gotoXY(41, 3);
+  frame.gotoXY(41, 24);
   frame.print("Ant", ORANGE);
 }
 
@@ -156,7 +156,6 @@ void langton_loop() {
   //delay(3);
   delayMicroseconds(50);
 }
-
 
 
 

@@ -72,11 +72,11 @@ void about_run() {
 	}
 
 	frame.clear();
-	frame.gotoXY(14, 3);
+	frame.gotoXY(14, 24);
 	frame.print("A 1510", RED);
-	frame.gotoXY(14, 4);
+	frame.gotoXY(14, 32);
 	frame.print("Design", ORANGE);
-	frame.gotoXY(14, 5);
+	frame.gotoXY(14, 40);
 	frame.print("Project", GREEN);
 
 	frame.update();
@@ -88,7 +88,7 @@ void about_run() {
 	}
 
 	frame.clear();
-	frame.gotoXY(24, 4);
+	frame.gotoXY(24, 32);
 	frame.print("by", ORANGE);
 	frame.update();
 	delay(1500);
@@ -109,11 +109,11 @@ void about_run() {
 
 	for (i = -23; i < 87; i++) {
 		//delay/clearing of ghost path
-		frame.gotoXY(0, 5);
+		frame.gotoXY(0, 40);
 		frame.clear(64);
-		frame.gotoXY(0, 6);
+		frame.gotoXY(0, 48);
 		frame.clear(64);
-		frame.gotoXY(0, 7);
+		frame.gotoXY(0, 56);
 		frame.clear(64);
 
 		//Repaint character
@@ -143,18 +143,18 @@ void about_run() {
 
 void about_splash() {
 	frame.clear();
-	frame.gotoXY(15,1);
+	frame.gotoXY(15,8);
 	frame.print("About:", GREEN);
 	about_title();
 }
 
 
 void about_title() {
-	frame.gotoXY(14, 3);
+	frame.gotoXY(14, 24);
 	frame.print("Game", RED);
-	frame.gotoXY(14+26, 3);
+	frame.gotoXY(14+26, 24);
 	frame.print("of", ORANGE);
-	frame.gotoXY(17, 4);
+	frame.gotoXY(17, 32);
 	frame.print("Light", GREEN);	
 }
 
@@ -187,7 +187,7 @@ void about_printText(PROGMEM char* data[], uint8_t i) {
 	}
 
 	for (i = 0; i <= words; i++) {
-		frame.gotoXY(32 - length[i]*6/2, (3-(words/2)) + i);
+		frame.gotoXY(32 - length[i]*6/2, ((3-(words/2)) + i)*8);
 		frame.setColour(about_colour--);
 		if (about_colour == 0) about_colour = 3;
 		for (j = 0; j < length[i]; j++) {
@@ -210,3 +210,4 @@ void about_printText(PROGMEM char* data[], uint8_t i) {
 
 	//pgm_read_byte(font+
 }
+
