@@ -141,12 +141,12 @@ void GameOfLightHW::getButtons(){
   digitalWrite(SNES_LATCH_PIN, LOW);
 
 	for(int i = 0; i<4; i++){
-		B[i]=digitalRead(controller[i]);
+		B[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		Y[i]=digitalRead(controller[i]);
+		Y[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
@@ -161,42 +161,42 @@ void GameOfLightHW::getButtons(){
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		N[i]=digitalRead(controller[i]);
+		N[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		S[i]=digitalRead(controller[i]);
+		S[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		W[i]=digitalRead(controller[i]);
+		W[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		E[i]=digitalRead(controller[i]);
+		E[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		A[i]=digitalRead(controller[i]);
+		A[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		X[i]=digitalRead(controller[i]);
+		X[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		L[i]=digitalRead(controller[i]);
+		L[i]&=digitalRead(controller[i]);
 	}
 	TICK;
 	
 	for(int i = 0; i<4; i++){
-		R[i]=digitalRead(controller[i]);
+		R[i]&=digitalRead(controller[i]);
 	}
 }
 
