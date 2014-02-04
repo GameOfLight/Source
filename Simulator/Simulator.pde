@@ -28,10 +28,6 @@ static final int SCREEN_CMD = 0x12;       //DC2 char - device control 2
 static final int SCREEN_DATA_BURST = 0x13;//DC3 char - device control 3
 static final int POLL_KEYS = 0x14;        //DC4
 
-/* 19_04: added coords and lines*/
-/* 21_04: change coord/line function to fix a bug */
-/* 28_04: added support/storage for keyboard-inputs */
-
 /*
  Original program by Eivind
  
@@ -77,10 +73,7 @@ static final int POLL_KEYS = 0x14;        //DC4
       0x08 - '\n' end of command mode
 
   * Implemented noLoop: Screen only updated when new content is present
-    
- Todo:
-  [] *Programcrash when loading without an Arduino connected. (Also: What happens if it's not port[0]?)
-  [] *Add support for keyboad-controllers 
+
  */
 
 Serial port;
@@ -95,8 +88,8 @@ final static color GREY = #272822;
 // Keykodes p1:
 final static int p1_START = KeyEvent.VK_SPACE; //Space
 final static int p1_SELECT = 17;//Ctrl
-final static int p1_L = KeyEvent.VK_2;     // vanlig 2 
-final static int p1_R = KeyEvent.VK_7;     // vanlig 7
+final static int p1_L = KeyEvent.VK_2;     //normal 2 
+final static int p1_R = KeyEvent.VK_7;     //normal 7
 final static int p1_UP = KeyEvent.VK_W;    //W
 final static int p1_LEFT = KeyEvent.VK_A;  //A
 final static int p1_DOWN = KeyEvent.VK_S;  //S
@@ -107,18 +100,18 @@ final static int p1_B = KeyEvent.VK_H;     //H
 final static int p1_A = KeyEvent.VK_J;     //J
 
 //Keykodes p2:
-final static int p2_START = 107; //num+
-final static int p2_SELECT = 109;//num-
-final static int p2_L = KeyEvent.VK_END;      //end
-final static int p2_R = 111;     //num*
-final static int p2_UP = KeyEvent.VK_UP;     //up-arrow
-final static int p2_LEFT = KeyEvent.VK_LEFT;   //left-arrow
-final static int p2_DOWN = KeyEvent.VK_DOWN;   //right-arrow
-final static int p2_RIGHT = KeyEvent.VK_RIGHT;  //down-arrow
-final static int p2_X = KeyEvent.VK_NUMPAD8;     // num8
-final static int p2_Y = KeyEvent.VK_NUMPAD4;     // num4
-final static int p2_B = KeyEvent.VK_NUMPAD2;      // num2
-final static int p2_A = KeyEvent.VK_NUMPAD6;     // num6
+final static int p2_START = 107;            //num+
+final static int p2_SELECT = 109;           //num-
+final static int p2_L = KeyEvent.VK_END;    //end
+final static int p2_R = 111;                //num*
+final static int p2_UP = KeyEvent.VK_UP;    //up-arrow
+final static int p2_LEFT = KeyEvent.VK_LEFT;//left-arrow
+final static int p2_DOWN = KeyEvent.VK_DOWN;//right-arrow
+final static int p2_RIGHT = KeyEvent.VK_RIGHT;//down-arrow
+final static int p2_X = KeyEvent.VK_NUMPAD8;// num8
+final static int p2_Y = KeyEvent.VK_NUMPAD4;// num4
+final static int p2_B = KeyEvent.VK_NUMPAD2;// num2
+final static int p2_A = KeyEvent.VK_NUMPAD6;// num6
 
 // Processing drawing sizes
 final static int BOARD_SIZE = 640; // Total length/witdh of board on screen
@@ -127,9 +120,6 @@ final static int SIZE = 64;        // Number of LEDs
 final static int RES = 10;         // Space per square 
 final static int LED_SIZE = 8;     // Space use by color for each led
 final static int INFO_BAR = 30;    // Size of info-bar on bottom
-
-/* Contains information about what blocks are drawn as: buff[line][index]
- * index 0-63 contains info about RED, index 64-127 about GREEN (both active means ORANGE) */
 
 /* Storage array for LED color-information, stored as: buff[line][index]
  * index 0-63 contains info about RED, index 64-127 about GREEN 
@@ -146,6 +136,7 @@ int x, y;             // Current (x,y) coordinates
 long writetime;       //
 char cmd, data;       // Used for receiving input trough serial
 int ledx, ledy, linex, liney; // Used by mouseClick() for writing currenct coords + lines
+
 //bytes used for storage of keyboard-input. p3 and p4 can be added.
 int []p1 = new int[2];
 int []p2 = new int[2];
@@ -154,6 +145,7 @@ boolean p2Stopped;
 int p1LastDir = 0;
 int p2LastDir = 0;
 
+//All keycodes and whetever they're currently pressed or not.
 boolean[] keys = new boolean[526]; //All keycodes and whetever they're currently pressed or not.
 
 void setup() {
@@ -177,6 +169,7 @@ void setup() {
 
 /* DEBUGING: Uncommenting will spam the terminal as long as new data is coming in */
 void draw() {
+  //Serial.print("Data incoming.");
 }
 
 void mouseClicked() {
@@ -206,12 +199,6 @@ void mouseClicked() {
     }
     redraw();    
   }  
-}
-
-
-/* To get unsigned int */
-void paint(char input) {
-  paint(input & 0xFF);  //int
 }
 
 /* Iterates trough the bits of input, fills in appropriate colors 
@@ -248,6 +235,11 @@ void paint(int input) {
   next_byte();
 }
 
+/* To get unsigned int */
+void paint(char input) {
+  paint(input & 0xFF);  //int
+}
+
 void paint_line() {
   int green, red, mask;
   color c;
@@ -262,11 +254,7 @@ void paint_line() {
         c = GREEN;
       }
       if ((red & mask) != 0) {
-        if(c != BLACK) {
-          c = ORANGE;
-        } else {
-          c = RED;
-        }
+        c = (c == BLACK)? RED : ORANGE;
       }
       fill(c);  
       draw_block(bit);
@@ -319,13 +307,11 @@ void reset() {
   fill(WHITE);
   textSize(15);
   textAlign(LEFT);
-  text("Click on a block to show coordinates and lines. Click on this border to remove lines.", 
+  text("Click on a block to show coordinates and lines. Click in this text-area to remove lines.", 
     0, BOARD_SIZE + INFO_BAR - 8);
   textSize(25);
   redraw();
 }
-
-
 
 /* Parses cmd coming from serial (see protocol for details) */
 void cmd_data_handler(byte[] buff) {
@@ -370,7 +356,6 @@ void cmd_data_handler(byte[] buff) {
   }
 }
 
-
 /* Parses cmd when using burstmode */
 void serial_action(byte[] buff) {
   byte curr = buff[0];
@@ -401,13 +386,10 @@ void serial_action(byte[] buff) {
       print(toPrint);
       
   } else {
-    //Cmd or data
-    //    println("cmd/data handler");
+    //cmd or data
     cmd_data_handler(buff);
   }
 }
-
-
 
 /* Listens for action on the serial port
  * Reads bytes untill '\n' and executes appropriate cmd to execute */
@@ -436,75 +418,96 @@ void serialEvent(Serial port) {
   }
 }
 
-/* 
- * Code for recording keyboardinput. 
- * Values are stored like this: 
- * -one byte (startselect) for start/select buttons for all players.
- * -one byte for each player (p1, p2 etc), storing movement/action buttons
-*/
 /* Sets appropriate bit in storage bytes to 0 when button is pressed. */
 void keyPressed() { 
   int pressed = keyCode;
   keys[pressed] = true;
-  //println(KeyEvent.getKeyText(keyCode));
-  
+  //println(KeyEvent.getKeyText(keyCode));  
   //Keep the last given direction for player 1:
-  if (pressed == p1_UP) {
-    p1[1] = 0x80;
-    p1Stopped = false;
-  } else if (pressed == p1_LEFT) {
-    p1[1] = 0x40;
-    p1Stopped = false; 
-  } else if (pressed == p1_DOWN) {
-    p1[1] = 0x20; 
-    p1Stopped = false;
-  } else if (pressed == p1_RIGHT) {
-    p1[1] = 0x10; 
-    p1Stopped = false;
-  } else if (pressed == p1_START) {
-    p1[0] |= (1 << 7);  
-  } else if (pressed == p1_SELECT) {
-    p1[0] |= (1 << 6);
-  } else if (pressed == p1_L) {
-    p1[0] |= (1 << 5);
-  } else if (pressed == p1_R) { 
-    p1[0] |= (1 << 4);
-  } else if (pressed == p1_X) {
-    p1[1] |= (1 << 3);
-  } else if (pressed == p1_Y) {
-    p1[1] |= (1 << 2);
-  } else if (pressed == p1_B) {
-    p1[1] |= (1 << 1);
-  } else if (pressed == p1_A) {
-    p1[1] |= (1 << 0);
-  } else if (pressed == p2_UP) { //PLAYER 2
-    p2[1] = 0x80;
-    p2Stopped = false;
-  } else if (pressed == p2_LEFT) {
-    p2[1] = 0x40;
-    p2Stopped = false; 
-  } else if (pressed == p2_DOWN) {
-    p2[1] = 0x20; 
-    p2Stopped = false;
-  } else if (pressed == p2_RIGHT) {
-    p2[1] = 0x10; 
-    p2Stopped = false;
-  } else if (pressed == p2_START) {
-    p2[0] |= (1 << 7);  
-  } else if (pressed == p2_SELECT) {
-    p2[0] |= (1 << 6);
-  } else if (pressed == p2_L) {
-    p2[0] |= (1 << 5);
-  } else if (pressed == p2_R) { 
-    p2[0] |= (1 << 4);
-  } else if (pressed == p2_X) {
-    p2[1] |= (1 << 3);
-  } else if (pressed == p2_Y) {
-    p2[1] |= (1 << 2);
-  } else if (pressed == p2_B) {
-    p2[1] |= (1 << 1);
-  } else if (pressed == p2_A) {
-    p2[1] |= (1 << 0);
+
+  switch (pressed) {
+    case p1_UP:
+      p1[1] = 0x80;
+      p1Stopped = false;
+      break;
+    case p1_LEFT:
+      p1[1] = 0x40;
+      p1Stopped = false; 
+      break;
+    case p1_DOWN:
+      p1[1] = 0x20; 
+      p1Stopped = false;
+      break;
+    case p1_RIGHT:
+      p1[1] = 0x10; 
+      p1Stopped = false;
+      break;
+    case p1_START:
+      p1[0] |= (1 << 7);  
+      break;
+    case p1_SELECT:
+      p1[0] |= (1 << 6);
+      break;
+    case p1_L:
+      p1[0] |= (1 << 5);
+      break;
+    case p1_R: 
+      p1[0] |= (1 << 4);
+      break;
+    case p1_X:
+      p1[1] |= (1 << 3);
+      break;
+    case p1_Y:
+      p1[1] |= (1 << 2);
+      break;
+    case p1_B:
+      p1[1] |= (1 << 1);
+     break;
+    case p1_A:
+      p1[1] |= (1 << 0);
+      break;
+    case p2_UP: //PLAYER 2
+      p2[1] = 0x80;
+      p2Stopped = false;
+      break;
+    case p2_LEFT:
+      p2[1] = 0x40;
+      p2Stopped = false; 
+      break;
+    case p2_DOWN:
+      p2[1] = 0x20; 
+      p2Stopped = false;
+      break;
+    case p2_RIGHT:
+      p2[1] = 0x10; 
+      p2Stopped = false;
+      break;
+    case p2_START:
+      p2[0] |= (1 << 7);  
+      break;
+    case p2_SELECT:
+      p2[0] |= (1 << 6);
+      break;
+    case p2_L:
+      p2[0] |= (1 << 5);
+      break;
+    case p2_R: 
+      p2[0] |= (1 << 4);
+      break;
+    case p2_X:
+      p2[1] |= (1 << 3);
+      break;
+    case p2_Y:
+      p2[1] |= (1 << 2);
+      break;
+    case p2_B:
+      p2[1] |= (1 << 1);
+      break;
+    case p2_A:
+      p2[1] |= (1 << 0);
+      break;
+    default:
+      break;
   }
 }
 
