@@ -34,34 +34,49 @@ extern GameOfLightSim frame;
 
 //Use left and right to control character, B-button to jump.
 
-uint8_t FR_odd, FR_x;
-
-uint8_t FR_manframes[][4] = {
-  {0, 1, 0, 2}, {3, 4, 3, 5}, {6, 6, 6, 6}, {7, 7, 7, 7}, {8, 9, 10, 11}, {12, 13, 14, 15}
+static const uint8_t PROGMEM FR_manframes[] = {
+  0, 1, 0, 2, 
+  3, 4, 3, 5,
+  6, 6, 6, 6,
+  7, 7, 7, 7,
+  8, 9, 10, 11,
+  12, 13, 14, 15
 };
 
-int8_t FR_pX, FR_pY;
-uint8_t FR_pFrame;
-uint8_t FR_state;
-uint8_t FR_dir;
-uint8_t FR_jumpHeight;
-uint8_t FR_deathCountdown;
+uint8_t FR_odd, FR_x; //These could be moved to the FR_globals struct as well.
 
-char FR_score[5];
-uint8_t FR_consecutives;
+struct FR_globals {
+  int8_t pX, pY;
+  uint8_t pFrame;
+  uint8_t state;
+  uint8_t dir;
+  uint8_t jumpHeight;
+  uint8_t deathCountdown;
+  uint8_t consecutives;
+  uint8_t prevHeight;
+  uint8_t screen;
+};
 
-uint8_t FR_platforms[64];
-uint8_t FR_prevHeight;
-
-uint8_t FR_screen;
-
-int8_t FR_ball[4];
+struct FR_globals* FR;
+uint8_t *FR_platforms; //Allocated on start. 64 bytes
+char *FR_score; //Allocated as 5 bytes
+int8_t *FR_ball; //Allocated as 4 bytes
 
 void FR_run() {
+  FR_score = (char *) malloc(5*sizeof(char));
+  FR_platforms = (uint8_t *) malloc(64*sizeof(uint8_t));
+  FR_ball = (int8_t *) malloc(4*sizeof(int8_t));
+  FR = (struct FR_globals *) malloc(sizeof(FR_globals));
+
   FR_start();
-  while (FR_screen != FR_EXIT) {
+  while (FR->screen != FR_EXIT) {
     FR_loop();
   }
+
+  free(FR_score);
+  free(FR_platforms);
+  free(FR_ball);
+  free(FR);
 }
 
 void FR_drawFlames(uint8_t y) {
@@ -102,22 +117,22 @@ void FR_idle(uint8_t idle_count) {
 void FR_start() {
   randomSeed(5166);
   FR_x = 0;
-  FR_pX = 32;
-  FR_pY = 32;
-  FR_pFrame = 0;
-  FR_state = 0;
-  FR_dir = 0;
-  FR_jumpHeight = 0;
+  FR->pX = 32;
+  FR->pY = 32;
+  FR->pFrame = 0;
+  FR->state = 0;
+  FR->dir = 0;
+  FR->jumpHeight = 0;
   FR_ball[2] = -8;
-  FR_screen = FR_PLAYING;
+  FR->screen = FR_PLAYING;
   FR_odd = 0;
-  FR_deathCountdown = 5;
+  FR->deathCountdown = 5;
 
   for (int i = 0; i < 64; i++) {
     FR_platforms[i] = 40;
   }
 
-  FR_consecutives = 64;
+  FR->consecutives = 64;
   for (int i = 0; i < 4; i++) {
     FR_score[i] = '0';
   }
@@ -161,7 +176,7 @@ void FR_drawGameOverScreen() {
   }
 
   if (frame.getStart(0)) {
-    FR_screen = FR_EXIT;
+    FR->screen = FR_EXIT;
   }
   frame.update();
 }
@@ -172,13 +187,13 @@ void FR_loop() {
 
   FR_drawFlames(56);
 
-  if (FR_state >= 4 && --FR_deathCountdown <= 0) {
-    FR_screen = FR_GAMEOVER;
-    FR_state = 0;
+  if (FR->state >= 4 && --FR->deathCountdown <= 0) {
+    FR->screen = FR_GAMEOVER;
+    FR->state = 0;
   }
 
 //  frame.getButtons();
-  switch(FR_screen) {
+  switch(FR->screen) {
   case FR_START:
     FR_drawStartScreen();
     return;
@@ -196,71 +211,71 @@ void FR_loop() {
     FR_ball[1] = 4;
   }
 
-  if (frame.getB(0) && FR_state < 2) {
-    FR_jumpHeight = FR_JUMPHEIGHT;
+  if (frame.getB(0) && FR->state < 2) {
+    FR->jumpHeight = FR_JUMPHEIGHT;
   }
 
-  if (FR_state < 4) {
-    FR_state = 2;
+  if (FR->state < 4) {
+    FR->state = 2;
   }
-  if (FR_jumpHeight) {
-    FR_pY--;
-    FR_jumpHeight--;
+  if (FR->jumpHeight) {
+    FR->pY--;
+    FR->jumpHeight--;
   } 
   else {
-    FR_pY++;
-    for (int i = 1 + FR_dir; FR_state < 4 && i < 6 + FR_dir; i++) {
-      if (FR_platforms[(FR_x + FR_pX + i) & 0x3F] - FR_pY == 7) {
-        FR_pY--;
-        FR_state = 0;
+    FR->pY++;
+    for (int i = 1 + FR->dir; FR->state < 4 && i < 6 + FR->dir; i++) {
+      if (FR_platforms[(FR_x + FR->pX + i) & 0x3F] - FR->pY == 7) {
+        FR->pY--;
+        FR->state = 0;
         break;
       }
     }
   }
 
-  FR_pFrame = (FR_pFrame + 1) & 0x03;
+  FR->pFrame = (FR->pFrame + 1) & 0x03;
   switch(frame.getDir(0)) {
   case EAST:
-    FR_dir = 0;
-    FR_pX++;
+    FR->dir = 0;
+    FR->pX++;
     break;
     
   case WEST:
-    FR_dir = 1;
-    FR_pX -= 2;
+    FR->dir = 1;
+    FR->pX -= 2;
     break;
     
   default:
-    if (FR_state < 2) {
-      FR_pFrame = 0;
+    if (FR->state < 2) {
+      FR->pFrame = 0;
     }
-    FR_pX--;
+    FR->pX--;
   }
 
-  if (FR_pX < -1) {
-    FR_pX = -1;
+  if (FR->pX < -1) {
+    FR->pX = -1;
   } 
-  else if (FR_pX > 57) {
-    FR_pX = 57;
+  else if (FR->pX > 57) {
+    FR->pX = 57;
   }
 
-  if (FR_dir) {
-    FR_state |= 1;
+  if (FR->dir) {
+    FR->state |= 1;
   }
 
-  frame.blit(jumpman + FR_manframes[FR_state][FR_pFrame] * 16, FR_pX, FR_pY);
+  frame.blit(jumpman + pgm_read_byte(FR_manframes+(FR->state)*4+FR->pFrame) * 16, FR->pX, FR->pY);
 
-  if (FR_state < 4) {
-    if (FR_pY == 52) {
-      FR_state = 4 + (FR_state % 2 ? 1 : 0);
-      FR_pFrame = 3;
+  if (FR->state < 4) {
+    if (FR->pY == 52) {
+      FR->state = 4 + (FR->state % 2 ? 1 : 0);
+      FR->pFrame = 3;
     }
     
-    for (int i = max(0, FR_ball[2] + 2); FR_state != 4 && i < min(FR_ball[2] + 6, 63); i++) {
-      for (int j = FR_ball[3] + 1; FR_state != 4 && j < min(FR_ball[3] + 7, 52); j++) {
+    for (int i = max(0, FR_ball[2] + 2); FR->state != 4 && i < min(FR_ball[2] + 6, 63); i++) {
+      for (int j = FR_ball[3] + 1; FR->state != 4 && j < min(FR_ball[3] + 7, 52); j++) {
         if (frame.getPixel(i, j) == GREEN) {
-          FR_state = 4 + (FR_state % 2 ? 1 : 0);
-          FR_pFrame = 3;
+          FR->state = 4 + (FR->state % 2 ? 1 : 0);
+          FR->pFrame = 3;
         }
       }
     }
@@ -279,10 +294,10 @@ void FR_loop() {
 
   int chance = random(3, 32);
   boolean hole = FR_platforms[(FR_x + 63) & 0x3F] == 63;
-  if (chance < FR_consecutives || (hole && FR_consecutives > 10)) {
+  if (chance < FR->consecutives || (hole && FR->consecutives > 10)) {
     if (!hole && !random(3)) {
       FR_platforms[FR_x] = 63;
-      FR_consecutives = 0;
+      FR->consecutives = 0;
       if (FR_ball[2] <= -8) {
         FR_ball[2] = 64;
         FR_ball[3] = random(9, 31) * 2;
@@ -293,18 +308,18 @@ void FR_loop() {
     else {
       FR_platforms[FR_x] = random(16, 50);
 
-      if (FR_prevHeight - FR_platforms[FR_x] > 5) {
-        FR_platforms[FR_x] = FR_prevHeight - 5;
+      if (FR->prevHeight - FR_platforms[FR_x] > 5) {
+        FR_platforms[FR_x] = FR->prevHeight - 5;
       }
 
-      FR_consecutives = 0;
-      FR_prevHeight = FR_platforms[FR_x];
+      FR->consecutives = 0;
+      FR->prevHeight = FR_platforms[FR_x];
     }
 
   } 
   else {
     FR_platforms[FR_x] = FR_platforms[(FR_x + 63) & 0x3F];
-    FR_consecutives++;
+    FR->consecutives++;
   }
 
   FR_x++;
