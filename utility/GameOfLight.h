@@ -332,7 +332,7 @@ class GameOfLight {
   uint8_t _curr_line;  //Cursor location in the buffer
   uint8_t _curr_shift;
   uint8_t _curr_index; //Cursor location in the buffer
-  const unsigned char* _font; //The currently selected font
+  unsigned char* _font; //The currently selected font
   uint8_t _font_width; //Width of each character in the currently selected font
 };
 
