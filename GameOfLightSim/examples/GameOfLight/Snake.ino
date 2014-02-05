@@ -83,24 +83,27 @@ uint8_t snake_splashscrn[] PROGMEM = {
 0x3, 0x3, 0x2, 0x2, 0x8, 0x8, 0xd, 0xc, 0x1, 0x0, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0,
 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
-//Segments are stored as directions only. snake_seg[0] is the tail of the snake. 4 directions per byte.
-uint8_t snake_seg[4][(MAXSEGMENTS+1) / 4]; //Direction of segments
-uint8_t snake_tailPosX[4];
-uint8_t snake_tailPosY[4];
+//Segments are stored as directions only. snake->seg[0] is the tail of the snake. 4 directions per byte.
+struct snake_globals {
+	uint8_t seg[4][(MAXSEGMENTS+1) / 4]; //Direction of segments
+	uint8_t tailPosX[4];
+	uint8_t tailPosY[4];
 
-uint8_t snake_head[4]; //position of head in the buffer
+	uint8_t head[4]; //position of head in the buffer
+
+	uint8_t count[4]; //nr of segments
+	uint8_t headPosX[4]; //position of head on the board
+	uint8_t headPosY[4];
+	
+	uint8_t foodX;
+	uint8_t foodY;
+	uint8_t food_timer;
+
+	uint8_t delayT; // time between each frame of the game	
+};
 #define snake_tail MAXSEGMENTS
 
-uint8_t snake_count[4]; //nr of segments
-uint8_t snake_headPosX[4]; //position of head on the board
-uint8_t snake_headPosY[4];
-	
-uint8_t foodX;
-uint8_t foodY;
-uint8_t food_timer;
-
-uint8_t delayT; // time between each frame of the game
-uint8_t rand_8();
+struct snake_globals* snake;
 
 //Xorshift psuedorandomizer variables. Values from http://en.wikipedia.org/wiki/Xorshift truncated to 8-bits.
 uint8_t randX = 21;
@@ -158,26 +161,26 @@ void snake_drawBorder() {
 
 
 void snake_addSeg(const uint8_t player) {
-	if (snake_head[player] == MAXSEGMENTS - 1) return; //Buffer full!
-	//snake_head[player]--;
+	if (snake->head[player] == MAXSEGMENTS - 1) return; //Buffer full!
+	//snake->head[player]--;
 	
-	/*snakeX[player][snake_head[player]] = snake_headPosX[player];
-	snakeY[player][snake_head[player]] = snake_headPosY[player];
-	frame.setPixel(snake_headPosX[player], snake_headPosY[player], player+1);*/
-	snake_count[player]++;
+	/*snakeX[player][snake->head[player]] = snake->headPosX[player];
+	snakeY[player][snake->head[player]] = snake->headPosY[player];
+	frame.setPixel(snake->headPosX[player], snake->headPosY[player], player+1);*/
+	snake->count[player]++;
 }
 
 
 uint8_t snake_checkCollision(uint8_t playerCurr, uint8_t p_alive[4]) {
 	uint8_t i;
-	if (frame.getPixel(snake_headPosX[playerCurr], snake_headPosY[playerCurr])) {
+	if (frame.getPixel(snake->headPosX[playerCurr], snake->headPosY[playerCurr])) {
 		//Checks new head location for collision
 		return 1;
 	}
 	//Check all snake head locations as they haven't been painted yet, but will lead to a collision
 	for (i = 0; i < playerCnt; i++) {
 		int8_t other = player[i];
-		if (other != playerCurr && p_alive[other] && (snake_headPosX[playerCurr] == snake_headPosX[other]) && (snake_headPosY[playerCurr] == snake_headPosY[other])) {
+		if (other != playerCurr && p_alive[other] && (snake->headPosX[playerCurr] == snake->headPosX[other]) && (snake->headPosY[playerCurr] == snake->headPosY[other])) {
 			return 1;
 		}
 	}
@@ -186,31 +189,31 @@ uint8_t snake_checkCollision(uint8_t playerCurr, uint8_t p_alive[4]) {
 
 
 void snake_newFood() {
-	food_timer = 0;
+	snake->food_timer = 0;
 	do {
-		foodX = rand_8()>>2; //max 64
-		foodY = rand_8()>>2; //max 64
-	} while (frame.getPixel(foodX, foodY) || IS_ILLEGAL_FOOD_POS(foodX, foodY));
-	delayT -= SPEEUP_FACTOR; //speed up game
-	frame.setPixel(foodX, foodY, ORANGE);
+		snake->foodX = rand_8()>>2; //max 64
+		snake->foodY = rand_8()>>2; //max 64
+	} while (frame.getPixel(snake->foodX, snake->foodY) || IS_ILLEGAL_FOOD_POS(snake->foodX, snake->foodY));
+	snake->delayT -= SPEEUP_FACTOR; //speed up game
+	frame.setPixel(snake->foodX, snake->foodY, ORANGE);
 }
 
 
 void snake_setSegDir(uint8_t player, uint8_t segment, uint8_t dir) {
 	//Packs the used direction in the byte array
-	snake_seg[player][segment/4] = (snake_seg[player][segment/4] & ~(0x03 << ((segment % 4)*2))) | (dir << ((segment % 4)*2));
+	snake->seg[player][segment/4] = (snake->seg[player][segment/4] & ~(0x03 << ((segment % 4)*2))) | (dir << ((segment % 4)*2));
 }
 
 
 uint8_t snake_getSegDir(uint8_t player, uint8_t segment) {
 	//Unpacks the used direction from the packed byte array
-	return (snake_seg[player][segment/4] >> ((segment % 4)*2)) & 0x03;
+	return (snake->seg[player][segment/4] >> ((segment % 4)*2)) & 0x03;
 }
 
 
 uint8_t snake_getLastDir(uint8_t player) {
 	//Returns the last used direction of this player
-	return snake_getSegDir(player, snake_head[player]);
+	return snake_getSegDir(player, snake->head[player]);
 }
 
 
@@ -222,12 +225,12 @@ uint8_t snake_moveHandler(uint8_t player) {
 		//Checking lastdir != dir XOR 3 to avoid colliding with self
 		dir = snake_getLastDir(player);
 	}
-	snake_headPosX[player] += snake_dirToX(dir);
-	snake_headPosY[player] += snake_dirToY(dir);
+	snake->headPosX[player] += snake_dirToX(dir);
+	snake->headPosY[player] += snake_dirToY(dir);
 
 	//To allow the snake to use the shortcuts along the edges
-	snake_headPosX[player] &= 0x3F;
-	snake_headPosY[player] &= 0x3F;
+	snake->headPosX[player] &= 0x3F;
+	snake->headPosY[player] &= 0x3F;
 
 	return dir;
 }
@@ -237,34 +240,34 @@ void snake_move(uint8_t player) {
 	uint8_t dir = snake_moveHandler(player);
 
 	//Blank the pixel containing the tailsegment
-	frame.setPixel(snake_tailPosX[player], snake_tailPosY[player], 0);
+	frame.setPixel(snake->tailPosX[player], snake->tailPosY[player], 0);
 	
-	//if (snake_tail - snake_head[player] + 1 != snake_count[player]) {
-	if (snake_head[player] != snake_count[player] - 1) {
+	//if (snake_tail - snake->head[player] + 1 != snake->count[player]) {
+	if (snake->head[player] != snake->count[player] - 1) {
 		//Has eaten, body remains in place
-		snake_head[player]++;
+		snake->head[player]++;
 	} else {
 		//Move entire snake one step forward
 
-		for (uint8_t i = 0; i <= (snake_count[player] / 4); i++) {
-			snake_seg[player][i] = (snake_seg[player][i] >> 2) | (snake_seg[player][i+1] << 6);
+		for (uint8_t i = 0; i <= (snake->count[player] / 4); i++) {
+			snake->seg[player][i] = (snake->seg[player][i] >> 2) | (snake->seg[player][i+1] << 6);
 		}
-		snake_tailPosX[player] += snake_dirToX(snake_seg[player][0] & 0x03);
-		snake_tailPosY[player] += snake_dirToY(snake_seg[player][0] & 0x03);
+		snake->tailPosX[player] += snake_dirToX(snake->seg[player][0] & 0x03);
+		snake->tailPosY[player] += snake_dirToY(snake->seg[player][0] & 0x03);
 
-		snake_tailPosX[player] &= 0x3F;
-		snake_tailPosY[player] &= 0x3F;
+		snake->tailPosX[player] &= 0x3F;
+		snake->tailPosY[player] &= 0x3F;
 	}
 	//save used direction
-	snake_setSegDir(player, snake_head[player], dir);
+	snake_setSegDir(player, snake->head[player], dir);
 	//Don't draw the head yet, to aid in collisionchecking!
 }
 
 
 void snake_reDraw(uint8_t player) {
 	//Draws the initial snake. Only for use with the initial configuration
-	frame.drawLine(snake_headPosX[player], snake_headPosY[player], snake_tailPosX[player], snake_tailPosY[player], (player < 2) ? GREEN : RED);
-	frame.setPixel(snake_headPosX[player], snake_headPosY[player],  (player & 1) ? ORANGE : (player < 2 ? GREEN : RED));
+	frame.drawLine(snake->headPosX[player], snake->headPosY[player], snake->tailPosX[player], snake->tailPosY[player], (player < 2) ? GREEN : RED);
+	frame.setPixel(snake->headPosX[player], snake->headPosY[player],  (player & 1) ? ORANGE : (player < 2 ? GREEN : RED));
 }
 
 
@@ -281,15 +284,15 @@ void snake_startPos(uint8_t player, uint8_t xPos, uint8_t yPos, uint8_t dir) {
 	int8_t dirY = snake_dirToY(dir);
 
 	//Initializes the body of a snake to the given position.
-	snake_headPosX[player] = xPos;
-	snake_headPosY[player] = yPos;
+	snake->headPosX[player] = xPos;
+	snake->headPosY[player] = yPos;
 	snake_setSegDir(player, 0, dir);
 	snake_setSegDir(player, 1, dir);
 	snake_setSegDir(player, 2, dir);
-	snake_tailPosX[player] = xPos - 2*dirX;
-	snake_tailPosY[player] = yPos - 2*dirY;
-	snake_head[player] = 2;
-	snake_count[player] = 3;
+	snake->tailPosX[player] = xPos - 2*dirX;
+	snake->tailPosY[player] = yPos - 2*dirY;
+	snake->head[player] = 2;
+	snake->count[player] = 3;
 }
 
 
@@ -318,7 +321,6 @@ void snake_newGame() {
 
 
 void snake_splash() {
-  uint8_t y = 8;
   frame.clear();
   for (uint8_t y = 0; y < 6; y++) {
     for (uint8_t x = 0; x < 6; x++) {
@@ -373,7 +375,7 @@ void snake_updateCornerScores() {
 		}
 
 		//Fetch score
-		itoa((snake_count[player[i]]-3) >> 1, buff, 10);
+		itoa((snake->count[player[i]]-3) >> 1, buff, 10);
 
 		frame.clear(11);
 		frame.print(buff, i < 2 ? GREEN : RED);
@@ -388,7 +390,6 @@ void snake_updateCornerScores() {
 uint8_t snake_menu() { //HANDLED BY MENU INSTEAD?
 	const int8_t x_coord[] = {5, 47, 5, 47};
 	const int8_t y_coord[] = {40, 40, 16, 16};
-	uint8_t count = 0;
 	frame.clear();
 	snake_splash();
 
@@ -409,9 +410,11 @@ uint8_t snake_menu() { //HANDLED BY MENU INSTEAD?
 
 void snake_run() {
 	uint8_t p_alive[4], i, gameOn, isRunning;
-	char buff[5]; //Number to ascii buffer
-	frame.begin();
+	//char buff[5]; //Number to ascii buffer
 	isRunning = 1;
+
+	//Allocate the space for the game's global variables
+	snake = (struct snake_globals*) malloc(sizeof(snake_globals));
 
 	while(isRunning) {
 		//New game/exit menu here
@@ -419,7 +422,7 @@ void snake_run() {
 		
 		if (isRunning) {
 			snake_newGame();
-			delayT = 150;
+			snake->delayT = 150;
 			gameOn = 1;
 
 			for (i = 0; i < playerCnt; i++) {
@@ -442,10 +445,10 @@ void snake_run() {
 				//Check food
 				for (i = 0; i < playerCnt; i++) {
 					uint8_t ctrl = player[i];
-					if (p_alive[ctrl] && (snake_headPosX[ctrl] == foodX) && (snake_headPosY[ctrl] == foodY)) {
+					if (p_alive[ctrl] && (snake->headPosX[ctrl] == snake->foodX) && (snake->headPosY[ctrl] == snake->foodY)) {
 						snake_newFood();
 						//Clear old food so we don't collide with it....
-						frame.setPixel(snake_headPosX[ctrl], snake_headPosY[ctrl], BLACK);
+						frame.setPixel(snake->headPosX[ctrl], snake->headPosY[ctrl], BLACK);
 						//has eaten, update head, keep rest of snake stationary
 						snake_addSeg(ctrl);
 						snake_addSeg(ctrl);
@@ -461,23 +464,23 @@ void snake_run() {
 
 						if (p_alive[ctrl]) {
 							//Draw new head:
-							frame.setPixel(snake_headPosX[ctrl], snake_headPosY[ctrl], (i & 1) ? ORANGE : (i < 2 ? GREEN : RED));
+							frame.setPixel(snake->headPosX[ctrl], snake->headPosY[ctrl], (i & 1) ? ORANGE : (i < 2 ? GREEN : RED));
 						}
 						//Set old head to body colour: (will embed head in object if a collision happened)
 						uint8_t prevX, prevY, prevDir;
 						prevDir = snake_getLastDir(ctrl);
-						prevX = snake_headPosX[ctrl] - snake_dirToX(prevDir);
-						prevY = snake_headPosY[ctrl] - snake_dirToY(prevDir);
+						prevX = snake->headPosX[ctrl] - snake_dirToX(prevDir);
+						prevY = snake->headPosY[ctrl] - snake_dirToY(prevDir);
 
 						frame.setPixel(prevX, prevY, (i < 2) ? GREEN : RED);
 					}
 					//Keep game running if one player is still alive:
 					gameOn |= p_alive[ctrl];
 				}
-				food_timer++;
-				if (food_timer > 96) {
+				snake->food_timer++;
+				if (snake->food_timer > 96) {
 					//clear current food:
-					frame.setPixel(foodX, foodY, BLACK);
+					frame.setPixel(snake->foodX, snake->foodY, BLACK);
 					//Make new:
 					snake_newFood();
 				}
@@ -485,7 +488,7 @@ void snake_run() {
 				snake_updateCornerScores();
 
 				frame.update();
-				delay(delayT); //The timer2 interrrupt will ensure we still sample the player's D-pad while waiting
+				delay(snake->delayT); //The timer2 interrrupt will ensure we still sample the player's D-pad while waiting
 			}
 
 			//Game over
@@ -501,9 +504,9 @@ void snake_run() {
 				frame.gotoXY(7, 0);
 				if (p1_alive == p2_alive) {
 					//Both are dead		
-					if (snake_count[PLAYER1] > snake_count[PLAYER2]) {
+					if (snake->count[PLAYER1] > snake->count[PLAYER2]) {
 						frame.print("WIN", GREEN);	
-					} else if (snake_count[PLAYER1] < snake_count[PLAYER2]) {
+					} else if (snake->count[PLAYER1] < snake->count[PLAYER2]) {
 						frame.print("WIN", RED);
 					} else {
 						frame.gotoXY(5, 0);
@@ -523,12 +526,12 @@ void snake_run() {
 				
 				frame.clear();
 				//display scores:
-				itoa(snake_count[PLAYER1]-3, buff, 10);
+				itoa(snake->count[PLAYER1]-3, buff, 10);
 				frame.gotoXY(1, 0);
 				frame.print("P:", GREEN);
 				frame.print(buff, GREEN);
 				
-				itoa(snake_count[PLAYER2]-3, buff, 10);
+				itoa(snake->count[PLAYER2]-3, buff, 10);
 				frame.gotoXY(1, 8);
 				frame.print("P:", RED);
 				frame.print(buff, RED);
@@ -543,5 +546,7 @@ void snake_run() {
 		}
 		isRunning = 0;	//CHANGE LATER ON when/if the menu is implemented
 	}
+
+	free(snake);
 }
 
