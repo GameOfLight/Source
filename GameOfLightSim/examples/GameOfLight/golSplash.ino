@@ -81,7 +81,7 @@ void gameSetup()
 }
 
 void pop() {
-  for (int i = 0; i < BOARD*BOARD*0.4; i++) {
+  for (int i = 0; i < BOARD*BOARD/4; i++) {
     uint8_t x = rand_8() >> 2;
     uint8_t y = rand_8() >> 2;
     //setter pixel til � leve
