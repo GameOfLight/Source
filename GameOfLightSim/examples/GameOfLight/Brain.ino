@@ -137,7 +137,6 @@ void brain_idle(uint8_t counter) {
 }
 
 void brain_run() {
-	char buff[6];
 	//Starts the cellular automaton using whatever state we had in the menu as seed
 	while(1) {
 		if (brain_step(0, 64, 0, 64)) {

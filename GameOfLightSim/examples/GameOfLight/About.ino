@@ -59,7 +59,7 @@ PROGMEM char about_p5[] = "Stian Selbek";
 PROGMEM char* about_credits[] = {about_p0, about_p1, about_p2, about_p3, about_p4, about_p5};
 
 void about_run() {
-	int8_t i, line;
+	int8_t i;
 
 	frame.clear();
 	about_title();
