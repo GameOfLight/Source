@@ -68,7 +68,7 @@ void plasma_step(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end)
 				px /= 32;
 				if (px & 1 && px != 7) { //between two colour values
 					//dither it!
-					px += (x+y & 1);
+					px += ((x+y) & 1);
 				}
 				px = px >> 1;
 			} else {
