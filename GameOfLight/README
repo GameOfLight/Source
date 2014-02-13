@@ -1,0 +1,10 @@
+Experimental library version combining both HW and simulator implementation into the same library.
+
+To use with arduino:
+1. Copy folder to <your-arduino-folder>/libraries/
+2. If you wish to use the Sim variant you may start using it at this point.
+
+3. For HW version of the functions "#define GameOfLightHW" in your scetch
+4. Start using the HW library.
+5. Realize the Arduino preprosessor made a big mess and you've now got both libraries running
+6. Fail.
